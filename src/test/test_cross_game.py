@@ -5,7 +5,7 @@ from ..main import cross_game
 def test_new_instance_should_have_an_empty_grid_attribute():
     # Given
     actual_game = cross_game.CrossGame()
-    expected_grid = [[0 for _ in range(actual_game._NB_ROWS)] for _ in range(actual_game._NB_COLUMNS)]
+    expected_grid = [[0 for _ in range(actual_game.get_nb_rows())] for _ in range(actual_game.get_nb_columns())]
     # When
     actual_grid = actual_game._grid
     # Then
@@ -15,7 +15,7 @@ def test_new_instance_should_have_an_empty_grid_attribute():
 def test_put_token_should_write_a_token_in_the_available_index():
     # Given
     actual_game = cross_game.CrossGame()
-    expected_grid = [[0 for _ in range(actual_game._NB_ROWS)] for _ in range(actual_game._NB_COLUMNS)]
+    expected_grid = [[0 for _ in range(actual_game.get_nb_rows())] for _ in range(actual_game.get_nb_columns())]
     expected_grid[0][0] = 1
     # When
     actual_game.put_token(0, 1)
@@ -27,7 +27,7 @@ def test_put_token_should_write_a_token_in_the_available_index():
 def test_put_token_should_write_another_token_above_a_previous_one():
     # Given
     actual_game = cross_game.CrossGame()
-    expected_grid = [[0 for _ in range(actual_game._NB_ROWS)] for _ in range(actual_game._NB_COLUMNS)]
+    expected_grid = [[0 for _ in range(actual_game.get_nb_rows())] for _ in range(actual_game.get_nb_columns())]
     expected_grid[0][0] = 1
     expected_grid[0][1] = 2
     # When
@@ -50,7 +50,7 @@ def test_put_token_should_throw_exception_when_column_is_full():
     # Given
     actual_game = cross_game.CrossGame()
     # When
-    for id in range(actual_game._NB_ROWS):
+    for id in range(actual_game.get_nb_rows()):
         actual_game.put_token(0, id + 1)  # to avoid AlreadyPlayed error the agent id has to changed
                                           # between consecutive moves
     # Then
