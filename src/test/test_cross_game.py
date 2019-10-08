@@ -52,3 +52,27 @@ def test_put_token_should_throw_exception_when_column_is_full():
     ## Then
     with pytest.raises(cross_game.ColumnIsFullError):
         actual_game.put_token(0, 1)
+
+
+def test__display_grid_should_return_an_empty_grid_as_string_when_applied_on_new_instance():
+    # Given
+    actual_game = cross_game.CrossGame()
+    expected_grid =\
+        "| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |"
+    # When
+    actual_grid = actual_game._display_grid()
+    # Then
+    assert(expected_grid == actual_grid)
+
+
+def test__display_grid_should_return_a_grid_with_two_tokens_when_two_tokens_were_played():
+    # Given
+    actual_game = cross_game.CrossGame()
+    expected_grid = \
+        "| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|2| | | | | | |\n|1| | | | | | |"
+    # When
+    actual_game.put_token(0, 1)
+    actual_game.put_token(0, 2)
+    actual_grid = actual_game._display_grid()
+    # Then
+    assert (expected_grid == actual_grid)

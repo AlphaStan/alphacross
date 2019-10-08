@@ -14,6 +14,19 @@ class CrossGame:
                 self._grid[col_index][i] = agent_id
                 break
 
+    def _display_grid(self):
+        rows_list = ["|", "|", "|", "|", "|", "|"]
+        for column in self._grid:
+            for i in range(len(column)):
+                rows_list[i] += str(column[i]) if column[i] else " "
+                rows_list[i] += "|"
+        rows = "\n".join(rows_list[::-1])
+        return rows
+
+    def display(self):
+        print(self._display_grid())
+
+
 class ZeroAgentIdError(Exception):
     def __init__(self):
         self.message = "Agent id should not be equal zero which is the convention for empty cell."
