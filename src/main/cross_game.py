@@ -14,7 +14,7 @@ class CrossGame:
                 self._grid[col_index][i] = agent_id
                 break
 
-    def _display_grid(self):
+    def _convert_grid_to_string(self):
         rows_list = ["|", "|", "|", "|", "|", "|"]
         for column in self._grid:
             for i in range(len(column)):
@@ -24,7 +24,7 @@ class CrossGame:
         return rows
 
     def display(self):
-        print(self._display_grid())
+        print(self._convert_grid_to_string())
 
 
 class ZeroAgentIdError(Exception):
