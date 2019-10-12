@@ -21,6 +21,42 @@ class CrossGame:
     def get_nb_columns(self):
         return self._NB_COLUMNS
 
+    def play(self):
+        player1_has_won = False
+        player2_has_won = False
+        number_of_rounds = 0
+        while not player1_has_won or not player2_has_won or number_of_rounds < 42:
+
+            if number_of_rounds % 2 == 0:
+                agent_id = 1
+            if number_of_rounds % 2 != 0:
+                agent_id = 2
+
+            agent_has_played = False
+            while not agent_has_played:
+                try:
+                    column_id = input("Player {}, please give the column number where you play".format(agent_id))
+                    self.put_token(column_id, agent_id)
+                    agent_has_played = True
+                    break
+                except OutOfGridError:
+                    print("Player {}, you should give a number between 0 and 6.".format(agent_id))
+                    break
+                except ColumnIsFullError:
+                    print("Player {}, column {} is full, please select another number between 0 and 6." \
+                          .format(agent_id, column_id))
+                    break
+
+            if player1_has_won:
+                print("Congratulations player 1 !")
+                return
+
+            if player2_has_won:
+                print("Congratulations player 2 !")
+                return
+            number_of_rounds += 1
+            self._last_player_agent_id = agent_id
+
     def put_token(self, col_index, agent_id):
         if agent_id == 0:
             raise ZeroAgentIdError()

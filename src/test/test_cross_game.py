@@ -1,5 +1,22 @@
 import pytest
+
+
 from ..main import cross_game
+
+
+def test_play_should_display_victory1_when_player1_wins(monkeypatch):
+    # Given
+    """
+    inputs = [10, 'y']
+    input_generator = (i for i in inputs)
+    monkeypatch.setattr('builtins.input', lambda prompt: next(input_generator))
+
+    game = cross_game.CrossGame()
+    game.play()
+
+    """
+    # When
+    # Then
 
 
 def test_new_instance_should_have_an_empty_grid_attribute():
