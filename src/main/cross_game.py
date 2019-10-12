@@ -40,7 +40,8 @@ class CrossGame:
     def check_vertical_victory(self, col_index, agent_id):
         return self._check_if_four_aligned_tokens(self._grid[col_index][::-1], agent_id)
 
-    def _check_if_four_aligned_tokens(self, token_list, agent_id):
+    @staticmethod
+    def _check_if_four_aligned_tokens(token_list, agent_id):
         previous_token = 0
         consecutive_tokens = 0
         for token in token_list:
@@ -74,9 +75,9 @@ class CrossGame:
                 bottom_border = max(0, row_index - 3)
                 top_border = min(5, row_index + 3)
                 ascending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                            in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
-                descending_diagonal  = [self._grid[col_id][row_id] for col_id, row_id
-                            in zip(range(left_border, right_border), range(top_border, bottom_border, -1))]
+                                      in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
+                descending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
+                                       in zip(range(left_border, right_border), range(top_border, bottom_border, -1))]
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
 
@@ -90,5 +91,5 @@ class CrossGame:
         return rows
 
     def display(self):
-        print(self._convert_grid_to_string())
+        print(self.convert_grid_to_string())
 
