@@ -77,7 +77,7 @@ class CrossGame:
                 ascending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
                                       in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
                 descending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                       in zip(range(left_border, right_border), range(top_border, bottom_border, -1))]
+                                       in zip(range(left_border, right_border), range(top_border, bottom_border-1, -1))]
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
 

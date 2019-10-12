@@ -118,6 +118,21 @@ def test_check_horizontal_victory_should_return_False_when_there_are_less_than_4
     assert(not is_horizontal_victory)
 
 
+def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned():
+    # Given
+    game = cross_game.CrossGame()
+    agent_id_1 = 1
+    agent_id_2 = 2
+    for i in range(3, 0, -1):
+        game.put_token(i, agent_id_1)
+        game.put_token(4, agent_id_2)
+    game.put_token(0, agent_id_1)
+    # When
+    is_horizontal_victory = game.check_horizontal_victory(i, agent_id_1)
+    # Then
+    assert(is_horizontal_victory)
+
+
 def test_check_diagonal_victory_should_return_True_when_there_are_4_ascending_diagonally_aligned_tokens_with_same_agent_id():
     # Given
     game = cross_game.CrossGame()
@@ -161,26 +176,70 @@ def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_a
     assert(not is_diagonal_victory)
 
 
-def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_with_same_agent_id():
+def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_with_same_agent_id_from_right():
     # Given
     game = cross_game.CrossGame()
-    agent_id = 1
-    for i, j in zip(range(4), range(4, 0, -1)):
-        game._grid[i][j] = agent_id
+    agent_id_1 = 1
+    agent_id_2 = 2
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    game.put_token(1, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(2, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(2, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(3, agent_id_1)
     # When
-    is_diagonal_victory = game.check_diagonal_victory(i, agent_id)
+    is_diagonal_victory = game.check_diagonal_victory(3, agent_id_1)
     # Then
-    assert(is_diagonal_victory)
+    assert is_diagonal_victory
+
+
+"""def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_with_same_agent_id_from_left():
+    # Given
+    game = cross_game.CrossGame()
+    agent_id_1 = 1
+    agent_id_2 = 2
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    game.put_token(1, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(2, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(2, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(3, agent_id_1)
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    # When
+    is_diagonal_victory = game.check_diagonal_victory(0, agent_id_1)
+    # Then
+    assert is_diagonal_victory"""
 
 
 def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_descending_diagonally_aligned_tokens_with_same_agent_id():
     # Given
     game = cross_game.CrossGame()
-    agent_id = 1
-    for i, j in zip(range(3), range(3, 0, -1)):
-        game._grid[i][j] = agent_id
+    agent_id_1 = 1
+    agent_id_2 = 2
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    game.put_token(0, agent_id_2)
+    game.put_token(0, agent_id_1)
+    game.put_token(1, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(2, agent_id_2)
+    game.put_token(1, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(2, agent_id_1)
+    game.put_token(4, agent_id_2)
     # When
-    is_diagonal_victory = game.check_diagonal_victory(i, agent_id)
+    is_diagonal_victory = game.check_diagonal_victory(2, agent_id_1)
     # Then
     assert(not is_diagonal_victory)
 
