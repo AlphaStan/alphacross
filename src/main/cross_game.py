@@ -48,12 +48,3 @@ class CrossGame:
 
     def display(self):
         print(self._convert_grid_to_string())
-
-
-class ZeroAgentIdError(Exception):
-    def __init__(self):
-        self.message = "Agent id should not be equal zero which is the convention for empty cell."
-
-class ColumnIsFullError(Exception):
-    def __init__(self, col_index):
-        self.message = "You cannot play in column {} because it is full.".format(col_index)
