@@ -69,15 +69,24 @@ class CrossGame:
     def check_diagonal_victory(self, col_index, agent_id):
         for reversed_row_id, token in enumerate(self._grid[col_index][::-1]):
             if token == agent_id:
-                left_border = max(0, col_index - 3)
-                right_border = min(7, col_index + 3)
+                left_border = col_index - 3
+                right_border = col_index + 3
                 row_index = 6 - reversed_row_id - 1
-                bottom_border = max(0, row_index - 3)
-                top_border = min(5, row_index + 3)
-                ascending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                      in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
-                descending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                       in zip(range(left_border, right_border), range(top_border, bottom_border-1, -1))]
+                bottom_border = row_index - 3
+                top_border = row_index + 3
+                ascending_diagonal = [self._grid[col_id][row_id]
+                                      if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                                      else 0
+                                      for col_id, row_id
+                                      in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
+                                      ]
+                descending_diagonal = [self._grid[col_id][row_id]
+                                       if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                                       else 0
+                                       for col_id, row_id
+                                       in
+                                       zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
+                                       ]
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
 
