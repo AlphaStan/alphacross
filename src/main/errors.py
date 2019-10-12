@@ -10,9 +10,8 @@ class ColumnIsFullError(Exception):
 
 class OutOfGridError(Exception):
     def __init__(self, agent_id, col_index, nb_cols):
-        self.message = "Player {} has selected selected column {} but there are only {} columns".format(agent_id,
-                                                                                                        col_index,
-                                                                                                        nb_cols)
+        self.message = "Player {} has selected selected column {} but there are only {} columns"\
+            .format(agent_id, col_index, nb_cols)
 
 
 class AlreadyPlayedError(Exception):

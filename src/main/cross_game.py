@@ -26,10 +26,11 @@ class CrossGame:
             raise ZeroAgentIdError()
         if agent_id == self._last_player_agent_id:
             raise AlreadyPlayedError(agent_id)
-        if col_index >= self.get_nb_columns():
+        if col_index >= self.get_nb_columns() or col_index < 0:
             raise OutOfGridError(agent_id, col_index, self.get_nb_columns())
         if self._grid[col_index][self.get_nb_rows() - 1] != 0:
             raise ColumnIsFullError(col_index)
+
         for i, slot in enumerate(self._grid[col_index]):
             if slot == 0:
                 self._grid[col_index][i] = agent_id

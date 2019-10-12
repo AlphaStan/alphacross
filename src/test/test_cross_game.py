@@ -51,8 +51,8 @@ def test_put_token_should_throw_exception_when_column_is_full():
     actual_game = cross_game.CrossGame()
     # When
     for id in range(actual_game.get_nb_rows()):
-        actual_game.put_token(0, id + 1)  # to avoid AlreadyPlayed error the agent id has to changed
-                                          # between consecutive moves
+        actual_game.put_token(0, id + 1)  # to avoid AlreadyPlayed error the agent id has to change
+        # between consecutive moves
     # Then
     with pytest.raises(cross_game.ColumnIsFullError):
         actual_game.put_token(0, 1)
@@ -65,6 +65,15 @@ def test_put_token_should_throw_exception_when_player_tries_to_play_outside_the_
     with pytest.raises(cross_game.OutOfGridError):
         # When
         actual_game.put_token(10, 1)
+
+
+def test_put_token_should_throw_exception_when_player_tries_to_play_outside_the_grid_with_negative_col_index():
+    # Given
+    actual_game = cross_game.CrossGame()
+    # Then
+    with pytest.raises(cross_game.OutOfGridError):
+        # When
+        actual_game.put_token(-1, 1)
 
 
 def test_put_token_should_throw_exception_when_player_plays_two_times_in_a_row():
