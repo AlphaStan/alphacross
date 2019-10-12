@@ -37,7 +37,7 @@ class CrossGame:
                 self._last_player_agent_id = agent_id
                 break
 
-    def _convert_grid_to_string(self):
+    def convert_grid_to_string(self):
         rows_list = ["|", "|", "|", "|", "|", "|"]
         for column in self._grid:
             for i in range(len(column)):
