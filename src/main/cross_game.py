@@ -36,3 +36,15 @@ class CrossGame:
                 self._grid[col_index][i] = agent_id
                 self._last_player_agent_id = agent_id
                 break
+
+    def convert_grid_to_string(self):
+        rows_list = ["|", "|", "|", "|", "|", "|"]
+        for column in self._grid:
+            for i in range(len(column)):
+                rows_list[i] += str(column[i]) if column[i] else " "
+                rows_list[i] += "|"
+        rows = "\n".join(rows_list[::-1])
+        return rows
+
+    def display(self):
+        print(self._convert_grid_to_string())
