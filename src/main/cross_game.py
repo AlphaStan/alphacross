@@ -22,10 +22,10 @@ class CrossGame:
         return self._NB_COLUMNS
 
     def play(self):
-        player1_has_won = False
-        player2_has_won = False
+        one_player_has_won = False
         number_of_rounds = 0
-        while not player1_has_won or not player2_has_won or number_of_rounds < 42:
+        number_of_cells = self.get_nb_columns() * self.get_nb_rows()
+        while number_of_rounds < number_of_cells:
 
             if number_of_rounds % 2 == 0:
                 agent_id = 1
@@ -38,22 +38,17 @@ class CrossGame:
                     column_id = input("Player {}, please give the column number where you play".format(agent_id))
                     self.put_token(column_id, agent_id)
                     agent_has_played = True
-                    break
                 except OutOfGridError:
                     print("Player {}, you should give a number between 0 and 6.".format(agent_id))
-                    break
                 except ColumnIsFullError:
                     print("Player {}, column {} is full, please select another number between 0 and 6." \
                           .format(agent_id, column_id))
-                    break
 
-            if player1_has_won:
-                print("Congratulations player 1 !")
-                return
+            self.display()
+            if self.is_winning_move(column_id, agent_id):
+                print("Congratulation player {}, you have won !".format(agent_id))
+                break
 
-            if player2_has_won:
-                print("Congratulations player 2 !")
-                return
             number_of_rounds += 1
             self._last_player_agent_id = agent_id
 
@@ -72,6 +67,11 @@ class CrossGame:
                 self._grid[col_index][i] = agent_id
                 self._last_player_agent_id = agent_id
                 break
+
+    def is_winning_move(self, col_index, agent_id):
+        return (self.check_vertical_victory(col_index, agent_id) or \
+                self.check_horizontal_victory(col_index, agent_id) or \
+                self.check_diagonal_victory(col_index, agent_id))
 
     def check_vertical_victory(self, col_index, agent_id):
         return self._check_if_four_aligned_tokens(self._grid[col_index][::-1], agent_id)
@@ -111,7 +111,7 @@ class CrossGame:
                 bottom_border = max(0, row_index - 3)
                 top_border = min(5, row_index + 3)
                 ascending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                      in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
+                                      in zip(range(left_border, right_border), range(bottom_border, top_border + 1))]
                 descending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
                                        in zip(range(left_border, right_border), range(top_border, bottom_border, -1))]
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
@@ -128,4 +128,4 @@ class CrossGame:
 
     def display(self):
         print(self.convert_grid_to_string())
-
+        print()
