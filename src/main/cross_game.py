@@ -10,25 +10,45 @@ class CrossGame:
         self._init_game_history()
 
     def _init_grid(self):
-        self._grid = [[0 for _ in range(self.get_nb_rows())] for _ in range(self.get_nb_columns())]
+        self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
 
     def _init_game_history(self):
         self._last_player_agent_id = 0
 
-    def get_nb_rows(self):
+    @property
+    def nb_rows(self):
         return self._NB_ROWS
 
-    def get_nb_columns(self):
+    @property
+    def nb_columns(self):
         return self._NB_COLUMNS
+
+    @nb_rows.setter
+    def nb_rows(self, nb_rows):
+        if not isinstance(nb_rows, int) or not isinstance(nb_rows, float):
+            raise ValueError("The number of rows has to be a numeric value")
+        elif nb_rows < 0:
+            raise ValueError("Trying to set a negative number of rows")
+        else:
+            self._NB_ROWS = nb_rows
+
+    @nb_columns.setter
+    def nb_colums(self, nb_columns):
+        if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
+            raise ValueError("The number of rows has to be a numeric value")
+        elif nb_columns < 0:
+            raise ValueError("Trying to set a negative number of rows")
+        else:
+            self._NB_ROWS = nb_columns
 
     def put_token(self, col_index, agent_id):
         if agent_id == 0:
             raise ZeroAgentIdError()
         if agent_id == self._last_player_agent_id:
             raise AlreadyPlayedError(agent_id)
-        if col_index >= self.get_nb_columns() or col_index < 0:
-            raise OutOfGridError(agent_id, col_index, self.get_nb_columns())
-        if self._grid[col_index][self.get_nb_rows() - 1] != 0:
+        if col_index >= self.nb_columns or col_index < 0:
+            raise OutOfGridError(agent_id, col_index, self.nb_columns)
+        if self._grid[col_index][self.nb_rows - 1] != 0:
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
@@ -87,7 +107,7 @@ class CrossGame:
 
     def _get_descending_diagonal(self, bottom_border, left_border, right_border, top_border):
         return [self._grid[col_id][row_id]
-                if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
                 else 0
                 for col_id, row_id
                 in
@@ -96,7 +116,7 @@ class CrossGame:
 
     def _get_ascending_diagonal(self, bottom_border, left_border, right_border, top_border):
         return [self._grid[col_id][row_id]
-                if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
                 else 0
                 for col_id, row_id
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
