@@ -130,7 +130,7 @@ def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_
     # When
     is_horizontal_victory = game.check_horizontal_victory(i, agent_id_1)
     # Then
-    assert(is_horizontal_victory)
+    assert is_horizontal_victory
 
 
 def test_check_diagonal_victory_should_return_True_when_there_are_4_ascending_diagonally_aligned_tokens_with_same_agent_id_from_right():
@@ -173,6 +173,28 @@ def test_check_diagonal_victory_should_return_True_when_there_are_4_ascending_di
     game.put_token(3, agent_id_1)
     # When
     is_diagonal_victory = game.check_diagonal_victory(0, agent_id_1)
+    # Then
+    assert is_diagonal_victory
+
+
+def test_check_diagonal_victory_should_return_True_when_there_are_4_ascending_diagonally_aligned_tokens_at_the_right_border_of_the_grid():
+    # Given
+    game = cross_game.CrossGame()
+    agent_id_1 = 1
+    agent_id_2 = 2
+    game.put_token(3, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(4, agent_id_1)
+    game.put_token(5, agent_id_2)
+    game.put_token(5, agent_id_1)
+    game.put_token(6, agent_id_2)
+    game.put_token(5, agent_id_1)
+    game.put_token(6, agent_id_2)
+    game.put_token(6, agent_id_1)
+    game.put_token(5, agent_id_2)
+    game.put_token(6, agent_id_1)
+    # When
+    is_diagonal_victory = game.check_diagonal_victory(6, agent_id_1)
     # Then
     assert is_diagonal_victory
 
@@ -240,6 +262,29 @@ def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_d
     game.put_token(0, agent_id_1)
     # When
     is_diagonal_victory = game.check_diagonal_victory(0, agent_id_1)
+    # Then
+    assert is_diagonal_victory
+
+
+def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_at_the_right_border_of_the_grid():
+    # Given
+    game = cross_game.CrossGame()
+    agent_id_1 = 1
+    agent_id_2 = 2
+    game.put_token(3, agent_id_2)
+    game.put_token(3, agent_id_1)
+    game.put_token(4, agent_id_2)
+    game.put_token(4, agent_id_1)
+    game.put_token(5, agent_id_2)
+    game.put_token(4, agent_id_1)
+    game.put_token(0, agent_id_2)
+    game.put_token(5, agent_id_1)
+    game.put_token(0, agent_id_2)
+    game.put_token(6, agent_id_1)
+    game.put_token(3, agent_id_2)
+    game.put_token(3, agent_id_1)
+    # When
+    is_diagonal_victory = game.check_diagonal_victory(3, agent_id_1)
     # Then
     assert is_diagonal_victory
 

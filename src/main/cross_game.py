@@ -74,21 +74,33 @@ class CrossGame:
                 row_index = 6 - reversed_row_id - 1
                 bottom_border = row_index - 3
                 top_border = row_index + 3
-                ascending_diagonal = [self._grid[col_id][row_id]
-                                      if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
-                                      else 0
-                                      for col_id, row_id
-                                      in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
-                                      ]
-                descending_diagonal = [self._grid[col_id][row_id]
-                                       if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
-                                       else 0
-                                       for col_id, row_id
-                                       in
-                                       zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
-                                       ]
+                ascending_diagonal = self._get_ascending_diagonal(bottom_border,
+                                                                  left_border,
+                                                                  right_border,
+                                                                  top_border)
+                descending_diagonal = self._get_descending_diagonal(bottom_border,
+                                                                    left_border,
+                                                                    right_border,
+                                                                    top_border)
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
+
+    def _get_descending_diagonal(self, bottom_border, left_border, right_border, top_border):
+        return [self._grid[col_id][row_id]
+                if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                else 0
+                for col_id, row_id
+                in
+                zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
+                ]
+
+    def _get_ascending_diagonal(self, bottom_border, left_border, right_border, top_border):
+        return [self._grid[col_id][row_id]
+                if 0 <= col_id < self.get_nb_columns() and 0 <= row_id < self.get_nb_rows()
+                else 0
+                for col_id, row_id
+                in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
+                ]
 
     def convert_grid_to_string(self):
         rows_list = ["|", "|", "|", "|", "|", "|"]
