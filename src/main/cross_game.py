@@ -10,25 +10,45 @@ class CrossGame:
         self._init_game_history()
 
     def _init_grid(self):
-        self._grid = [[0 for _ in range(self.get_nb_rows())] for _ in range(self.get_nb_columns())]
+        self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
 
     def _init_game_history(self):
         self._last_player_agent_id = 0
 
-    def get_nb_rows(self):
+    @property
+    def nb_rows(self):
         return self._NB_ROWS
 
-    def get_nb_columns(self):
+    @property
+    def nb_columns(self):
         return self._NB_COLUMNS
+
+    @nb_rows.setter
+    def nb_rows(self, nb_rows):
+        if not isinstance(nb_rows, int) or not isinstance(nb_rows, float):
+            raise ValueError("The number of rows has to be a numeric value")
+        elif nb_rows < 0:
+            raise ValueError("Trying to set a negative number of rows")
+        else:
+            self._NB_ROWS = nb_rows
+
+    @nb_columns.setter
+    def nb_colums(self, nb_columns):
+        if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
+            raise ValueError("The number of rows has to be a numeric value")
+        elif nb_columns < 0:
+            raise ValueError("Trying to set a negative number of rows")
+        else:
+            self._NB_ROWS = nb_columns
 
     def put_token(self, col_index, agent_id):
         if agent_id == 0:
             raise ZeroAgentIdError()
         if agent_id == self._last_player_agent_id:
             raise AlreadyPlayedError(agent_id)
-        if col_index >= self.get_nb_columns() or col_index < 0:
-            raise OutOfGridError(agent_id, col_index, self.get_nb_columns())
-        if self._grid[col_index][self.get_nb_rows() - 1] != 0:
+        if col_index >= self.nb_columns or col_index < 0:
+            raise OutOfGridError(agent_id, col_index, self.nb_columns)
+        if self._grid[col_index][self.nb_rows - 1] != 0:
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
@@ -69,17 +89,38 @@ class CrossGame:
     def check_diagonal_victory(self, col_index, agent_id):
         for reversed_row_id, token in enumerate(self._grid[col_index][::-1]):
             if token == agent_id:
-                left_border = max(0, col_index - 3)
-                right_border = min(7, col_index + 3)
+                left_border = col_index - 3
+                right_border = col_index + 3
                 row_index = 6 - reversed_row_id - 1
-                bottom_border = max(0, row_index - 3)
-                top_border = min(5, row_index + 3)
-                ascending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                      in zip(range(left_border, right_border), range(bottom_border, top_border+1))]
-                descending_diagonal = [self._grid[col_id][row_id] for col_id, row_id
-                                       in zip(range(left_border, right_border), range(top_border, bottom_border, -1))]
+                bottom_border = row_index - 3
+                top_border = row_index + 3
+                ascending_diagonal = self._get_ascending_diagonal(bottom_border,
+                                                                  left_border,
+                                                                  right_border,
+                                                                  top_border)
+                descending_diagonal = self._get_descending_diagonal(bottom_border,
+                                                                    left_border,
+                                                                    right_border,
+                                                                    top_border)
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
+
+    def _get_descending_diagonal(self, bottom_border, left_border, right_border, top_border):
+        return [self._grid[col_id][row_id]
+                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
+                else 0
+                for col_id, row_id
+                in
+                zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
+                ]
+
+    def _get_ascending_diagonal(self, bottom_border, left_border, right_border, top_border):
+        return [self._grid[col_id][row_id]
+                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
+                else 0
+                for col_id, row_id
+                in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
+                ]
 
     def convert_grid_to_string(self):
         rows_list = ["|", "|", "|", "|", "|", "|"]
