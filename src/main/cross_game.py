@@ -33,7 +33,7 @@ class CrossGame:
             self._NB_ROWS = nb_rows
 
     @nb_columns.setter
-    def nb_colums(self, nb_columns):
+    def nb_columns(self, nb_columns):
         if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_columns < 0:
