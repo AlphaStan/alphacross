@@ -43,7 +43,7 @@ class CrossGame:
 
     def play(self):
         number_of_rounds = 0
-        number_of_cells = self.get_nb_columns() * self.get_nb_rows()
+        number_of_cells = self.nb_columns * self.nb_columns
         while number_of_rounds < number_of_cells:
 
             if number_of_rounds % 2 == 0:
