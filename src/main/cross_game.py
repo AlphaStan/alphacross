@@ -22,7 +22,6 @@ class CrossGame:
         return self._NB_COLUMNS
 
     def play(self):
-        one_player_has_won = False
         number_of_rounds = 0
         number_of_cells = self.get_nb_columns() * self.get_nb_rows()
         while number_of_rounds < number_of_cells:
