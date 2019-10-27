@@ -60,7 +60,7 @@ class CrossGame:
                 except OutOfGridError:
                     print("Player {}, you should give a number between 0 and 6.".format(agent_id))
                 except ColumnIsFullError:
-                    print("Player {}, column {} is full, please select another number between 0 and 6." \
+                    print("Player {}, column {} is full, please select another number between 0 and 6."
                           .format(agent_id, column_id))
 
             self.display()
@@ -88,8 +88,8 @@ class CrossGame:
                 break
 
     def is_winning_move(self, col_index, agent_id):
-        return (self.check_vertical_victory(col_index, agent_id) or \
-                self.check_horizontal_victory(col_index, agent_id) or \
+        return (self.check_vertical_victory(col_index, agent_id) or
+                self.check_horizontal_victory(col_index, agent_id) or
                 self.check_diagonal_victory(col_index, agent_id))
 
     def check_vertical_victory(self, col_index, agent_id):
