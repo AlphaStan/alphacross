@@ -1,5 +1,31 @@
 import pytest
+
 from ..main import cross_game
+
+
+def test_play_should_display_victory1_when_player1_wins(monkeypatch, capsys):
+    # Given
+    inputs = [0, 1, -3, 0, 1, 0, 1, 0]
+    input_generator = (i for i in inputs)
+    monkeypatch.setattr('builtins.input', lambda prompt: next(input_generator))
+    game = cross_game.CrossGame()
+    expected_stdout = '\n'.join(
+        ['| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1| | | | | | |\n',
+         '| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1|2| | | | | |\n',
+         'Player 1, you should give a number between 0 and 6.',
+         '| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1| | | | | | |\n|1|2| | | | | |\n',
+         '| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n',
+         '| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1| | | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n',
+         '| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n',
+         '| | | | | | | |\n| | | | | | | |\n|1| | | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n|1|2| | | | | |\n',
+         'Congratulation player 1, you have won !\n'
+         ])
+    # When
+    game.play()
+    captured = capsys.readouterr()
+    actual_stdout = captured.out
+    # Then
+    assert actual_stdout == expected_stdout
 
 
 def test_new_instance_should_have_an_empty_grid_attribute():
@@ -86,7 +112,7 @@ def test_check_vertical_victory_should_return_False_when_there_are_less_than_4_v
     # When
     is_vertical_victory = game.check_vertical_victory(col_index, agent_id_1)
     # Then
-    assert(not is_vertical_victory)
+    assert (not is_vertical_victory)
 
 
 def test_check_horizontal_victory_should_return_True_when_there_are_4_horizontally_aligned_tokens_with_same_agent_id():
@@ -115,7 +141,7 @@ def test_check_horizontal_victory_should_return_False_when_there_are_less_than_4
     # When
     is_horizontal_victory = game.check_horizontal_victory(i, agent_id_1)
     # Then
-    assert(not is_horizontal_victory)
+    assert (not is_horizontal_victory)
 
 
 def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned():
@@ -217,7 +243,7 @@ def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_a
     # When
     is_diagonal_victory = game.check_diagonal_victory(3, agent_id_1)
     # Then
-    assert(not is_diagonal_victory)
+    assert (not is_diagonal_victory)
 
 
 def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_with_same_agent_id_from_right():
@@ -308,18 +334,18 @@ def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_d
     # When
     is_diagonal_victory = game.check_diagonal_victory(2, agent_id_1)
     # Then
-    assert(not is_diagonal_victory)
+    assert (not is_diagonal_victory)
 
 
 def test__display_grid_should_return_an_empty_grid_as_string_when_applied_on_new_instance():
     # Given
     actual_game = cross_game.CrossGame()
-    expected_grid =\
+    expected_grid = \
         "| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |"
     # When
     actual_grid = actual_game.convert_grid_to_string()
     # Then
-    assert(expected_grid == actual_grid)
+    assert (expected_grid == actual_grid)
 
 
 def test__display_grid_should_return_a_grid_with_two_tokens_when_two_tokens_were_played():

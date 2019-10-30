@@ -41,6 +41,36 @@ class CrossGame:
         else:
             self._NB_ROWS = nb_columns
 
+    def play(self):
+        number_of_rounds = 0
+        number_of_cells = self.nb_columns * self.nb_columns
+        while number_of_rounds < number_of_cells:
+
+            if number_of_rounds % 2 == 0:
+                agent_id = 1
+            if number_of_rounds % 2 != 0:
+                agent_id = 2
+
+            agent_has_played = False
+            while not agent_has_played:
+                try:
+                    column_id = input("Player {}, please give the column number where you play".format(agent_id))
+                    self.put_token(column_id, agent_id)
+                    agent_has_played = True
+                except OutOfGridError:
+                    print("Player {}, you should give a number between 0 and 6.".format(agent_id))
+                except ColumnIsFullError:
+                    print("Player {}, column {} is full, please select another number between 0 and 6."
+                          .format(agent_id, column_id))
+
+            self.display()
+            if self.is_winning_move(column_id, agent_id):
+                print("Congratulation player {}, you have won !".format(agent_id))
+                break
+
+            number_of_rounds += 1
+            self._last_player_agent_id = agent_id
+
     def put_token(self, col_index, agent_id):
         if agent_id == 0:
             raise ZeroAgentIdError()
@@ -56,6 +86,11 @@ class CrossGame:
                 self._grid[col_index][i] = agent_id
                 self._last_player_agent_id = agent_id
                 break
+
+    def is_winning_move(self, col_index, agent_id):
+        return (self.check_vertical_victory(col_index, agent_id) or
+                self.check_horizontal_victory(col_index, agent_id) or
+                self.check_diagonal_victory(col_index, agent_id))
 
     def check_vertical_victory(self, col_index, agent_id):
         return self._check_if_four_aligned_tokens(self._grid[col_index][::-1], agent_id)
@@ -133,4 +168,4 @@ class CrossGame:
 
     def display(self):
         print(self.convert_grid_to_string())
-
+        print()
