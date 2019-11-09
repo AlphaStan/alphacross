@@ -7,5 +7,17 @@ jobs:
     steps:
       - checkout
       - run: sudo pip install -r requirements.txt
-      - run: python -m pytest
+  test:
+    working_directory: ~/alphacross
+    docker:
+      - image: circleci/python:3.6.8
+    steps:
+      - checkout
+      - run: pytest
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
 
