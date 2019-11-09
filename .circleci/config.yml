@@ -6,7 +6,7 @@ jobs:
       - image: circleci/python:3.6.8
     steps:
       - checkout
-      - run: sudo pip install requirements.txt
+      - run: sudo pip install -r requirements.txt
       - run: python -m pytest
       - store_test_results:
           path: test_results
