@@ -4,7 +4,7 @@ AlphaCross
 [![CircleCI](https://circleci.com/gh/AlphaStan/alphacross/tree/master.svg?style=svg&circle-token=814dd35b23c4ee30ebcd50b44f73e9d844abf251)](https://circleci.com/gh/AlphaStan/alphacross/tree/master)
 
 
-A short description of the project.
+This is a collaborative project to build an AI playing board games with super human performances.
 
 Project Organization
 ------------
