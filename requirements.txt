@@ -1,6 +1,7 @@
+tensorflow
 pytest
 # local package
--e .
+#-e .
 
 # external requirements
 click
