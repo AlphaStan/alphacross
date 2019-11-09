@@ -1,26 +1,16 @@
-version: 2.1
+version: 2
 jobs:
-  build:
+  build_py3_requirements:
+    working_directory: ~/alphacross
     docker:
-      - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
+      - image: circleci/python:3.6.8
     steps:
-      - checkout # check out the code in the project directory
-      - run: echo "hello CI" # run the `echo` command
-
-
-#version: 2
-#jobs:
-#  build_py3_requirements:
-#    working_directory: ~/alphacross
-#    docker:
-#      - image: circleci/python:3.6.8
-#    steps:
-#      - checkout
-#      - run: sudo pip install pytest
-#      - run: python -m pytest
-#      - store_test_results:
-#          path: test_results
-#      - store_artifacts:
-#          path: test_results
-#          destination: tr1
+      - checkout
+      - run: sudo pip install requirements.txt
+      - run: python -m pytest
+      - store_test_results:
+          path: test_results
+      - store_artifacts:
+          path: test_results
+          destination: tr1
 
