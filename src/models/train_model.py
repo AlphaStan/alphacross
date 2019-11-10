@@ -36,7 +36,7 @@ def get_replay():
 
 def epsilon_greedy_predict_action(state,  model):
     if np.random.random() < epsilon:
-        return np.random.randin(0, nb_column)
+        return np.random.randint(0, nb_column)
     else:
         return model.predict(state)
 
@@ -46,14 +46,8 @@ def train_model():
     c = CrossGame()
     while(gameIsNotFinished):
         action = model.epsilon_greedy_predict_action()
-        reward  = c.play_token(action, counter%2)
+        reward = c.play_token(action, counter%2)
         counter += 1
-
-def
-
-num_episodes = 1000
-for episode in range(num_episodes):
-    train_model()
 
 
 class Replay:
