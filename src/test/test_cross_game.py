@@ -65,15 +65,6 @@ def test_apply_action_should_write_another_token_above_a_previous_one():
     assert (actual_grid == expected_grid)
 
 
-@pytest.mark.skip(reason="DEPRECATED")
-def test_apply_action_should_throw_exception_when_agent_id_equals_zero():
-    # Given
-    actual_game = cross_game.CrossGame()
-    # When
-    with pytest.raises(cross_game.ZeroAgentIdError):
-        actual_game.apply_action(0, 0)
-
-
 def test_apply_action_should_throw_exception_when_column_is_full():
     # Given
     actual_game = cross_game.CrossGame()
@@ -352,14 +343,3 @@ def test_apply_action_should_throw_exception_when_player_tries_to_play_outside_t
     with pytest.raises(cross_game.OutOfGridError):
         # When
         actual_game.apply_action(-1)
-
-
-@pytest.mark.skip(reason="DEPRECATED")
-def test_apply_action_should_throw_exception_when_player_plays_two_times_in_a_row():
-    # Given
-    actual_game = cross_game.CrossGame()
-    # When
-    actual_game.apply_action(0, 1)
-    # Then
-    with pytest.raises(cross_game.AlreadyPlayedError):
-        actual_game.apply_action(0, 1)

@@ -1,6 +1,6 @@
 import itertools
 
-from .errors import ZeroAgentIdError, ColumnIsFullError, OutOfGridError, AlreadyPlayedError
+from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
 
 
