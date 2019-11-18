@@ -1,7 +1,8 @@
 from .errors import ZeroAgentIdError, ColumnIsFullError, OutOfGridError, AlreadyPlayedError
+from .environment import _Environment
 
 
-class CrossGame:
+class CrossGame(_Environment):
 
     def __init__(self):
         self._NB_COLUMNS = 7
@@ -169,3 +170,9 @@ class CrossGame:
     def display(self):
         print(self.convert_grid_to_string())
         print()
+
+    def get_state(self):
+        return self._grid
+
+    def apply_action(self, action):
+        raise NotImplementedError
