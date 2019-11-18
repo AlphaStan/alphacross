@@ -66,7 +66,7 @@ class CrossGame(_Environment):
             while not agent_has_played:
                 try:
                     column_id = input("Player {}, please give the column number where you play".format(agent_id))
-                    self.put_token(column_id, agent_id)
+                    self.apply_action(column_id, agent_id)
                     agent_has_played = True
                 except OutOfGridError:
                     print("Player {}, you should give a number between 0 and 6.".format(agent_id))
@@ -82,7 +82,7 @@ class CrossGame(_Environment):
             number_of_rounds += 1
             self._last_player_agent_id = agent_id
 
-    def put_token(self, col_index):
+    def apply_action(self, col_index):
         if col_index >= self.nb_columns or col_index < 0:
             raise OutOfGridError(self.current_token_id, col_index, self.nb_columns)
         if self._grid[col_index][self.nb_rows - 1] != 0:
@@ -180,6 +180,3 @@ class CrossGame(_Environment):
 
     def get_state(self):
         return self._grid
-
-    def apply_action(self, action):
-        raise NotImplementedError
