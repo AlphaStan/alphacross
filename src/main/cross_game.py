@@ -11,7 +11,7 @@ class CrossGame(_Environment):
         self._NB_ROWS = 6
         self._init_grid()
         self._init_game_history()
-        self._init_token_state()
+        self._init_token_id()
 
     def _init_grid(self):
         self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
@@ -19,12 +19,12 @@ class CrossGame(_Environment):
     def _init_game_history(self):
         self._last_player_agent_id = 0
 
-    def _init_token_state(self):
-        self.token_states = itertools.cycle([1, 2]).__next__
-        self.current_token_state = self.token_states()
+    def _init_token_id(self):
+        self.token_ids = itertools.cycle([1, 2]).__next__
+        self.current_token_id = self.token_ids()
 
-    def _toggle_token_state(self):
-        self.current_state = self.token_states()
+    def _toggle_token_id(self):
+        self.current_token_id = self.token_ids()
 
     @property
     def nb_rows(self):
@@ -82,21 +82,18 @@ class CrossGame(_Environment):
             number_of_rounds += 1
             self._last_player_agent_id = agent_id
 
-    def put_token(self, col_index, agent_id):
-        if agent_id == 0:
-            raise ZeroAgentIdError()
-        if agent_id == self._last_player_agent_id:
-            raise AlreadyPlayedError(agent_id)
+    def put_token(self, col_index):
         if col_index >= self.nb_columns or col_index < 0:
-            raise OutOfGridError(agent_id, col_index, self.nb_columns)
+            raise OutOfGridError(self.current_token_id, col_index, self.nb_columns)
         if self._grid[col_index][self.nb_rows - 1] != 0:
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
             if slot == 0:
-                self._grid[col_index][i] = agent_id
-                self._last_player_agent_id = agent_id
+                self._grid[col_index][i] = self.current_token_id
+                self._last_player_agent_id = self.current_token_id
                 break
+        self._toggle_token_id()
 
     def is_winning_move(self, col_index, agent_id):
         return (self.check_vertical_victory(col_index, agent_id) or
