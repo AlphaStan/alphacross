@@ -1,3 +1,5 @@
+import itertools
+
 from .errors import ZeroAgentIdError, ColumnIsFullError, OutOfGridError, AlreadyPlayedError
 from .environment import _Environment
 
@@ -9,12 +11,20 @@ class CrossGame(_Environment):
         self._NB_ROWS = 6
         self._init_grid()
         self._init_game_history()
+        self._init_token_state()
 
     def _init_grid(self):
         self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
 
     def _init_game_history(self):
         self._last_player_agent_id = 0
+
+    def _init_token_state(self):
+        self.token_states = itertools.cycle([1, 2]).__next__
+        self.current_token_state = self.token_states()
+
+    def _toggle_token_state(self):
+        self.current_state = self.token_states()
 
     @property
     def nb_rows(self):
