@@ -1,9 +1,7 @@
 import pytest
-
 from ..main import cross_game
 
 
-@pytest.mark.skip(reason="Plauy method to be reimplemented. Not blocking")
 def test_play_should_display_victory1_when_player1_wins(monkeypatch, capsys):
     # Given
     inputs = [0, 1, -3, 0, 1, 0, 1, 0]

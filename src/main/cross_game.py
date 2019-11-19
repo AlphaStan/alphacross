@@ -1,5 +1,4 @@
 import itertools
-
 from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
 
@@ -57,16 +56,12 @@ class CrossGame(_Environment):
         number_of_cells = self.nb_columns * self.nb_columns
         while number_of_rounds < number_of_cells:
 
-            if number_of_rounds % 2 == 0:
-                agent_id = 1
-            if number_of_rounds % 2 != 0:
-                agent_id = 2
-
             agent_has_played = False
+            agent_id = self.current_token_id
             while not agent_has_played:
                 try:
                     column_id = input("Player {}, please give the column number where you play".format(agent_id))
-                    self.apply_action(column_id, agent_id)
+                    self.apply_action(column_id)
                     agent_has_played = True
                 except OutOfGridError:
                     print("Player {}, you should give a number between 0 and 6.".format(agent_id))
