@@ -9,14 +9,10 @@ class CrossGame(_Environment):
         self._NB_COLUMNS = 7
         self._NB_ROWS = 6
         self._init_grid()
-        self._init_game_history()
         self._init_token_id()
 
     def _init_grid(self):
         self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
-
-    def _init_game_history(self):
-        self._last_player_agent_id = 0
 
     def _init_token_id(self):
         self.token_ids = itertools.cycle([1, 2]).__next__
@@ -75,7 +71,6 @@ class CrossGame(_Environment):
                 break
 
             number_of_rounds += 1
-            self._last_player_agent_id = agent_id
 
     def apply_action(self, col_index):
         if col_index >= self.nb_columns or col_index < 0:
@@ -86,7 +81,6 @@ class CrossGame(_Environment):
         for i, slot in enumerate(self._grid[col_index]):
             if slot == 0:
                 self._grid[col_index][i] = self.current_token_id
-                self._last_player_agent_id = self.current_token_id
                 break
         self._toggle_token_id()
 
