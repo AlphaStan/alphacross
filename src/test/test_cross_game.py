@@ -1,5 +1,4 @@
 import pytest
-
 from ..main import cross_game
 
 
