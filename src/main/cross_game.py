@@ -1,19 +1,25 @@
-from .errors import ZeroAgentIdError, ColumnIsFullError, OutOfGridError, AlreadyPlayedError
+import itertools
+from .errors import ColumnIsFullError, OutOfGridError
+from .environment import _Environment
 
 
-class CrossGame:
+class CrossGame(_Environment):
 
     def __init__(self):
         self._NB_COLUMNS = 7
         self._NB_ROWS = 6
         self._init_grid()
-        self._init_game_history()
+        self._init_token_id()
 
     def _init_grid(self):
         self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
 
-    def _init_game_history(self):
-        self._last_player_agent_id = 0
+    def _init_token_id(self):
+        self.token_ids = itertools.cycle([1, 2]).__next__
+        self.current_token_id = self.token_ids()
+
+    def _toggle_token_id(self):
+        self.current_token_id = self.token_ids()
 
     @property
     def nb_rows(self):
@@ -46,16 +52,12 @@ class CrossGame:
         number_of_cells = self.nb_columns * self.nb_columns
         while number_of_rounds < number_of_cells:
 
-            if number_of_rounds % 2 == 0:
-                agent_id = 1
-            if number_of_rounds % 2 != 0:
-                agent_id = 2
-
             agent_has_played = False
+            agent_id = self.current_token_id
             while not agent_has_played:
                 try:
                     column_id = input("Player {}, please give the column number where you play".format(agent_id))
-                    self.put_token(column_id, agent_id)
+                    self.apply_action(column_id)
                     agent_has_played = True
                 except OutOfGridError:
                     print("Player {}, you should give a number between 0 and 6.".format(agent_id))
@@ -69,23 +71,18 @@ class CrossGame:
                 break
 
             number_of_rounds += 1
-            self._last_player_agent_id = agent_id
 
-    def put_token(self, col_index, agent_id):
-        if agent_id == 0:
-            raise ZeroAgentIdError()
-        if agent_id == self._last_player_agent_id:
-            raise AlreadyPlayedError(agent_id)
+    def apply_action(self, col_index):
         if col_index >= self.nb_columns or col_index < 0:
-            raise OutOfGridError(agent_id, col_index, self.nb_columns)
+            raise OutOfGridError(self.current_token_id, col_index, self.nb_columns)
         if self._grid[col_index][self.nb_rows - 1] != 0:
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
             if slot == 0:
-                self._grid[col_index][i] = agent_id
-                self._last_player_agent_id = agent_id
+                self._grid[col_index][i] = self.current_token_id
                 break
+        self._toggle_token_id()
 
     def is_winning_move(self, col_index, agent_id):
         return (self.check_vertical_victory(col_index, agent_id) or
@@ -169,3 +166,6 @@ class CrossGame:
     def display(self):
         print(self.convert_grid_to_string())
         print()
+
+    def get_state(self):
+        return self._grid
