@@ -99,10 +99,10 @@ class Agent:
 
 class Replay:
     def __init__(self, prior_state, action, reward, post_state):
-        _prior_state = prior_state
-        _action = action
-        _reward = reward
-        _post_state = post_state
+        self._prior_state = prior_state
+        self._action = action
+        self._reward = reward
+        self._post_state = post_state
 
 
 
