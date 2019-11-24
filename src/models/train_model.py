@@ -2,10 +2,6 @@ import numpy as np
 import tensorflow as tf
 from src.main.cross_game import CrossGame
 
-epsilon = 0.05
-
-c = CrossGame()
-nb_column = c.nb_columns
 
 class Agent:
 
