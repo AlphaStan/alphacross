@@ -1,5 +1,6 @@
-tensorflow
-pytest
+tensorflow==2.0.0
+pytest==5.0.1
+numpy==1.16.4
 # local package
 #-e .
 
