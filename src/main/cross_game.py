@@ -66,7 +66,7 @@ class CrossGame(_Environment):
                           .format(agent_id, column_id))
 
             self.display()
-            if self.is_winning_move(column_id, agent_id):
+            if self.is_winning_move(self.get_state(), column_id, agent_id):
                 print("Congratulation player {}, you have won !".format(agent_id))
                 break
 
@@ -84,13 +84,20 @@ class CrossGame(_Environment):
                 break
         self._toggle_token_id()
 
-    def is_winning_move(self, col_index, agent_id):
-        return (self.check_vertical_victory(col_index, agent_id) or
-                self.check_horizontal_victory(col_index, agent_id) or
-                self.check_diagonal_victory(col_index, agent_id))
+    def is_terminal_state(self, state):
+        for col_index in range(self.nb_columns):
+            for agent_id in [1, 2]:
+                if self.is_winning_move(state, col_index, agent_id):
+                    return True
+        return False
 
-    def check_vertical_victory(self, col_index, agent_id):
-        return self._check_if_four_aligned_tokens(self._grid[col_index][::-1], agent_id)
+    def is_winning_move(self, state, col_index, agent_id):
+        return (self.check_vertical_victory(state, col_index, agent_id) or
+                self.check_horizontal_victory(state, col_index, agent_id) or
+                self.check_diagonal_victory(state, col_index, agent_id))
+
+    def check_vertical_victory(self, state, col_index, agent_id):
+        return self._check_if_four_aligned_tokens(state[col_index][::-1], agent_id)
 
     @staticmethod
     def _check_if_four_aligned_tokens(token_list, agent_id):
@@ -109,36 +116,38 @@ class CrossGame(_Environment):
                 return True
         return False
 
-    def check_horizontal_victory(self, col_index, agent_id):
-        for reversed_row_id, token in enumerate(self._grid[col_index][::-1]):
+    def check_horizontal_victory(self, state, col_index, agent_id):
+        for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
                 right_border = min(6, col_index + 3)
                 row_id = 6 - reversed_row_id - 1
-                row = [self._grid[col_id][row_id] for col_id in range(left_border, right_border)]
+                row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
                 return self._check_if_four_aligned_tokens(row, agent_id)
 
-    def check_diagonal_victory(self, col_index, agent_id):
-        for reversed_row_id, token in enumerate(self._grid[col_index][::-1]):
+    def check_diagonal_victory(self, state, col_index, agent_id):
+        for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = col_index - 3
                 right_border = col_index + 3
                 row_index = 6 - reversed_row_id - 1
                 bottom_border = row_index - 3
                 top_border = row_index + 3
-                ascending_diagonal = self._get_ascending_diagonal(bottom_border,
+                ascending_diagonal = self._get_ascending_diagonal(state,
+                                                                  bottom_border,
                                                                   left_border,
                                                                   right_border,
                                                                   top_border)
-                descending_diagonal = self._get_descending_diagonal(bottom_border,
+                descending_diagonal = self._get_descending_diagonal(state,
+                                                                    bottom_border,
                                                                     left_border,
                                                                     right_border,
                                                                     top_border)
                 return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
                         self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
 
-    def _get_descending_diagonal(self, bottom_border, left_border, right_border, top_border):
-        return [self._grid[col_id][row_id]
+    def _get_descending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
+        return [state[col_id][row_id]
                 if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
                 else 0
                 for col_id, row_id
@@ -146,8 +155,8 @@ class CrossGame(_Environment):
                 zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
                 ]
 
-    def _get_ascending_diagonal(self, bottom_border, left_border, right_border, top_border):
-        return [self._grid[col_id][row_id]
+    def _get_ascending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
+        return [state[col_id][row_id]
                 if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
                 else 0
                 for col_id, row_id
