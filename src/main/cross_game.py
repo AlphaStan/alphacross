@@ -24,9 +24,6 @@ class CrossGame(_Environment):
     def _toggle_token_id(self):
         self.current_token_id = self.token_ids()
 
-    def _init_heights(self):
-        self._heights = [0 for _ in range(self.nb_columns)]
-
     @property
     def _nb_rows(self):
         return self._NB_ROWS
