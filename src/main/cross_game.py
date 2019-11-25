@@ -83,7 +83,14 @@ class CrossGame(_Environment):
             if slot == 0:
                 self._grid[col_index][i] = self.current_token_id
                 break
+
+        agent_id = self.current_token_id
         self._toggle_token_id()
+        if self._is_winning_move(self.get_state(), col_index, agent_id):
+            return 10, self.get_state()
+        else:
+            return 0, self.get_state()
+
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
