@@ -6,13 +6,14 @@ from .environment import _Environment
 class CrossGame(_Environment):
 
     def __init__(self):
+        super().__init__()
         self._NB_COLUMNS = 7
         self._NB_ROWS = 6
         self._init_grid()
         self._init_token_id()
 
     def _init_grid(self):
-        self._grid = [[0 for _ in range(self.nb_rows)] for _ in range(self.nb_columns)]
+        self._grid = [[0 for _ in range(self._nb_rows)] for _ in range(self._nb_columns)]
 
     def _init_token_id(self):
         self.token_ids = itertools.cycle([1, 2]).__next__
@@ -22,15 +23,15 @@ class CrossGame(_Environment):
         self.current_token_id = self.token_ids()
 
     @property
-    def nb_rows(self):
+    def _nb_rows(self):
         return self._NB_ROWS
 
     @property
-    def nb_columns(self):
+    def _nb_columns(self):
         return self._NB_COLUMNS
 
-    @nb_rows.setter
-    def nb_rows(self, nb_rows):
+    @_nb_rows.setter
+    def _nb_rows(self, nb_rows):
         if not isinstance(nb_rows, int) or not isinstance(nb_rows, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_rows < 0:
@@ -38,8 +39,8 @@ class CrossGame(_Environment):
         else:
             self._NB_ROWS = nb_rows
 
-    @nb_columns.setter
-    def nb_columns(self, nb_columns):
+    @_nb_columns.setter
+    def _nb_columns(self, nb_columns):
         if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_columns < 0:
@@ -47,9 +48,9 @@ class CrossGame(_Environment):
         else:
             self._NB_ROWS = nb_columns
 
-    def play(self):
+    def _play(self):
         number_of_rounds = 0
-        number_of_cells = self.nb_columns * self.nb_columns
+        number_of_cells = self._nb_rows * self._nb_columns
         while number_of_rounds < number_of_cells:
 
             agent_has_played = False
@@ -66,16 +67,16 @@ class CrossGame(_Environment):
                           .format(agent_id, column_id))
 
             print(self)
-            if self.is_winning_move(self.get_state(), column_id, agent_id):
+            if self._is_winning_move(self.get_state(), column_id, agent_id):
                 print("Congratulation player {}, you have won !".format(agent_id))
                 break
 
             number_of_rounds += 1
 
     def apply_action(self, col_index):
-        if col_index >= self.nb_columns or col_index < 0:
-            raise OutOfGridError(self.current_token_id, col_index, self.nb_columns)
-        if self._grid[col_index][self.nb_rows - 1] != 0:
+        if col_index >= self._nb_columns or col_index < 0:
+            raise OutOfGridError(self.current_token_id, col_index, self._nb_columns)
+        if self._grid[col_index][self._nb_rows - 1] != 0:
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
@@ -85,18 +86,18 @@ class CrossGame(_Environment):
         self._toggle_token_id()
 
     def is_terminal_state(self, state):
-        for col_index in range(self.nb_columns):
+        for col_index in range(self._nb_columns):
             for agent_id in [1, 2]:
-                if self.is_winning_move(state, col_index, agent_id):
+                if self._is_winning_move(state, col_index, agent_id):
                     return True
         return False
 
-    def is_winning_move(self, state, col_index, agent_id):
-        return (self.check_vertical_victory(state, col_index, agent_id) or
-                self.check_horizontal_victory(state, col_index, agent_id) or
-                self.check_diagonal_victory(state, col_index, agent_id))
+    def _is_winning_move(self, state, col_index, agent_id):
+        return (self._check_vertical_victory(state, col_index, agent_id) or
+                self._check_horizontal_victory(state, col_index, agent_id) or
+                self._check_diagonal_victory(state, col_index, agent_id))
 
-    def check_vertical_victory(self, state, col_index, agent_id):
+    def _check_vertical_victory(self, state, col_index, agent_id):
         return self._check_if_four_aligned_tokens(state[col_index][::-1], agent_id)
 
     @staticmethod
@@ -116,7 +117,7 @@ class CrossGame(_Environment):
                 return True
         return False
 
-    def check_horizontal_victory(self, state, col_index, agent_id):
+    def _check_horizontal_victory(self, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
@@ -125,7 +126,7 @@ class CrossGame(_Environment):
                 row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
                 return self._check_if_four_aligned_tokens(row, agent_id)
 
-    def check_diagonal_victory(self, state, col_index, agent_id):
+    def _check_diagonal_victory(self, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = col_index - 3
@@ -148,7 +149,7 @@ class CrossGame(_Environment):
 
     def _get_descending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
+                if 0 <= col_id < self._nb_columns and 0 <= row_id < self._nb_rows
                 else 0
                 for col_id, row_id
                 in
@@ -157,14 +158,14 @@ class CrossGame(_Environment):
 
     def _get_ascending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < self.nb_columns and 0 <= row_id < self.nb_rows
+                if 0 <= col_id < self._nb_columns and 0 <= row_id < self._nb_rows
                 else 0
                 for col_id, row_id
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
                 ]
 
     def _convert_grid_to_string(self):
-        rows_list = ["|"] * self.nb_rows
+        rows_list = ["|"] * self._nb_rows
         for column in self._grid:
             for i in range(len(column)):
                 rows_list[i] += str(column[i]) if column[i] else " "
