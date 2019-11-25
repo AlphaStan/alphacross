@@ -307,7 +307,7 @@ def test__display_grid_should_return_an_empty_grid_as_string_when_applied_on_new
     expected_grid = \
         "| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |"
     # When
-    actual_grid = actual_game.convert_grid_to_string()
+    actual_grid = actual_game._convert_grid_to_string()
     # Then
     assert (expected_grid == actual_grid)
 
@@ -320,7 +320,7 @@ def test__display_grid_should_return_a_grid_with_two_tokens_when_two_tokens_were
     # When
     actual_game.apply_action(0)
     actual_game.apply_action(0)
-    actual_grid = actual_game.convert_grid_to_string()
+    actual_grid = actual_game._convert_grid_to_string()
     # Then
     assert (expected_grid == actual_grid)
 

@@ -17,3 +17,7 @@ class _Environment(ABC):
     @abstractmethod
     def is_terminal_state(self, state):
         raise NotImplementedError
+
+    @abstractmethod
+    def __str__(self):
+        raise NotImplementedError

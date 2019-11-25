@@ -65,7 +65,7 @@ class CrossGame(_Environment):
                     print("Player {}, column {} is full, please select another number between 0 and 6."
                           .format(agent_id, column_id))
 
-            self.display()
+            print(self)
             if self.is_winning_move(self.get_state(), column_id, agent_id):
                 print("Congratulation player {}, you have won !".format(agent_id))
                 break
@@ -163,8 +163,8 @@ class CrossGame(_Environment):
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
                 ]
 
-    def convert_grid_to_string(self):
-        rows_list = ["|", "|", "|", "|", "|", "|"]
+    def _convert_grid_to_string(self):
+        rows_list = ["|"] * self.nb_rows
         for column in self._grid:
             for i in range(len(column)):
                 rows_list[i] += str(column[i]) if column[i] else " "
@@ -172,9 +172,8 @@ class CrossGame(_Environment):
         rows = "\n".join(rows_list[::-1])
         return rows
 
-    def display(self):
-        print(self.convert_grid_to_string())
-        print()
+    def __str__(self):
+        return self._convert_grid_to_string() + "\n"
 
     def get_state(self):
         return self._grid
