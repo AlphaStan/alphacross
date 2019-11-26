@@ -1,8 +1,10 @@
 import numpy as np
 import tensorflow as tf
+from src.models.agent import _Agent
 
 
-class DQNAgent:
+#TODO: test class for that
+class DQNAgent(_Agent):
 
     def __init__(self,
                  state_space_size,
@@ -12,6 +14,7 @@ class DQNAgent:
                  num_episodes=1000,
                  mini_batch_size=200,
                  num_replay=1000):
+        super().__init__()
         self.model = self.init_model(state_space_size, action_space_size)
         self.epsilon = epsilon,
         self.discount = discount,
