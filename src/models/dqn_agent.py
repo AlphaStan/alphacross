@@ -1,18 +1,17 @@
 import numpy as np
 import tensorflow as tf
-from src.main.cross_game import CrossGame
 
 
-class Agent:
+class DQNAgent:
 
     def __init__(self,
                  state_space_size,
                  action_space_size,
-                 epsilon = 0.05,
-                 discount = 0.95,
-                 num_episodes = 1000,
-                 mini_batch_size = 200,
-                 num_replay = 1000):
+                 epsilon=0.05,
+                 discount=0.95,
+                 num_episodes=1000,
+                 mini_batch_size=200,
+                 num_replay=1000):
         self.model = self.init_model(state_space_size, action_space_size)
         self.epsilon = epsilon,
         self.discount = discount,
@@ -36,11 +35,10 @@ class Agent:
             replays += self.generate_replay()
         return replays[:self.num_replay]
 
-    def generate_replay(self):
+    def generate_replay(self, env):
         replays = []
-        env = CrossGame()
-        gameIsNotFinished = True
-        while gameIsNotFinished:
+        game_is_not_finished = True
+        while game_is_not_finished:
             prior_state = env.get_state()
             actions = self.model.predict(prior_state)
             action = self.epsilon_greedy_predict_action(actions)
@@ -48,7 +46,7 @@ class Agent:
             replay = Replay(prior_state, action, reward, new_state)
             replays.append(replay)
 
-            gameIsNotFinished = not env.is_terminal_state(env.get_state())
+            game_is_not_finished = not env.is_terminal_state(env.get_state())
         return replays
 
     def play_action(self, env):
@@ -58,10 +56,10 @@ class Agent:
         reward, new_state = env.apply_action(action_id)
         return reward, new_state
 
-    def train_action(self, env):
+    def train(self, env):
         for episode in range(self.num_episodes):
-            gameIsNotFinished = True
-            while gameIsNotFinished:
+            game_is_not_finished = True
+            while game_is_not_finished:
                 prior_state = env.get_state()
                 actions = self.model.predict(prior_state)
                 action = self.epsilon_greedy_predict_action(actions)
@@ -73,7 +71,7 @@ class Agent:
                 mini_batch_states = [replay.post_state for replay in mini_batch]
                 self.model.train_on_batch(mini_batch_states, mini_batch_targets)
 
-                gameIsNotFinished = not env.is_terminal_state(env.get_state())
+                game_is_not_finished = not env.is_terminal_state(env.get_state())
 
     def save_replay(self, replay):
         self.replays.pop(0)
