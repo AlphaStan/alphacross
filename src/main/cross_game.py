@@ -86,11 +86,11 @@ class CrossGame(_Environment):
 
         agent_id = self.current_token_id
         self._toggle_token_id()
+        #TODO: replace values 10 and 0 by variables
         if self._is_winning_move(self.get_state(), col_index, agent_id):
             return 10, self.get_state()
         else:
             return 0, self.get_state()
-
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
@@ -128,8 +128,8 @@ class CrossGame(_Environment):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
-                right_border = min(6, col_index + 3)
-                row_id = 6 - reversed_row_id - 1
+                right_border = min(self._nb_rows, col_index + 3)
+                row_id = self._nb_rows - reversed_row_id - 1
                 row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
                 return self._check_if_four_aligned_tokens(row, agent_id)
 
@@ -138,7 +138,7 @@ class CrossGame(_Environment):
             if token == agent_id:
                 left_border = col_index - 3
                 right_border = col_index + 3
-                row_index = 6 - reversed_row_id - 1
+                row_index = self._nb_rows - reversed_row_id - 1
                 bottom_border = row_index - 3
                 top_border = row_index + 3
                 ascending_diagonal = self._get_ascending_diagonal(state,
