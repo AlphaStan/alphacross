@@ -86,11 +86,10 @@ class CrossGame(_Environment):
 
         agent_id = self.current_token_id
         self._toggle_token_id()
-        #TODO: replace values 10 and 0 by variables
         if self._is_winning_move(self.get_state(), col_index, agent_id):
-            return 10, self.get_state()
+            return self.final_state_reward, self.get_state()
         else:
-            return 0, self.get_state()
+            return self.non_final_state_reward, self.get_state()
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
