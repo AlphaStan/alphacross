@@ -132,8 +132,8 @@ class CrossGame(_Environment):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
-                right_border = min(len(state[0]), col_index + 3)
-                row_id = len(state[0]) - reversed_row_id - 1
+                right_border = min(cls.get_n_rows(state), col_index + 3)
+                row_id = cls.get_n_rows(state) - reversed_row_id - 1
                 row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
                 return cls._check_if_four_aligned_tokens(row, agent_id)
 
@@ -162,7 +162,7 @@ class CrossGame(_Environment):
     @classmethod
     def _get_descending_diagonal(cls, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < len(state) and 0 <= row_id < len(state[0])
+                if 0 <= col_id < cls.get_n_columns(state) and 0 <= row_id < cls.get_n_rows(state)
                 else 0
                 for col_id, row_id
                 in
@@ -172,11 +172,19 @@ class CrossGame(_Environment):
     @classmethod
     def _get_ascending_diagonal(cls, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < len(state) and 0 <= row_id < len(state[0])
+                if 0 <= col_id < cls.get_n_columns(state) and 0 <= row_id < cls.get_n_rows(state)
                 else 0
                 for col_id, row_id
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
                 ]
+
+    @staticmethod
+    def get_n_rows(state):
+        return len(state[0])
+
+    @staticmethod
+    def get_n_columns(state):
+        return len(state)
 
     def _convert_grid_to_string(self):
         rows_list = ["|"] * self._nb_rows
