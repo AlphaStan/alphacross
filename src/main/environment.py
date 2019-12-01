@@ -5,8 +5,6 @@ class _Environment(ABC):
 
     def __init__(self):
         super().__init__()
-        self.final_state_reward = 10
-        self.non_final_state_reward = 0
 
     @abstractmethod
     def apply_action(self, action):

@@ -9,6 +9,8 @@ class CrossGame(_Environment):
         super().__init__()
         self._NB_COLUMNS = 7
         self._NB_ROWS = 6
+        self.final_state_reward = 10
+        self.non_final_state_reward = 0
         self._init_grid()
         self._init_token_id()
 
@@ -98,13 +100,15 @@ class CrossGame(_Environment):
                     return True
         return False
 
-    def _is_winning_move(self, state, col_index, agent_id):
-        return (self._check_vertical_victory(state, col_index, agent_id) or
-                self._check_horizontal_victory(state, col_index, agent_id) or
-                self._check_diagonal_victory(state, col_index, agent_id))
+    @classmethod
+    def _is_winning_move(cls, state, col_index, agent_id):
+        return (cls._check_vertical_victory(state, col_index, agent_id) or
+                cls._check_horizontal_victory(state, col_index, agent_id) or
+                cls._check_diagonal_victory(state, col_index, agent_id))
 
-    def _check_vertical_victory(self, state, col_index, agent_id):
-        return self._check_if_four_aligned_tokens(state[col_index][::-1], agent_id)
+    @classmethod
+    def _check_vertical_victory(cls, state, col_index, agent_id):
+        return cls._check_if_four_aligned_tokens(state[col_index][::-1], agent_id)
 
     @staticmethod
     def _check_if_four_aligned_tokens(token_list, agent_id):
@@ -123,48 +127,52 @@ class CrossGame(_Environment):
                 return True
         return False
 
-    def _check_horizontal_victory(self, state, col_index, agent_id):
+    @classmethod
+    def _check_horizontal_victory(cls, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
-                right_border = min(self._nb_rows, col_index + 3)
-                row_id = self._nb_rows - reversed_row_id - 1
+                right_border = min(len(state[0]), col_index + 3)
+                row_id = len(state[0]) - reversed_row_id - 1
                 row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
-                return self._check_if_four_aligned_tokens(row, agent_id)
+                return cls._check_if_four_aligned_tokens(row, agent_id)
 
-    def _check_diagonal_victory(self, state, col_index, agent_id):
+    @classmethod
+    def _check_diagonal_victory(cls, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = col_index - 3
                 right_border = col_index + 3
-                row_index = self._nb_rows - reversed_row_id - 1
+                row_index = len(state[0]) - reversed_row_id - 1
                 bottom_border = row_index - 3
                 top_border = row_index + 3
-                ascending_diagonal = self._get_ascending_diagonal(state,
-                                                                  bottom_border,
-                                                                  left_border,
-                                                                  right_border,
-                                                                  top_border)
-                descending_diagonal = self._get_descending_diagonal(state,
-                                                                    bottom_border,
-                                                                    left_border,
-                                                                    right_border,
-                                                                    top_border)
-                return (self._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
-                        self._check_if_four_aligned_tokens(descending_diagonal, agent_id))
+                ascending_diagonal = cls._get_ascending_diagonal(state,
+                                                                 bottom_border,
+                                                                 left_border,
+                                                                 right_border,
+                                                                 top_border)
+                descending_diagonal = cls._get_descending_diagonal(state,
+                                                                   bottom_border,
+                                                                   left_border,
+                                                                   right_border,
+                                                                   top_border)
+                return (cls._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
+                        cls._check_if_four_aligned_tokens(descending_diagonal, agent_id))
 
-    def _get_descending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
+    @classmethod
+    def _get_descending_diagonal(cls, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < self._nb_columns and 0 <= row_id < self._nb_rows
+                if 0 <= col_id < len(state) and 0 <= row_id < len(state[0])
                 else 0
                 for col_id, row_id
                 in
                 zip(range(left_border, right_border+1), range(top_border, bottom_border-1, -1))
                 ]
 
-    def _get_ascending_diagonal(self, state, bottom_border, left_border, right_border, top_border):
+    @classmethod
+    def _get_ascending_diagonal(cls, state, bottom_border, left_border, right_border, top_border):
         return [state[col_id][row_id]
-                if 0 <= col_id < self._nb_columns and 0 <= row_id < self._nb_rows
+                if 0 <= col_id < len(state) and 0 <= row_id < len(state[0])
                 else 0
                 for col_id, row_id
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
