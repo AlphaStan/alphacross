@@ -1,8 +1,12 @@
-from .dqn_agent import DQNAgent
+from src.models.dqn_agent import DQNAgent
 from src.main.cross_game import CrossGame
 
 
 def train_agent():
     environment = CrossGame()
-    agent = DQNAgent(environment.nb_columns * environment.nb_rows, environment.nb_columns)
+    agent = DQNAgent(environment._nb_columns * environment._nb_rows, environment._nb_columns, environment)
+    print(agent.model.summary())
     agent.train(environment)
+
+if __name__ == "__main__":
+    train_agent()

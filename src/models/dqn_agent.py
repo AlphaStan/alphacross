@@ -1,5 +1,7 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.keras.layers import Flatten
+
 from src.models.agent import _Agent
 
 
@@ -9,40 +11,44 @@ class DQNAgent(_Agent):
     def __init__(self,
                  state_space_size,
                  action_space_size,
+                 env,
                  epsilon=0.05,
                  discount=0.95,
                  num_episodes=1000,
                  mini_batch_size=200,
-                 num_replay=1000):
+                 num_replay=1000
+                 ):
         super().__init__()
         self.model = self.init_model(state_space_size, action_space_size)
-        self.epsilon = epsilon,
-        self.discount = discount,
-        self.replays = self.init_replays()
-        self.num_replay = num_replay
+        self.epsilon = epsilon
+        self.discount = discount
         self.num_episodes = num_episodes
         self.mini_batch_size = mini_batch_size
+        self.num_replay = num_replay
+        self.replays = self.init_replays(env)
 
     @staticmethod
     def init_model(state_space_size, action_space_size):
         model = tf.keras.Sequential()
-        model.add(tf.keras.layers.Dense(state_space_size, activation=tf.keras.activations.relu))
-        model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu))
+        model.add(Flatten(input_shape=(7, 6)))
+        model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
+        #model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu))
         model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
         model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
+        print(model.summary())
         return model
 
-    def init_replays(self):
+    def init_replays(self, env):
         replays = []
         while len(replays) < self.num_replay:
-            replays += self.generate_replay()
+            replays += self.generate_replay(env)
         return replays[:self.num_replay]
 
     def generate_replay(self, env):
         replays = []
         game_is_not_finished = True
         while game_is_not_finished:
-            prior_state = env.get_state()
+            prior_state = env.get_state().reshape((1, 7, 6))
             actions = self.model.predict(prior_state)
             action = self.epsilon_greedy_predict_action(actions)
             reward, new_state = env.apply_action(action)
@@ -53,7 +59,7 @@ class DQNAgent(_Agent):
         return replays
 
     def play_action(self, env):
-        state = env.get_state()
+        state = env.get_state().reshape((1, 7, 6))
         action_probabilities = self.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         reward, new_state = env.apply_action(action_id)
@@ -63,7 +69,7 @@ class DQNAgent(_Agent):
         for episode in range(self.num_episodes):
             game_is_not_finished = True
             while game_is_not_finished:
-                prior_state = env.get_state()
+                prior_state = env.get_state().reshape((1, 7, 6))
                 actions = self.model.predict(prior_state)
                 action = self.epsilon_greedy_predict_action(actions)
                 reward, new_state = env.apply_action(action)
@@ -88,7 +94,7 @@ class DQNAgent(_Agent):
             else self.discount * np.max(self.model.predict(replay._post_state)) for replay in mini_batch]
 
     def epsilon_greedy_predict_action(self, actions):
-        if np.random.random() < self.epsilon:
+        if np.random.random_sample() < self.epsilon:
             return np.random.randint(0, len(actions))
         else:
             return np.argmax(actions)
