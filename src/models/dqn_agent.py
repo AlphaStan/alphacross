@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
-
 from src.models.agent import _Agent
 
 
@@ -19,6 +18,7 @@ class DQNAgent(_Agent):
                  num_replay=1000
                  ):
         super().__init__()
+        self.action_space_size = action_space_size
         self.model = self.init_model(state_space_size, action_space_size)
         self.epsilon = epsilon
         self.discount = discount
@@ -49,8 +49,7 @@ class DQNAgent(_Agent):
         game_is_not_finished = True
         while game_is_not_finished:
             prior_state = env.get_state().reshape((1, 7, 6))
-            actions = self.model.predict(prior_state)
-            action = self.epsilon_greedy_predict_action(actions)
+            action = np.random.choice(self.action_space_size)
             reward, new_state = env.apply_action(action)
             replay = Replay(prior_state, action, reward, new_state)
             replays.append(replay)
