@@ -1,3 +1,4 @@
+import numpy as np
 import itertools
 from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
@@ -199,4 +200,4 @@ class CrossGame(_Environment):
         return self._convert_grid_to_string() + "\n"
 
     def get_state(self):
-        return self._grid
+        return np.array(self._grid, np.float32)
