@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
 from src.models.agent import _Agent
+from scipy.special import softmax
 
 
 #TODO: test class for that
