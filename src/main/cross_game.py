@@ -79,7 +79,7 @@ class CrossGame(_Environment):
     def apply_action(self, col_index):
         if col_index >= self._nb_columns or col_index < 0:
             raise OutOfGridError(self.current_token_id, col_index, self._nb_columns)
-        if self._grid[col_index][self._nb_rows - 1] != 0:
+        if self.columnIsFull(col_index):
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
@@ -93,6 +93,9 @@ class CrossGame(_Environment):
             return self.final_state_reward, self.get_state()
         else:
             return self.non_final_state_reward, self.get_state()
+
+    def columnIsFull(self, col_index):
+        return self._grid[col_index][self._nb_rows - 1] != 0
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
