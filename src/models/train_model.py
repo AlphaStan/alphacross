@@ -5,7 +5,6 @@ from src.main.cross_game import CrossGame
 def train_agent():
     environment = CrossGame()
     agent = DQNAgent(environment._nb_columns * environment._nb_rows, environment._nb_columns, environment)
-    print(agent.model.summary())
     agent.train(environment)
 
 if __name__ == "__main__":
