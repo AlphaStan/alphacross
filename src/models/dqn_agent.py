@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
+from ..main.errors import ColumnIsFullError
 from src.models.agent import _Agent
 from scipy.special import softmax
 
@@ -33,10 +34,8 @@ class DQNAgent(_Agent):
         model = tf.keras.Sequential()
         model.add(Flatten(input_shape=(7, 6)))
         model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
-        #model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu))
         model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
         model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
-        print(model.summary())
         return model
 
     def init_replays(self, env):
@@ -49,9 +48,13 @@ class DQNAgent(_Agent):
         replays = []
         game_is_not_finished = True
         while game_is_not_finished:
+            print("Num of replay : {}".format(len(replays)))
             prior_state = env.get_state().reshape((1, 7, 6))
             action = np.random.choice(self.action_space_size)
-            reward, new_state = env.apply_action(action)
+            try:
+                reward, new_state = env.apply_action(action)
+            except(ColumnIsFullError):
+                continue
             replay = Replay(prior_state, action, reward, new_state)
             replays.append(replay)
 
@@ -67,20 +70,35 @@ class DQNAgent(_Agent):
 
     def train(self, env):
         for episode in range(self.num_episodes):
+            print(episode)
             game_is_not_finished = True
             while game_is_not_finished:
                 prior_state = env.get_state().reshape((1, 7, 6))
                 actions = self.model.predict(prior_state)
                 action = self.epsilon_greedy_predict_action(actions)
-                reward, new_state = env.apply_action(action)
-                replay = Replay(prior_state, action, reward, new_state)
-                self.save_replay(replay)
-                mini_batch = self.sample_minibatch()
-                mini_batch_targets = self.get_mini_batch_targets(mini_batch)
-                mini_batch_states = [replay.post_state for replay in mini_batch]
-                self.model.train_on_batch(mini_batch_states, mini_batch_targets)
+                try:
+                    reward, new_state = env.apply_action(action)
+                    replay = Replay(prior_state, action, reward, new_state)
+                    self.save_replay(replay)
+                    mini_batch = self.sample_minibatch()
+                    mini_batch_targets = self.get_mini_batch_targets(mini_batch)
+                    mini_batch_states = [replay.post_state for replay in mini_batch]
+                    self.model.train_on_batch(mini_batch_states, mini_batch_targets)
+                    game_is_not_finished = not env.is_terminal_state(env.get_state())
+                except(ColumnIsFullError):
+                    continue
 
-                game_is_not_finished = not env.is_terminal_state(env.get_state())
+
+    def get_legal_action(self, state, get_action_prob, env):
+        action_probabilities = get_action_prob(state)
+        legal_actions = [env.is_legal_action(state, action) for action in range(action_probabilities)]
+        legal_action_prob = [prob if legal_action else 0
+                             for prob, legal_action in zip(action_probabilities, legal_actions)]
+
+        if sum(legal_action_prob) == 0:
+            return legal_action_prob
+        return legal_action_prob / sum(legal_action_prob)
+
 
     def save_replay(self, replay):
         self.replays.pop(0)

@@ -51,11 +51,11 @@ class CrossGame(_Environment):
         else:
             self._NB_ROWS = nb_columns
 
+    # deprecated
     def _play(self):
         number_of_rounds = 0
         number_of_cells = self._nb_rows * self._nb_columns
         while number_of_rounds < number_of_cells:
-
             agent_has_played = False
             agent_id = self.current_token_id
             while not agent_has_played:
@@ -79,7 +79,7 @@ class CrossGame(_Environment):
     def apply_action(self, col_index):
         if col_index >= self._nb_columns or col_index < 0:
             raise OutOfGridError(self.current_token_id, col_index, self._nb_columns)
-        if self.columnIsFull(col_index):
+        if self.is_legal_action(self._grid, col_index):
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
@@ -94,8 +94,8 @@ class CrossGame(_Environment):
         else:
             return self.non_final_state_reward, self.get_state()
 
-    def columnIsFull(self, col_index):
-        return self._grid[col_index][self._nb_rows - 1] != 0
+    def is_legal_action(self, state, col_index):
+        return state[col_index][self._nb_rows - 1] != 0
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
