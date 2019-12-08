@@ -22,3 +22,6 @@ class _Environment(ABC):
     def __str__(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def is_blocked(self):
+        raise NotImplementedError
