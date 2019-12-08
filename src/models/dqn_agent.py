@@ -58,7 +58,7 @@ class DQNAgent(_Agent):
             replay = Replay(prior_state, action, reward, new_state)
             replays.append(replay)
             game_is_finished = env.is_terminal_state(env.get_state())
-            if env.is_blocked:
+            if env.is_blocked():
                 game_is_finished = True
         return replays
 
