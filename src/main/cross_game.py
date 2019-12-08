@@ -90,9 +90,9 @@ class CrossGame(_Environment):
         agent_id = self.current_token_id
         self._toggle_token_id()
         if self._is_winning_move(self.get_state(), col_index, agent_id):
-            return self.final_state_reward, self.get_state()
+            return self.final_state_reward, self.get_np_array()
         else:
-            return self.non_final_state_reward, self.get_state()
+            return self.non_final_state_reward, self.get_np_array()
 
     def is_legal_action(self, state, col_index):
         return state[col_index][self._nb_rows - 1] != 0
@@ -202,5 +202,8 @@ class CrossGame(_Environment):
     def __str__(self):
         return self._convert_grid_to_string() + "\n"
 
-    def get_state(self):
+    def get_np_array(self):
         return np.array(self._grid, np.float32)
+
+    def get_state(self):
+        return self._grid
