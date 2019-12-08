@@ -49,7 +49,7 @@ class DQNAgent(_Agent):
         game_is_not_finished = True
         while game_is_not_finished:
             print("Num of replay : {}".format(len(replays)))
-            prior_state = env.get_state().reshape((1, 7, 6))
+            prior_state = env.get_np_array()
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
@@ -62,7 +62,7 @@ class DQNAgent(_Agent):
         return replays
 
     def play_action(self, env):
-        state = env.get_state().reshape((1, 7, 6))
+        state = env.get_np_array().reshape((1, 7, 6))
         action_probabilities = self.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         reward, new_state = env.apply_action(action_id)
@@ -70,10 +70,9 @@ class DQNAgent(_Agent):
 
     def train(self, env):
         for episode in range(self.num_episodes):
-            print(episode)
             game_is_not_finished = True
             while game_is_not_finished:
-                prior_state = env.get_state().reshape((1, 7, 6))
+                prior_state = env.get_np_array().reshape((1, 7, 6))
                 actions = self.model.predict(prior_state)
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
