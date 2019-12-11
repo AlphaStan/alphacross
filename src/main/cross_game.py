@@ -138,7 +138,7 @@ class CrossGame(_Environment):
                 left_border = max(0, col_index - 3)
                 right_border = min(cls.get_n_rows(state), col_index + 3)
                 row_id = cls.get_n_rows(state) - reversed_row_id - 1
-                row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
+                row = [state[col_id][row_id] for col_id in range(left_border, right_border+1)]
                 return cls._check_if_four_aligned_tokens(row, agent_id)
 
     @classmethod
