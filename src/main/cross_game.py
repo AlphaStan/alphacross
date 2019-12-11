@@ -12,6 +12,9 @@ class CrossGame(_Environment):
         self._NB_ROWS = 6
         self.final_state_reward = 10
         self.non_final_state_reward = 0
+        self.reset()
+
+    def reset(self):
         self._init_grid()
         self._init_token_id()
 
@@ -204,3 +207,6 @@ class CrossGame(_Environment):
 
     def get_state(self):
         return np.array(self._grid, np.float32)
+
+    def is_blocked(self):
+        return 0 not in self.get_state()

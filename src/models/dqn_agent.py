@@ -3,7 +3,6 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
 from ..main.errors import ColumnIsFullError
 from src.models.agent import _Agent
-from scipy.special import softmax
 
 
 #TODO: test class for that
@@ -27,7 +26,7 @@ class DQNAgent(_Agent):
         self.num_episodes = num_episodes
         self.mini_batch_size = mini_batch_size
         self.num_replay = num_replay
-        self.replays = self.init_replays(env)
+        self.replays = []
 
     @staticmethod
     def init_model(state_space_size, action_space_size):
@@ -42,23 +41,25 @@ class DQNAgent(_Agent):
         replays = []
         while len(replays) < self.num_replay:
             replays += self.generate_replay(env)
-        return replays[:self.num_replay]
+            env.reset()
+            print("Replays generated %i/%i" % (min(len(replays), self.num_replay), self.num_replay))
+        self.replays = replays[:self.num_replay]
 
     def generate_replay(self, env):
         replays = []
-        game_is_not_finished = True
-        while game_is_not_finished:
-            print("Num of replay : {}".format(len(replays)))
-            prior_state = env.get_state().reshape((1, 7, 6))
+        game_is_finished = False
+        while not game_is_finished:
+            prior_state = np.expand_dims(env.get_state().reshape((7, 6)), axis=0)
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
-            except(ColumnIsFullError):
+            except ColumnIsFullError:
                 continue
             replay = Replay(prior_state, action, reward, new_state)
             replays.append(replay)
-
-            game_is_not_finished = not env.is_terminal_state(env.get_state())
+            game_is_finished = env.is_terminal_state(env.get_state())
+            if env.is_blocked():
+                game_is_finished = True
         return replays
 
     def play_action(self, env):
@@ -69,6 +70,8 @@ class DQNAgent(_Agent):
         return reward, new_state
 
     def train(self, env):
+        if not self.replays:
+            raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
             print(episode)
             game_is_not_finished = True

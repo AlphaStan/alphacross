@@ -386,3 +386,26 @@ def test_is_terminal_state_should_return_False_when_state_is_not_terminal():
     is_terminal_state = game.is_terminal_state(state)
     # Then
     assert not is_terminal_state
+
+
+def test_is_blocked_should_return_False_when_the_grid_is_not_full():
+    # Given
+    game = cross_game.CrossGame()
+    game.apply_action(1)
+    game.apply_action(2)
+    # When
+    is_blocked = game.is_blocked()
+    # Then
+    assert not is_blocked
+
+
+def test_is_blocked_should_return_True_when_the_grid_is_full():
+    # Given
+    game = cross_game.CrossGame()
+    for i in range(game._nb_columns):
+        for _ in range(game._nb_rows):
+            game.apply_action(i)
+    # When
+    is_blocked = game.is_blocked()
+    # Then
+    assert is_blocked
