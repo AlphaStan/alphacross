@@ -205,11 +205,8 @@ class CrossGame(_Environment):
     def __str__(self):
         return self._convert_grid_to_string() + "\n"
 
-    def get_np_array(self):
+    def get_state(self):
         return np.array(self._grid, np.float32)
 
-    def get_state(self):
-        return self._grid
-
     def is_blocked(self):
-        return 0 not in self.get_np_array()
+        return 0 not in self.get_state()
