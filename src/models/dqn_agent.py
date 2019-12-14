@@ -12,7 +12,7 @@ class DQNAgent(_Agent):
                  state_space_size,
                  action_space_size,
                  env,
-                 epsilon=0.05,
+                 epsilon=0.25,
                  discount=0.95,
                  num_episodes=1000,
                  mini_batch_size=200,
@@ -34,7 +34,7 @@ class DQNAgent(_Agent):
         model.add(Flatten(input_shape=(7, 6)))
         model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
         model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
-        model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
+        model.compile(loss=tf.losses.huber_loss, optimizer='Adam', metrics=['accuracy'])
         return model
 
     def init_replays(self, env):
@@ -77,7 +77,7 @@ class DQNAgent(_Agent):
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_np_array().reshape((1, 7, 6))
-                actions = self.model.predict(prior_state)
+                actions = self.model.predict(prior_state).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     reward, new_state = env.apply_action(action)
@@ -91,6 +91,7 @@ class DQNAgent(_Agent):
                     game_is_finished = env.is_terminal_state(env.get_state())
                 except(ColumnIsFullError):
                     continue
+            env.reset()
 
 
     def get_legal_action(self, state, get_action_prob, env):
