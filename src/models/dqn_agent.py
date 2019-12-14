@@ -49,7 +49,7 @@ class DQNAgent(_Agent):
         replays = []
         game_is_finished = False
         while not game_is_finished:
-            prior_state = np.expand_dims(env.get_state().reshape((7, 6)), axis=0)
+            prior_state = np.expand_dims(env.get_np_array().reshape((7, 6)), axis=0)
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
