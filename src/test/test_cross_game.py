@@ -134,7 +134,20 @@ def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_
         game.apply_action(4)
     game.apply_action(0)
     # When
-    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 0, 1)
+    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 0, 1)  
+    # Then
+    assert is_horizontal_victory
+
+
+def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned_on_right_border():
+    # Given
+    game = cross_game.CrossGame()
+    for i in range(3, 6):
+        game.apply_action(i)
+        game.apply_action(0)
+    game.apply_action(6)
+    # When
+    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 6, 1)
     # Then
     assert is_horizontal_victory
 
