@@ -12,6 +12,9 @@ class CrossGame(_Environment):
         self._NB_ROWS = 6
         self.final_state_reward = 10
         self.non_final_state_reward = 0
+        self.reset()
+
+    def reset(self):
         self._init_grid()
         self._init_token_id()
 
@@ -138,7 +141,7 @@ class CrossGame(_Environment):
                 left_border = max(0, col_index - 3)
                 right_border = min(cls.get_n_rows(state), col_index + 3)
                 row_id = cls.get_n_rows(state) - reversed_row_id - 1
-                row = [state[col_id][row_id] for col_id in range(left_border, right_border)]
+                row = [state[col_id][row_id] for col_id in range(left_border, right_border+1)]
                 return cls._check_if_four_aligned_tokens(row, agent_id)
 
     @classmethod
@@ -207,3 +210,6 @@ class CrossGame(_Environment):
 
     def get_state(self):
         return self._grid
+
+    def is_blocked(self):
+        return 0 not in self.get_np_array()

@@ -34,7 +34,7 @@ def test_new_instance_should_have_an_empty_grid_attribute():
     # When
     actual_grid = actual_game._grid
     # Then
-    assert (actual_grid == expected_grid)
+    assert actual_grid == expected_grid
 
 
 def test_apply_action_should_write_a_token_in_the_available_index():
@@ -46,7 +46,7 @@ def test_apply_action_should_write_a_token_in_the_available_index():
     actual_game.apply_action(0)
     actual_grid = actual_game._grid
     # Then
-    assert (actual_grid == expected_grid)
+    assert actual_grid == expected_grid
 
 
 def test_apply_action_should_write_another_token_above_a_previous_one():
@@ -60,7 +60,7 @@ def test_apply_action_should_write_another_token_above_a_previous_one():
     actual_game.apply_action(0)
     actual_grid = actual_game._grid
     # Then
-    assert (actual_grid == expected_grid)
+    assert actual_grid == expected_grid
 
 
 def test_apply_action_should_throw_exception_when_column_is_full():
@@ -98,7 +98,7 @@ def test_check_vertical_victory_should_return_False_when_there_are_less_than_4_v
     # When
     is_vertical_victory = game._check_vertical_victory(game.get_state(), col_index, 1)
     # Then
-    assert (not is_vertical_victory)
+    assert not is_vertical_victory
 
 
 def test_check_horizontal_victory_should_return_True_when_there_are_4_horizontally_aligned_tokens_with_same_agent_id():
@@ -123,10 +123,10 @@ def test_check_horizontal_victory_should_return_False_when_there_are_less_than_4
     # When
     is_horizontal_victory = game._check_horizontal_victory(game.get_state(), i, 1)
     # Then
-    assert (not is_horizontal_victory)
+    assert not is_horizontal_victory
 
 
-def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned():
+def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned_on_left_border():
     # Given
     game = cross_game.CrossGame()
     for i in range(3, 0, -1):
@@ -134,7 +134,20 @@ def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_
         game.apply_action(4)
     game.apply_action(0)
     # When
-    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), i, 1)
+    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 0, 1)
+    # Then
+    assert is_horizontal_victory
+
+
+def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_agent_id_are_aligned_on_right_border():
+    # Given
+    game = cross_game.CrossGame()
+    for i in range(3, 6):
+        game.apply_action(i)
+        game.apply_action(0)
+    game.apply_action(6)
+    # When
+    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 6, 1)
     # Then
     assert is_horizontal_victory
 
@@ -215,7 +228,7 @@ def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_a
     # When
     is_diagonal_victory = game._check_diagonal_victory(game.get_state(), 3, 1)
     # Then
-    assert (not is_diagonal_victory)
+    assert not is_diagonal_victory
 
 
 def test_check_diagonal_victory_should_return_True_when_there_are_4_descending_diagonally_aligned_tokens_with_same_agent_id_from_right():
@@ -298,7 +311,7 @@ def test_check_diagonal_victory_should_return_False_when_there_are_less_than_4_d
     # When
     is_diagonal_victory = game._check_diagonal_victory(game.get_state(), 2, 1)
     # Then
-    assert (not is_diagonal_victory)
+    assert not is_diagonal_victory
 
 
 def test__display_grid_should_return_an_empty_grid_as_string_when_applied_on_new_instance():
@@ -309,7 +322,7 @@ def test__display_grid_should_return_an_empty_grid_as_string_when_applied_on_new
     # When
     actual_grid = actual_game._convert_grid_to_string()
     # Then
-    assert (expected_grid == actual_grid)
+    assert expected_grid == actual_grid
 
 
 def test__display_grid_should_return_a_grid_with_two_tokens_when_two_tokens_were_played():
@@ -322,7 +335,7 @@ def test__display_grid_should_return_a_grid_with_two_tokens_when_two_tokens_were
     actual_game.apply_action(0)
     actual_grid = actual_game._convert_grid_to_string()
     # Then
-    assert (expected_grid == actual_grid)
+    assert expected_grid == actual_grid
 
 
 def test_apply_action_should_throw_exception_when_player_tries_to_play_outside_the_grid():
@@ -373,3 +386,26 @@ def test_is_terminal_state_should_return_False_when_state_is_not_terminal():
     is_terminal_state = game.is_terminal_state(state)
     # Then
     assert not is_terminal_state
+
+
+def test_is_blocked_should_return_False_when_the_grid_is_not_full():
+    # Given
+    game = cross_game.CrossGame()
+    game.apply_action(1)
+    game.apply_action(2)
+    # When
+    is_blocked = game.is_blocked()
+    # Then
+    assert not is_blocked
+
+
+def test_is_blocked_should_return_True_when_the_grid_is_full():
+    # Given
+    game = cross_game.CrossGame()
+    for i in range(game._nb_columns):
+        for _ in range(game._nb_rows):
+            game.apply_action(i)
+    # When
+    is_blocked = game.is_blocked()
+    # Then
+    assert is_blocked
