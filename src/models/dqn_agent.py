@@ -73,8 +73,9 @@ class DQNAgent(_Agent):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
-            game_is_not_finished = True
-            while game_is_not_finished:
+            print("Train on episode %i/%i" % (episode, self.num_episodes))
+            game_is_finished = False
+            while not game_is_finished:
                 prior_state = env.get_np_array().reshape((1, 7, 6))
                 actions = self.model.predict(prior_state)
                 action = self.epsilon_greedy_predict_action(actions)
@@ -84,9 +85,10 @@ class DQNAgent(_Agent):
                     self.save_replay(replay)
                     mini_batch = self.sample_minibatch()
                     mini_batch_targets = self.get_mini_batch_targets(mini_batch)
-                    mini_batch_states = [replay.post_state for replay in mini_batch]
+                    mini_batch_states = np.array([replay._post_state for replay in mini_batch])
+                    #TODO: Fix wrong-sized targets
                     self.model.train_on_batch(mini_batch_states, mini_batch_targets)
-                    game_is_not_finished = not env.is_terminal_state(env.get_state())
+                    game_is_finished = env.is_terminal_state(env.get_state())
                 except(ColumnIsFullError):
                     continue
 
@@ -110,8 +112,9 @@ class DQNAgent(_Agent):
         return np.random.choice(self.replays, self.mini_batch_size, replace=False)
 
     def get_mini_batch_targets(self, mini_batch):
-        return [replay._reward if replay._reward == 1
-            else self.discount * np.max(self.model.predict(replay._post_state)) for replay in mini_batch]
+        return np.array([replay._reward if replay._reward == 1
+                         else self.discount * np.max(self.model.predict(np.expand_dims(replay._post_state, axis=0)))
+                         for replay in mini_batch])
 
     def epsilon_greedy_predict_action(self, actions):
         if np.random.random_sample() < self.epsilon:
