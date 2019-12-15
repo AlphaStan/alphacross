@@ -34,7 +34,7 @@ class DQNAgent(_Agent):
         model.add(Flatten(input_shape=(7, 6)))
         model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
         model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
-        model.compile(loss=tf.losses.huber_loss, optimizer='Adam', metrics=['accuracy'])
+        model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
         return model
 
     def init_replays(self, env):
@@ -73,7 +73,7 @@ class DQNAgent(_Agent):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
-            print("Train on episode %i/%i" % (episode, self.num_episodes))
+            print("---------------- Train on episode %i/%i" % (episode, self.num_episodes))
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_np_array().reshape((1, 7, 6))
@@ -84,11 +84,13 @@ class DQNAgent(_Agent):
                     replay = Replay(prior_state, action, reward, new_state)
                     self.save_replay(replay)
                     mini_batch = self.sample_minibatch()
-                    mini_batch_targets = self.get_mini_batch_targets(mini_batch)
                     mini_batch_states = np.array([replay._post_state for replay in mini_batch])
-                    #TODO: Fix wrong-sized targets
-                    self.model.train_on_batch(mini_batch_states, mini_batch_targets)
+                    mini_batch_data = np.concatenate([np.expand_dims(np.array([replay._action for replay in mini_batch]), axis=1),
+                                                      np.expand_dims(np.array([replay._reward for replay in mini_batch]), axis=1)],
+                                                     axis=1)
+                    self.model.train_on_batch(mini_batch_states, mini_batch_data)
                     game_is_finished = env.is_terminal_state(env.get_state())
+                    print("Game is finished: {}".format(game_is_finished))
                 except(ColumnIsFullError):
                     continue
             env.reset()
@@ -130,3 +132,11 @@ class Replay:
         self._action = action
         self._reward = reward
         self._post_state = post_state
+
+
+def dqn_mask_loss(batch_data, y_pred):
+    batch_actions = tf.dtypes.cast(batch_data[:, 0], tf.int32)
+    batch_groundtruth_rewards = batch_data[:, 1]
+    mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
+    batch_predicted_rewards = tf.boolean_mask(y_pred, mask)
+    return tf.keras.losses.Huber()(batch_groundtruth_rewards, batch_predicted_rewards)
