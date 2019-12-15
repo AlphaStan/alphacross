@@ -4,6 +4,7 @@ from tensorflow.python.keras.layers import Flatten
 from ..main.errors import ColumnIsFullError
 from src.models.agent import _Agent
 import datetime
+import warnings
 
 
 #TODO: test class for that
@@ -118,7 +119,9 @@ class DQNAgent(_Agent):
     def sample_minibatch(self):
         return np.random.choice(self.replays, self.mini_batch_size, replace=False)
 
+    # DEPRECATED
     def get_mini_batch_targets(self, mini_batch):
+        warnings.warn("'get_mini_batch_target' is deprecated and should not be used as is")
         return np.array([replay._reward if replay._reward == 1
                          else self.discount * np.max(self.model.predict(np.expand_dims(replay._post_state, axis=0)))
                          for replay in mini_batch])
