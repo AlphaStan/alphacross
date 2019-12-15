@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
 from ..main.errors import ColumnIsFullError
 from src.models.agent import _Agent
+import datetime
 
 
 #TODO: test class for that
@@ -73,7 +74,9 @@ class DQNAgent(_Agent):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
-            print("---------------- Train on episode %i/%i" % (episode, self.num_episodes))
+            print("---------------- Train on episode %i/%i (%s)" % (episode+1,
+                                                                    self.num_episodes,
+                                                                    datetime.datetime.now().strftime("%d%m%Y_%H%M%S")))
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_np_array().reshape((1, 7, 6))
@@ -90,11 +93,12 @@ class DQNAgent(_Agent):
                                                      axis=1)
                     self.model.train_on_batch(mini_batch_states, mini_batch_data)
                     game_is_finished = env.is_terminal_state(env.get_state())
-                    print("Game is finished: {}".format(game_is_finished))
-                except(ColumnIsFullError):
+                    if env.is_blocked():
+                        game_is_finished = True
+                except ColumnIsFullError:
                     continue
             env.reset()
-
+        self.model.save('trained_model_%s.h5' % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)
