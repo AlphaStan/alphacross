@@ -22,7 +22,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = action_space_size
-        self.model = self.init_model(state_space_size, action_space_size)
+        self.model = self.init_model(env.get_shape(), state_space_size, action_space_size)
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -31,9 +31,9 @@ class DQNAgent(_Agent):
         self.replays = []
 
     @staticmethod
-    def init_model(state_space_size, action_space_size):
+    def init_model(env_shape, state_space_size, action_space_size):
         model = tf.keras.Sequential()
-        model.add(Flatten(input_shape=(7, 6)))
+        model.add(Flatten(input_shape=env_shape))
         model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
         model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
         model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
@@ -51,7 +51,7 @@ class DQNAgent(_Agent):
         replays = []
         game_is_finished = False
         while not game_is_finished:
-            prior_state = np.expand_dims(env.get_state().reshape((7, 6)), axis=0)
+            prior_state = self.get_extended_state(env)
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
@@ -65,7 +65,7 @@ class DQNAgent(_Agent):
         return replays
 
     def play_action(self, env):
-        state = env.get_state().reshape((1, 7, 6))
+        state = self.get_extended_state(env)
         action_probabilities = self.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         reward, new_state = env.apply_action(action_id)
@@ -80,7 +80,7 @@ class DQNAgent(_Agent):
                                                                     datetime.datetime.now().strftime("%d%m%Y_%H%M%S")))
             game_is_finished = False
             while not game_is_finished:
-                prior_state = env.get_state().reshape((1, 7, 6))
+                prior_state = self.get_extended_state(env)
                 actions = self.model.predict(prior_state).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
@@ -131,6 +131,9 @@ class DQNAgent(_Agent):
             return np.random.randint(0, len(actions))
         else:
             return np.argmax(actions)
+
+    def get_extended_state(self, env):
+        return np.expand_dims(env.get_state(), axis=0)
 
 
 class Replay:
