@@ -100,7 +100,7 @@ class CrossGame(_Environment):
             return self.non_final_state_reward, self.get_np_array()
 
     def is_legal_action(self, state, col_index):
-        return state[col_index][self._nb_rows - 1] != 0
+        return state[col_index][self._nb_rows - 1] == 0
 
     def is_terminal_state(self, state):
         for col_index in range(self._nb_columns):
