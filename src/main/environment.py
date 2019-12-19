@@ -25,3 +25,7 @@ class _Environment(ABC):
     @abstractmethod
     def is_blocked(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_shape(self):
+        raise NotImplementedError
