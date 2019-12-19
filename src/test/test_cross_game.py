@@ -134,7 +134,7 @@ def test_check_horizontal_victory_should_return_True_when_four_tokens_with_same_
         game.apply_action(4)
     game.apply_action(0)
     # When
-    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 0, 1)  
+    is_horizontal_victory = game._check_horizontal_victory(game.get_state(), 0, 1)
     # Then
     assert is_horizontal_victory
 
