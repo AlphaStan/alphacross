@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
+import warnings
 
 
 class CrossGame(_Environment):
@@ -56,6 +57,7 @@ class CrossGame(_Environment):
 
     # deprecated
     def _play(self):
+        warnings.warn("'cross_game._play' is deprecated and should not be used as is")
         number_of_rounds = 0
         number_of_cells = self._nb_rows * self._nb_columns
         while number_of_rounds < number_of_cells:
@@ -82,7 +84,7 @@ class CrossGame(_Environment):
     def apply_action(self, col_index):
         if col_index >= self._nb_columns or col_index < 0:
             raise OutOfGridError(self.current_token_id, col_index, self._nb_columns)
-        if self.is_legal_action(self._grid, col_index):
+        if not self.is_legal_action(self._grid, col_index):
             raise ColumnIsFullError(col_index)
 
         for i, slot in enumerate(self._grid[col_index]):
