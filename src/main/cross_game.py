@@ -210,5 +210,8 @@ class CrossGame(_Environment):
     def get_state(self):
         return np.array(self._grid, np.float32)
 
+    def get_shape(self):
+        return self._nb_columns, self._nb_rows
+
     def is_blocked(self):
         return 0 not in self.get_state()
