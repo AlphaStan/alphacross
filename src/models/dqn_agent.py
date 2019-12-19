@@ -143,7 +143,7 @@ class Replay:
 
 def dqn_mask_loss(batch_data, y_pred):
     batch_actions = tf.dtypes.cast(batch_data[:, 0], tf.int32)
-    batch_groundtruth_rewards = batch_data[:, 1]
+    batch_true_rewards = batch_data[:, 1]
     mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
     batch_predicted_rewards = tf.boolean_mask(y_pred, mask)
-    return tf.keras.losses.Huber()(batch_groundtruth_rewards, batch_predicted_rewards)
+    return tf.keras.losses.Huber()(batch_true_rewards, batch_predicted_rewards)
