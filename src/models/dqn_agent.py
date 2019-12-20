@@ -7,7 +7,6 @@ import datetime
 import warnings
 
 
-#TODO: test class for that
 class DQNAgent(_Agent):
 
     def __init__(self,
@@ -64,14 +63,13 @@ class DQNAgent(_Agent):
             env.reset()
         self.model.save('trained_model_%s.h5' % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
 
-    @staticmethod
-    def init_model(env):
+    def init_model(self, env):
         model = tf.keras.Sequential()
         model.add(Flatten(input_shape=env.get_shape()))
         model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=env.get_state_space_size()))
         model.add(tf.keras.layers.Dense(env.get_action_space_size, activation=tf.keras.activations.softmax))
         model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
-        return model
+        self.model = model
 
     def init_replays(self, env):
         replays = []
