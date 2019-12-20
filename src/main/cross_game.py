@@ -1,5 +1,9 @@
 import numpy as np
 import itertools
+
+from tensorflow.python.keras.models import load_model
+
+from src.models.dqn_agent import DQNAgent
 from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
 import warnings
@@ -83,7 +87,48 @@ class CrossGame(_Environment):
             number_of_rounds += 1
 
     def play_game_against_AI(self):
-        warnings.warn("'cross_game._play' is deprecated and should not be used as is")
+        number_of_rounds = 0
+        model = load_model("src/models/trained_model_15122019_234912.h5")
+        dqn_agent = DQNAgent()
+        while True:
+            if number_of_rounds%2 == 0:
+                agent_has_played = False
+                agent_id = self.current_token_id
+                while not agent_has_played:
+                    try:
+                        column_id = int(input("Player {}, please give the column number where you play\n".format(agent_id)))
+                        self.apply_action(column_id)
+                        agent_has_played = True
+                    except OutOfGridError:
+                        print("Player {}, you should give a number between 0 and 6.".format(agent_id))
+                    except ColumnIsFullError:
+                        print("Player {}, column {} is full, please select another number between 0 and 6."
+                              .format(agent_id, column_id))
+            else:
+                agent_has_played = False
+                agent_id = self.current_token_id
+                while not agent_has_played:
+                    try:
+                        model.apply
+                        self.apply_action(column_id)
+                        agent_has_played = True
+                    except OutOfGridError:
+                        print("Player {}, you should give a number between 0 and 6.".format(agent_id))
+                    except ColumnIsFullError:
+                        print("Player {}, column {} is full, please select another number between 0 and 6."
+                              .format(agent_id, column_id))
+
+
+            print(self)
+
+            if self._is_winning_move(self.get_state(), column_id, agent_id):
+                print("Congratulation player {}, you have won !".format(agent_id))
+                break
+            if self.is_blocked():
+                print("It's a draw !")
+                break
+
+            number_of_rounds += 1
 
     def apply_action(self, col_index):
         if col_index >= self._nb_columns or col_index < 0:
