@@ -55,12 +55,9 @@ class CrossGame(_Environment):
         else:
             self._NB_ROWS = nb_columns
 
-    # deprecated
-    def _play(self):
-        warnings.warn("'cross_game._play' is deprecated and should not be used as is")
+    def play_game_against_human(self):
         number_of_rounds = 0
-        number_of_cells = self._nb_rows * self._nb_columns
-        while number_of_rounds < number_of_cells:
+        while True:
             agent_has_played = False
             agent_id = self.current_token_id
             while not agent_has_played:
@@ -74,12 +71,18 @@ class CrossGame(_Environment):
                     print("Player {}, column {} is full, please select another number between 0 and 6."
                           .format(agent_id, column_id))
 
-            print(self)
             if self._is_winning_move(self.get_state(), column_id, agent_id):
                 print("Congratulation player {}, you have won !".format(agent_id))
                 break
 
+            if self.is_blocked():
+                print("It's a draw !")
+                break
+
             number_of_rounds += 1
+
+    def play_game_against_AI(self):
+        warnings.warn("'cross_game._play' is deprecated and should not be used as is")
 
     def apply_action(self, col_index):
         if col_index >= self._nb_columns or col_index < 0:
