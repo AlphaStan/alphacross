@@ -29,3 +29,11 @@ class _Environment(ABC):
     @abstractmethod
     def get_shape(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_state_space_size(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_action_space_size(self):
+        raise NotImplementedError
