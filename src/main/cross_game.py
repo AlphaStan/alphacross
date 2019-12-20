@@ -3,7 +3,7 @@ import itertools
 
 from tensorflow.python.keras.models import load_model
 
-from src.models.dqn_agent import DQNAgent
+from src.models.dqn_agent import DQNAgent, dqn_mask_loss
 from .errors import ColumnIsFullError, OutOfGridError
 from .environment import _Environment
 import warnings
@@ -89,7 +89,7 @@ class CrossGame(_Environment):
     def play_game_against_ai(self):
         number_of_rounds = 0
         agent = DQNAgent()
-        agent.model = load_model("src/models/trained_model_15122019_234912.h5")
+        agent.model = load_model("../models/trained_model_15122019_234912.h5", custom_objects={'dqn_mask_loss': dqn_mask_loss})
         while True:
             agent_has_played = False
             agent_id = self.current_token_id
@@ -106,7 +106,7 @@ class CrossGame(_Environment):
                               .format(agent_id, column_id))
                 else:
                     try:
-                        agent.play_action()
+                        agent.play_action(self)
                         agent_has_played = True
                     except OutOfGridError:
                         print("Player {}, you should give a number between 0 and 6.".format(agent_id))
