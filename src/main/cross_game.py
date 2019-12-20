@@ -86,15 +86,15 @@ class CrossGame(_Environment):
 
             number_of_rounds += 1
 
-    def play_game_against_AI(self):
+    def play_game_against_ai(self):
         number_of_rounds = 0
-        model = load_model("src/models/trained_model_15122019_234912.h5")
-        dqn_agent = DQNAgent()
+        agent = DQNAgent()
+        agent.model = load_model("src/models/trained_model_15122019_234912.h5")
         while True:
-            if number_of_rounds%2 == 0:
-                agent_has_played = False
-                agent_id = self.current_token_id
-                while not agent_has_played:
+            agent_has_played = False
+            agent_id = self.current_token_id
+            while not agent_has_played:
+                if number_of_rounds%2 == 0:
                     try:
                         column_id = int(input("Player {}, please give the column number where you play\n".format(agent_id)))
                         self.apply_action(column_id)
@@ -104,20 +104,15 @@ class CrossGame(_Environment):
                     except ColumnIsFullError:
                         print("Player {}, column {} is full, please select another number between 0 and 6."
                               .format(agent_id, column_id))
-            else:
-                agent_has_played = False
-                agent_id = self.current_token_id
-                while not agent_has_played:
+                else:
                     try:
-                        model.apply
-                        self.apply_action(column_id)
+                        agent.play_action()
                         agent_has_played = True
                     except OutOfGridError:
                         print("Player {}, you should give a number between 0 and 6.".format(agent_id))
                     except ColumnIsFullError:
                         print("Player {}, column {} is full, please select another number between 0 and 6."
                               .format(agent_id, column_id))
-
 
             print(self)
 
