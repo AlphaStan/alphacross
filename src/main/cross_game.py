@@ -62,7 +62,7 @@ class CrossGame(_Environment):
             agent_id = self.current_token_id
             while not agent_has_played:
                 try:
-                    column_id = input("Player {}, please give the column number where you play".format(agent_id))
+                    column_id = int(input("Player {}, please give the column number where you play\n".format(agent_id)))
                     self.apply_action(column_id)
                     agent_has_played = True
                 except OutOfGridError:
@@ -71,10 +71,11 @@ class CrossGame(_Environment):
                     print("Player {}, column {} is full, please select another number between 0 and 6."
                           .format(agent_id, column_id))
 
+            print(self)
+
             if self._is_winning_move(self.get_state(), column_id, agent_id):
                 print("Congratulation player {}, you have won !".format(agent_id))
                 break
-
             if self.is_blocked():
                 print("It's a draw !")
                 break
