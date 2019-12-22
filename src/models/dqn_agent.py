@@ -122,7 +122,40 @@ class DQNAgent(_Agent):
             env.reset()
         print("Training done!")
         self.model.save('trained_model_%s.h5' % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
-        print("Model saved at 'trained_model_%s.h5'" % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
+
+    def init_model(self, env):
+        model = tf.keras.Sequential()
+        model.add(Flatten(input_shape=env.get_shape()))
+        model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=env.get_state_space_size()))
+        model.add(tf.keras.layers.Dense(env.get_action_space_size, activation=tf.keras.activations.softmax))
+        model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
+        self.model = model
+
+    def init_replays(self, env):
+        replays = []
+        while len(replays) < self.num_replays:
+            replays += self.generate_replay(env)
+            env.reset()
+            print("Replays generated %i/%i" % (min(len(replays), self.num_replays), self.num_replays))
+        self.replays = replays[:self.num_replays]
+
+    @staticmethod
+    def generate_replay(self, env):
+        replays = []
+        game_is_finished = False
+        while not game_is_finished:
+            prior_state = np.expand_dims(env.get_state(), axis=0)
+            action = np.random.choice(env.get_action_space_size())
+            try:
+                reward, new_state = env.apply_action(action)
+            except ColumnIsFullError:
+                continue
+            replay = Replay(prior_state, action, reward, new_state)
+            replays.append(replay)
+            game_is_finished = env.is_terminal_state(env.get_state())
+            if env.is_blocked():
+                game_is_finished = True
+        return replays
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)
