@@ -75,9 +75,9 @@ class DQNAgent(_Agent):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
-            print("---------------- Train on episode %i/%i (%s)" % (episode+1,
-                                                                    self.num_episodes,
-                                                                    datetime.datetime.now().strftime("%Hh%Mmn%Ss-%d/%m/%Y")))
+            print("----------- Train on episode %i/%i (%s)" % (episode+1,
+                                                               self.num_episodes,
+                                                               datetime.datetime.now().strftime("%Hh%Mmn%Ss-%d/%m/%Y")))
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
@@ -87,10 +87,25 @@ class DQNAgent(_Agent):
                     reward, new_state = env.apply_action(action)
                     replay = Replay(prior_state, action, reward, new_state)
                     self.save_replay(replay)
+
                     batch = self.sample_batch()
-                    batch_prior_states = np.concatenate([np.expand_dims(replay._prior_state, axis=0) for replay in batch], axis=0)
-                    batch_post_states = np.concatenate([np.expand_dims(replay._post_state, axis=0) for replay in batch], axis=0)
+                    batch_prior_states = np.concatenate(
+                        [np.expand_dims(replay._prior_state, axis=0) for replay in batch],
+                        axis=0)
+                    batch_post_states = np.concatenate(
+                        [np.expand_dims(replay._post_state, axis=0) for replay in batch],
+                        axis=0)
                     batch_rewards = np.array([replay._reward for replay in batch])
+
+                    # A quick explanation here:
+                    # We want to optimise the network so it approximates the optimal Q function
+                    # The Q function is defined by the Bellman optimality equation:
+                    # Q(s,a) = r + max_a Q(s', a)
+                    # The difference between the two sides is the temporal difference:
+                    # delta = Q(s, a) - r - max_a Q(s', a)
+                    # This is the quantity we want to perform the gradient descent on
+                    # In this block the target is defined as the right hand side of the Bellman
+                    # equation, the network is used as an approximation of the Q function to define this target
                     batch_post_states_q_values = self.model.predict(batch_post_states)
                     batch_prior_states_q_values = batch_rewards \
                         + self.discount * batch_post_states_q_values.max(axis=1)
@@ -99,6 +114,7 @@ class DQNAgent(_Agent):
                                                     np.expand_dims(batch_actions, axis=1)],
                                                    axis=1)
                     self.model.train_on_batch(batch_prior_states, batch_targets)
+
                     game_is_finished = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
                         game_is_finished = True
@@ -150,6 +166,8 @@ class Replay:
 
 
 def dqn_mask_loss(batch_data, y_pred):
+    # The target is defined only for the action that was taken during the replay, hence the loss is computed based
+    # only on this action's output
     batch_actions = tf.dtypes.cast(batch_data[:, 1], tf.int32)
     batch_true_q_values = batch_data[:, 0]
     mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
