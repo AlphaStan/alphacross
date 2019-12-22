@@ -1,11 +1,9 @@
 import numpy as np
 import itertools
-
 from tensorflow.python.keras.models import load_model
-
 from src.models.dqn_agent import DQNAgent, dqn_mask_loss
-from .errors import ColumnIsFullError, OutOfGridError
-from .environment import _Environment
+from errors import ColumnIsFullError, OutOfGridError
+from environment import _Environment
 import warnings
 
 
