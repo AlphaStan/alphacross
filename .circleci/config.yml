@@ -7,6 +7,5 @@ jobs:
     steps:
       - checkout
       - run: sudo pip install -r requirements.txt
-      - run: cd src/test/ && pwd
-      - run: python -m pytest
+      - run: cd src/test/ && python -m pytest
 
