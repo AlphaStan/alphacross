@@ -34,8 +34,6 @@ class DQNAgent(_Agent):
     def train(self, env):
         self.init_model(env)
         self.init_replays(env)
-        if not self.replays:
-            raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         for episode in range(self.num_episodes):
             print("---------------- Train on episode %i/%i (%s)" % (episode+1,
                                                                     self.num_episodes,
