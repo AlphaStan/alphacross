@@ -1,11 +1,14 @@
 import itertools
 import sys
 import numpy as np
+
+from os import listdir
+from os.path import isfile, join
 from tensorflow.python.keras.models import load_model
 from errors import ColumnIsFullError, OutOfGridError
 from environment import _Environment
-sys.path.append('../models')
 from dqn_agent import DQNAgent, dqn_mask_loss
+sys.path.append('../models')
 
 
 class CrossGame(_Environment):
@@ -88,7 +91,7 @@ class CrossGame(_Environment):
     def play_game_against_ai(self):
         number_of_rounds = 0
         agent = DQNAgent()
-        agent.model = load_model("../models/trained_model_15122019_234912.h5", custom_objects={'dqn_mask_loss': dqn_mask_loss})
+        agent.model = self.load_model()
         while True:
             agent_has_played = False
             agent_id = self.current_token_id
@@ -229,6 +232,34 @@ class CrossGame(_Environment):
                 for col_id, row_id
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
                 ]
+
+    def load_model(self, choose_model=False):
+        path_to_models = "../models/"
+        sorted_models = sorted([f for f in listdir(path_to_models) if isfile(join(path_to_models, f))], reverse=True)
+        if not sorted_models:
+            return None
+
+        if choose_model:
+            n = len(sorted_models)
+            counter = 0
+            input_index = -1
+
+            for index, model in enumerate(sorted_models):
+                print("{} : {}".format(index, model))
+            while counter < 5 and (input_index < 0 or input_index > n-1):
+                input_index = input("Give the id of the model you want :")
+                counter += 1
+
+            if counter == 5:
+                print("No valid id was given. Game aborted.")
+                return
+
+            model = sorted_models[input_index]
+            return load_model(join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
+
+        else:
+            model = sorted_models[0]
+            return load_model(join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
 
     @staticmethod
     def get_n_rows(state):
