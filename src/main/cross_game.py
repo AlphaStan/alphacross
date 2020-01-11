@@ -92,6 +92,10 @@ class CrossGame(_Environment):
         number_of_rounds = 0
         agent = DQNAgent()
         agent.model = self.load_model()
+
+        if agent.model is None:
+            return
+
         while True:
             agent_has_played = False
             agent_id = self.current_token_id
