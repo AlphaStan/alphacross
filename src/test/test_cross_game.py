@@ -3,8 +3,7 @@ import sys
 sys.path.append('../main')
 import cross_game
 
-
-"""
+@pytest.mark.skip
 def test_play_should_display_victory1_when_player1_wins(monkeypatch, capsys):
     # Given
     inputs = [0, 1, -3, 0, 1, 0, 1, 0]
@@ -28,7 +27,6 @@ def test_play_should_display_victory1_when_player1_wins(monkeypatch, capsys):
     actual_stdout = captured.out
     # Then
     assert actual_stdout == expected_stdout
-    """
 
 
 def test_new_instance_should_have_an_empty_grid_attribute():
