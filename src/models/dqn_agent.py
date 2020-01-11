@@ -109,8 +109,7 @@ class DQNAgent(_Agent):
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
                     batch_post_states_q_values = self.model.predict(batch_post_states)
-                    batch_prior_states_q_values = batch_rewards \
-                        + self.discount * batch_post_states_q_values.max(axis=1)
+                    batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
                                                     np.expand_dims(batch_actions, axis=1)],
