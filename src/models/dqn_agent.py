@@ -1,12 +1,12 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
-import sys
-sys.path.append('../main')
-from errors import ColumnIsFullError
 from agent import _Agent
 import datetime
 import warnings
+import sys
+sys.path.append('../main')
+from errors import ColumnIsFullError
 
 
 #TODO: test class for that
