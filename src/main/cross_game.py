@@ -1,6 +1,7 @@
 import itertools
 import sys
 import numpy as np
+import constants
 
 from os import listdir
 from os.path import isfile, join
@@ -239,7 +240,7 @@ class CrossGame(_Environment):
 
     @staticmethod
     def choose_model(choose_model=False):
-        path_to_models = "../../models/"
+        path_to_models = constants.path_to_models
         sorted_models = sorted([f for f in listdir(path_to_models) if isfile(join(path_to_models, f))], reverse=True)
         if not sorted_models:
             return None
