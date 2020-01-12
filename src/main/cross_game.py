@@ -238,7 +238,7 @@ class CrossGame(_Environment):
                 ]
 
     def load_model(self, choose_model=False):
-        path_to_models = "../models/"
+        path_to_models = "../../models/"
         sorted_models = sorted([f for f in listdir(path_to_models) if isfile(join(path_to_models, f))], reverse=True)
         if not sorted_models:
             return None
