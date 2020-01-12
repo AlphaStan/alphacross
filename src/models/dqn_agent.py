@@ -4,6 +4,7 @@ from tensorflow.python.keras.layers import Flatten
 from agent import _Agent
 import datetime
 import warnings
+import os
 import sys
 sys.path.append('../main')
 from errors import ColumnIsFullError
@@ -73,9 +74,11 @@ class DQNAgent(_Agent):
         reward, new_state = env.apply_action(action_id)
         return reward, new_state
 
-    def train(self, env):
+    def train(self, env, save_dir="../../models/"):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
+        total_rewards_per_episode = []
+        episode_reward = 0
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
                                                                self.num_episodes,
@@ -87,6 +90,7 @@ class DQNAgent(_Agent):
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     reward, new_state = env.apply_action(action)
+                    episode_reward += reward
                     replay = Replay(prior_state, action, reward, new_state)
                     self.save_replay(replay)
 
@@ -122,9 +126,15 @@ class DQNAgent(_Agent):
                 except ColumnIsFullError:
                     continue
             env.reset()
+            total_rewards_per_episode.append(episode_reward)
+            episode_reward = 0
         print("Training done!")
-        self.model.save('trained_model_%s.h5' % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
-        print("Model saved at 'trained_model_%s.h5'" % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
+        date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+        os.mkdir(os.path.join(save_dir, "trained_model_%s" % date))
+        self.model.save(os.path.join(save_dir, "trained_model_%s" % date, 'trained_model.h5'))
+        with open(os.path.join(save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "w") as f:
+            f.write(str(total_rewards_per_episode))
+        print("Model saved in {}".format(os.path.join(save_dir, "trained_model_%s" % date)))
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)
