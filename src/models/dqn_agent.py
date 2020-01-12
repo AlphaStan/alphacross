@@ -134,7 +134,6 @@ class DQNAgent(_Agent):
             return legal_action_prob
         return legal_action_prob / sum(legal_action_prob)
 
-
     def save_replay(self, replay):
         self.replays.pop(0)
         self.replays.append(replay)
