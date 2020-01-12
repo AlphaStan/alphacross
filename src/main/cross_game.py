@@ -6,9 +6,9 @@ from os import listdir
 from os.path import isfile, join
 from tensorflow.python.keras.models import load_model
 from errors import ColumnIsFullError, OutOfGridError
+sys.path.append('../models')
 from environment import _Environment
 from dqn_agent import DQNAgent, dqn_mask_loss
-sys.path.append('../models')
 
 
 class CrossGame(_Environment):
