@@ -13,8 +13,6 @@ from errors import ColumnIsFullError
 class DQNAgent(_Agent):
 
     def __init__(self,
-                 state_space_size,
-                 action_space_size,
                  env,
                  epsilon=0.25,
                  discount=0.95,
@@ -23,8 +21,8 @@ class DQNAgent(_Agent):
                  num_replay=1000
                  ):
         super().__init__()
-        self.action_space_size = action_space_size
-        self.model = self.init_model(env.get_shape(), state_space_size, action_space_size)
+        self.action_space_size = env.get_action_space_size()
+        self.model = self.init_model(env.get_shape(), env.get_state_space_size(), env.get_action_space_size())
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
