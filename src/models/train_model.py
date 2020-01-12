@@ -14,7 +14,9 @@ import click
 @click.option('--num-replay', default=100, help='Number of generated transitions for training')
 def train_agent(epsilon, discount, num_episodes, batch_size, num_replay):
     environment = CrossGame()
-    agent = DQNAgent(environment._nb_columns * environment._nb_rows, environment._nb_columns, environment,
+    agent = DQNAgent(environment._nb_columns * environment._nb_rows,  # state space size
+                     environment._nb_columns,  # action space size
+                     environment,  # environment object
                      epsilon=epsilon,
                      discount=discount,
                      num_episodes=num_episodes,
