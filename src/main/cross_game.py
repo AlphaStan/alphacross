@@ -91,7 +91,7 @@ class CrossGame(_Environment):
     def play_game_against_ai(self, choose_model=False):
         number_of_rounds = 0
         agent = DQNAgent(self)
-        agent.model = self.load_model(choose_model)
+        agent.model = self.choose_model(choose_model)
 
         if agent.model is None:
             return
@@ -237,7 +237,8 @@ class CrossGame(_Environment):
                 in zip(range(left_border, right_border+1), range(bottom_border, top_border+1))
                 ]
 
-    def load_model(self, choose_model=False):
+    @staticmethod
+    def choose_model(choose_model=False):
         path_to_models = "../../models/"
         sorted_models = sorted([f for f in listdir(path_to_models) if isfile(join(path_to_models, f))], reverse=True)
         if not sorted_models:
