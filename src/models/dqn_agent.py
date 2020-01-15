@@ -1,11 +1,12 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
-from agent import _Agent
 import datetime
 import warnings
 import os
 import sys
+import matplotlib.pyplot as plt
+from agent import _Agent
 sys.path.append('../main')
 from errors import ColumnIsFullError
 
@@ -130,9 +131,16 @@ class DQNAgent(_Agent):
         date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
         os.mkdir(os.path.join(save_dir, "trained_model_%s" % date))
         self.model.save(os.path.join(save_dir, "trained_model_%s" % date, 'trained_model.h5'))
-        with open(os.path.join(save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "w") as f:
-            f.write(str(total_rewards_per_episode))
-        print("Model saved in {}".format(os.path.join(save_dir, "trained_model_%s" % date)))
+        self.save_training_figures(total_rewards_per_episode)
+        print("Training outputs saved in {}".format(os.path.join(save_dir, "trained_model_%s/" % date)))
+
+    def save_training_figures(self, rewards, date, save_dir, figsize=(15, 8)):
+        plt.figure(figsize=figsize)
+        plt.plot(rewards, color='r')
+        plt.savefig(os.path.join("trained_model_%s" % date, "rewards_per_episode.jpg"))
+        with open(os.path.join(save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "a") as f:
+            for episode_reward in rewards:
+                f.write(episode_reward)
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)
