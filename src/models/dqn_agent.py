@@ -20,7 +20,8 @@ class DQNAgent(_Agent):
                  discount=0.95,
                  num_episodes=1000,
                  batch_size=200,
-                 num_replay=1000
+                 num_replays=1000,
+                 save_dir="../../models"
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
@@ -29,8 +30,9 @@ class DQNAgent(_Agent):
         self.discount = discount
         self.num_episodes = num_episodes
         self.batch_size = batch_size
-        self.num_replay = num_replay
+        self.num_replays = num_replays
         self.replays = []
+        self.save_dir = save_dir
 
     @staticmethod
     def init_model(env_shape, state_space_size, action_space_size):
@@ -43,11 +45,11 @@ class DQNAgent(_Agent):
 
     def init_replays(self, env):
         replays = []
-        while len(replays) < self.num_replay:
+        while len(replays) < self.num_replays:
             replays += self.generate_replay(env)
             env.reset()
-            print("Replays generated %i/%i" % (min(len(replays), self.num_replay), self.num_replay))
-        self.replays = replays[:self.num_replay]
+            print("Replays generated %i/%i" % (min(len(replays), self.num_replays), self.num_replays))
+        self.replays = replays[:self.num_replays]
 
     def generate_replay(self, env):
         replays = []
@@ -73,7 +75,7 @@ class DQNAgent(_Agent):
         reward, new_state = env.apply_action(action_id)
         return reward, new_state
 
-    def train(self, env, save_dir="../../models/"):
+    def train(self, env):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         total_rewards_per_episode = []
@@ -129,18 +131,25 @@ class DQNAgent(_Agent):
             episode_reward = 0
         print("Training done!")
         date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
-        os.mkdir(os.path.join(save_dir, "trained_model_%s" % date))
-        self.model.save(os.path.join(save_dir, "trained_model_%s" % date, 'trained_model.h5'))
-        self.save_training_figures(total_rewards_per_episode)
-        print("Training outputs saved in {}".format(os.path.join(save_dir, "trained_model_%s/" % date)))
+        os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
+        self.model.save(os.path.join(self.save_dir, "trained_model_%s" % date, 'trained_model.h5'))
+        self.save_training_figures(total_rewards_per_episode, date)
+        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
+                                                                                 "trained_model_%s/" % date))))
 
-    def save_training_figures(self, rewards, date, save_dir, figsize=(15, 8)):
+    def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
         plt.figure(figsize=figsize)
         plt.plot(rewards, color='r')
-        plt.savefig(os.path.join("trained_model_%s" % date, "rewards_per_episode.jpg"))
-        with open(os.path.join(save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "a") as f:
+        plt.grid()
+        plt.title("Reward per training episode")
+        plt.ylabel("Rewards")
+        plt.xlabel("Episodes")
+        plt.xticks(range(1, len(rewards)))
+        plt.xlim(0, len(rewards)-1)
+        plt.savefig(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.%s" % extension))
+        with open(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "a") as f:
             for episode_reward in rewards:
-                f.write(episode_reward)
+                f.write(str(episode_reward))
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)
