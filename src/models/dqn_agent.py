@@ -137,6 +137,48 @@ class DQNAgent(_Agent):
         print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
                                                                                  "trained_model_%s/" % date))))
 
+    def evaluate(self, env, n_episodes):
+        # Dude, I like this function but the evaluation is not deterministic
+
+        def make_one_move():
+            model_made_one_move = False
+            current_state = env.get_state()
+            reward = 0
+            state_is_terminal = False
+            while not model_made_one_move:
+                model_actions = self.model.predict(np.expand_dims(current_state, axis=0)).ravel()
+                model_action = self.epsilon_greedy_predict_action(model_actions)
+                try:
+                    reward, _ = env.apply_action(model_action)
+                    state_is_terminal = env.is_terminal_state(env.get_state())
+                    if env.is_blocked():
+                        state_is_terminal = True
+                except ColumnIsFullError:
+                    continue
+                model_made_one_move = True
+            return env, reward, state_is_terminal
+
+        # The model plays against itself
+        game_is_finished = False
+        model_total_reward_per_episode = []
+        model_episode_reward = 0
+        for episode in range(n_episodes):
+            while not game_is_finished:
+                env, model_reward, game_is_finished = make_one_move()
+                model_episode_reward += model_reward
+                if not game_is_finished:
+                    # There might be a problem here
+                    # The model learnt to be player 2, thus it is potentially biased
+                    # It might be necessary to switch the ids in the state
+                    # However I am not sure about it, the model learnt from samples in the replays
+                    # It may be ok, to be checked
+                    # Actually, in this context we don't really care, the point is just to simulate another player
+                    env, _, game_is_finished = make_one_move()
+            env.reset()
+            model_total_reward_per_episode.append(model_episode_reward)
+        average_reward_per_episode = np.mean(model_episode_reward)
+        return average_reward_per_episode
+
     def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
         plt.figure(figsize=figsize)
         plt.plot(rewards, color='r')
