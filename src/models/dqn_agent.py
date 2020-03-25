@@ -80,7 +80,7 @@ class DQNAgent(_Agent):
     def train(self, env):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
-        total_rewards_per_episode = []
+        total_rewards_per_episode = np.zeros(self.num_episodes)
         episode_reward = 0
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
@@ -129,7 +129,7 @@ class DQNAgent(_Agent):
                 except ColumnIsFullError:
                     continue
             env.reset()
-            total_rewards_per_episode.append(episode_reward)
+            total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
         print("Training done!")
         date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
@@ -153,7 +153,7 @@ class DQNAgent(_Agent):
             model_has_won = False
             state_is_terminal = False
             while not model_made_one_move:
-                model_actions = model.predict(np.expand_dims(current_state, axis=0)).ravel()
+                model_actions = model(np.expand_dims(current_state, axis=0)).ravel()
                 model_action = self.epsilon_greedy_predict_action(model_actions)
                 try:
                     _, _ = env.apply_action(model_action)
@@ -214,7 +214,7 @@ class DQNAgent(_Agent):
             reward = 0
             state_is_terminal = False
             while not model_made_one_move:
-                model_actions = self.model.predict(np.expand_dims(current_state, axis=0)).ravel()
+                model_actions = self.model(np.expand_dims(current_state, axis=0)).ravel()
                 model_action = self.epsilon_greedy_predict_action(model_actions)
                 try:
                     reward, _ = env.apply_action(model_action)
@@ -245,7 +245,7 @@ class DQNAgent(_Agent):
 
         # The model plays against itself
         game_is_finished = False
-        model_total_reward_per_episode = []
+        model_total_reward_per_episode = np.zeros(n_episodes)
         model_episode_reward = 0
         for episode in range(n_episodes):
             while not game_is_finished:
@@ -260,8 +260,8 @@ class DQNAgent(_Agent):
                     # Actually, in this context we don't really care, the point is just to simulate another player
                     env, _, game_is_finished = make_one_random_move()
             env.reset()
-            model_total_reward_per_episode.append(model_episode_reward)
-        average_reward_per_episode = np.mean(model_episode_reward)
+            model_total_reward_per_episode[episode] = model_episode_reward
+        average_reward_per_episode = np.mean(model_total_reward_per_episode)
         return average_reward_per_episode
 
     def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
