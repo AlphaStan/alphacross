@@ -8,7 +8,7 @@ AlphaCross
 This is a collaborative project to build an AI playing board games with super human performances. It is currently under
 development by [AnOtterGithubUser](https://github.com/AnOtterGithubUser) and [desrousseaux](https://github.com/desrousseaux).  
 We do not necessarily aim to produce a state of the art AI (although it would be nice !). This project is mostly to explore RL (Reinforcement Learning) and 
-deep RL and its applications to board games and to develop our coding skills. That is why you won't find many high level libraries in the requirements (specific to RL I mean). 
+deep RL and its applications to board games and to develop our coding skills. That is why you won't find many high level libraries in the requirements (specific to RL we mean). 
 The idea is to develop an agent and environment, possibly several, from scratch (well we still use keras, numpy, and all the good stuff).
 
 ### How is the project structured ?
@@ -33,7 +33,7 @@ The most important part of the project is in the *src/* directory whose structur
        ├──test
           ├──test_cross_game.py <- I loooove unit tests, and TDD (#TDDForever)
 
-You'll find that the *environment* has a similar API to [gym](https://gym.openai.com). As I said in the first part we chose not to use 
+You'll find that the *environment* has a similar API to [gym](https://gym.openai.com). As said in the first part we chose not to use 
 high level libraries such as gym so the ressemblance is unvoluntary and kinda funny (but shows that it is pretty intuitive).
 
 ### How does this work ?
@@ -45,7 +45,7 @@ and has to maximize its reward by following the best course of actions.  In our 
 Basically, Q-learning aims at learning a function Q*: s x a -> Q*(s, a) which is defined as the maximum expected reward by taking action *a* while in state *s*. Q* is called the optimal action-state value function. 
 Hence, we are trying to learn a policy *p* that maps a state *s* to the action that maximizes the expected reward from *s*: p(s) = a* where a*=argmax_a Q*(s, a). 
 Intuitively, by applying *p*, we are following the path with highest expected reward.  
-I got quite technical in this part, if you are interested in Reinforcement Learning read [this introduction from Sutton](http://incompleteideas.net/book/the-book-2nd.html).
+This part is quite technical, if you are interested in Reinforcement Learning read [this introduction from Sutton](http://incompleteideas.net/book/the-book-2nd.html).
 
 ### This looks great ! how can I contribute ?
 
@@ -55,7 +55,7 @@ adress for you to contact us but it will come soon so check this repo for update
 
 Thanks for reading this far, here's a :cookie:  
 
-AnOtterGithubUser  
+AnOtterGithubUser & desrousseaux  
   
     
       
