@@ -1,10 +1,14 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
-from agent import _Agent
+from tensorflow.python.keras.models import load_model
 import datetime
 import warnings
+import os
 import sys
+import matplotlib.pyplot as plt
+import logging
+from agent import _Agent
 sys.path.append('../main')
 from errors import ColumnIsFullError
 
@@ -18,7 +22,8 @@ class DQNAgent(_Agent):
                  discount=0.95,
                  num_episodes=1000,
                  batch_size=200,
-                 num_replay=1000
+                 num_replays=1000,
+                 save_dir="../../models"
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
@@ -27,8 +32,9 @@ class DQNAgent(_Agent):
         self.discount = discount
         self.num_episodes = num_episodes
         self.batch_size = batch_size
-        self.num_replay = num_replay
+        self.num_replays = num_replays
         self.replays = []
+        self.save_dir = save_dir
 
     @staticmethod
     def init_model(env_shape, state_space_size, action_space_size):
@@ -41,11 +47,11 @@ class DQNAgent(_Agent):
 
     def init_replays(self, env):
         replays = []
-        while len(replays) < self.num_replay:
+        while len(replays) < self.num_replays:
             replays += self.generate_replay(env)
             env.reset()
-            print("Replays generated %i/%i" % (min(len(replays), self.num_replay), self.num_replay))
-        self.replays = replays[:self.num_replay]
+            print("Replays generated %i/%i" % (min(len(replays), self.num_replays), self.num_replays))
+        self.replays = replays[:self.num_replays]
 
     def generate_replay(self, env):
         replays = []
@@ -74,6 +80,8 @@ class DQNAgent(_Agent):
     def train(self, env):
         if not self.replays:
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
+        total_rewards_per_episode = np.zeros(self.num_episodes)
+        episode_reward = 0
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
                                                                self.num_episodes,
@@ -85,6 +93,7 @@ class DQNAgent(_Agent):
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     reward, new_state = env.apply_action(action)
+                    episode_reward += reward
                     replay = Replay(prior_state, action, reward, new_state)
                     self.save_replay(replay)
 
@@ -120,9 +129,154 @@ class DQNAgent(_Agent):
                 except ColumnIsFullError:
                     continue
             env.reset()
+            total_rewards_per_episode[episode] = episode_reward
+            episode_reward = 0
         print("Training done!")
-        self.model.save('trained_model_%s.h5' % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
-        print("Model saved at 'trained_model_%s.h5'" % datetime.datetime.now().strftime("%d%m%Y_%H%M%S"))
+        date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+        os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
+        self.model.save(os.path.join(self.save_dir, "trained_model_%s" % date, 'trained_model.h5'))
+        self.save_training_figures(total_rewards_per_episode, date)
+        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
+                                                                                 "trained_model_%s/" % date))))
+
+    def compare_two_models(self, first_model_path, second_model_path, env, n_episodes):
+        first_model = load_model(first_model_path)
+        second_model = load_model(second_model_path)
+
+        n_first_model_wins = 0
+        n_second_model_wins = 0
+        n_draws = 0
+
+        def make_one_move(model):
+            model_made_one_move = False
+            current_state = env.get_state()
+            model_has_won = False
+            state_is_terminal = False
+            while not model_made_one_move:
+                model_actions = model(np.expand_dims(current_state, axis=0)).ravel()
+                model_action = self.epsilon_greedy_predict_action(model_actions)
+                try:
+                    _, _ = env.apply_action(model_action)
+                    model_has_won = env.is_terminal_state(env.get_state())
+                    if env.is_blocked():
+                        state_is_terminal = True
+                except ColumnIsFullError:
+                    continue
+                model_made_one_move = True
+            return env, model_has_won, state_is_terminal
+
+        # The model plays against itself
+        game_is_finished = False
+        for episode in range(n_episodes):
+            while not game_is_finished:
+                env, first_model_won, state_is_terminal = make_one_move(first_model)
+                if first_model_won:
+                    n_first_model_wins += 1
+                    game_is_finished = True
+                elif state_is_terminal:
+                    n_draws += 1
+                    game_is_finished = True
+                else:
+                    env, second_model_won, state_is_terminal = make_one_move(second_model)
+                    if second_model_won:
+                        n_second_model_wins += 1
+                        game_is_finished = True
+                    elif state_is_terminal:
+                        n_draws += 1
+                        game_is_finished = True
+            env.reset()
+        if n_first_model_wins > n_second_model_wins:
+            winner_message = "{} model performs best ({})".format("First", first_model_path)
+        elif n_first_model_wins < n_second_model_wins:
+            winner_message = "{} model performs best ({})".format("Second", second_model_path)
+        else:
+            winner_message = "It is a draw"
+        message = """
+        Number of episodes {} \n
+        First model won {} times \n
+        Second model won {} times \n
+        Draws {} \n
+        Winner message {}
+        """.format(
+            n_episodes,
+            n_first_model_wins,
+            n_second_model_wins,
+            n_draws,
+            winner_message
+        )
+        logging.info(message)
+
+    def evaluate(self, first_model_path, second_model_path, env, n_episodes):
+
+        def make_one_move():
+            model_made_one_move = False
+            current_state = env.get_state()
+            reward = 0
+            state_is_terminal = False
+            while not model_made_one_move:
+                model_actions = self.model(np.expand_dims(current_state, axis=0)).ravel()
+                model_action = self.epsilon_greedy_predict_action(model_actions)
+                try:
+                    reward, _ = env.apply_action(model_action)
+                    state_is_terminal = env.is_terminal_state(env.get_state())
+                    if env.is_blocked():
+                        state_is_terminal = True
+                except ColumnIsFullError:
+                    continue
+                model_made_one_move = True
+            return env, reward, state_is_terminal
+
+        def make_one_random_move():
+            model_made_one_move = False
+            reward = 0
+            state_is_terminal = False
+            while not model_made_one_move:
+                model_actions = np.ones((env.get_action_space_size(), 1)) / env.get_action_space_size()
+                model_action = self.epsilon_greedy_predict_action(model_actions)
+                try:
+                    reward, _ = env.apply_action(model_action)
+                    state_is_terminal = env.is_terminal_state(env.get_state())
+                    if env.is_blocked():
+                        state_is_terminal = True
+                except ColumnIsFullError:
+                    continue
+                model_made_one_move = True
+            return env, reward, state_is_terminal
+
+        # The model plays against itself
+        game_is_finished = False
+        model_total_reward_per_episode = np.zeros(n_episodes)
+        model_episode_reward = 0
+        for episode in range(n_episodes):
+            while not game_is_finished:
+                env, model_reward, game_is_finished = make_one_move()
+                model_episode_reward += model_reward
+                if not game_is_finished:
+                    # There might be a problem here
+                    # The model learnt to be player 2, thus it is potentially biased
+                    # It might be necessary to switch the ids in the state
+                    # However I am not sure about it, the model learnt from samples in the replays
+                    # It may be ok, to be checked
+                    # Actually, in this context we don't really care, the point is just to simulate another player
+                    env, _, game_is_finished = make_one_random_move()
+            env.reset()
+            model_total_reward_per_episode[episode] = model_episode_reward
+        average_reward_per_episode = np.mean(model_total_reward_per_episode)
+        return average_reward_per_episode
+
+    def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
+        plt.figure(figsize=figsize)
+        plt.plot(rewards, color='r')
+        plt.grid()
+        plt.title("Reward per training episode")
+        plt.ylabel("Rewards")
+        plt.xlabel("Episodes")
+        plt.xticks(range(1, len(rewards)))
+        plt.xlim(0, len(rewards)-1)
+        plt.savefig(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.%s" % extension))
+        with open(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "a") as f:
+            for episode_reward in rewards:
+                f.write(str(episode_reward))
 
     def get_legal_action(self, state, get_action_prob, env):
         action_probabilities = get_action_prob(state)

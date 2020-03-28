@@ -19,7 +19,7 @@ class CrossGame(_Environment):
         self._NB_COLUMNS = 7
         self._NB_ROWS = 6
         self.final_state_reward = 10
-        self.non_final_state_reward = 0
+        self.non_final_state_reward = -1
         self.reset()
 
     def reset(self):
