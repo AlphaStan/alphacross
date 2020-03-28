@@ -39,8 +39,8 @@ high level libraries such as gym so the ressemblance is unvoluntary and kinda fu
 ### How does this work ?
 
 We decided to use a DQN (Deep Q-Network) as described in [Mnih, Kavukcuoglu et al. NIPS 2013](https://deepmind.com/research/publications/playing-atari-deep-reinforcement-learning). This approach developed by DeepMind technologies 
-was one the first applications of reinforcement learning in high dimensional environments. A DNN (Deep Neural Network) is used to tackle the high dimensionality challenge.  
-In Reinforcement Learning there is an environment with states *s*, actions *a* that lead from one state to another and rewards *r* for reaching states. An agent is placed in this environment with no prior knowledge of it 
+was one of the first applications of reinforcement learning in high dimensional environments. A DNN (Deep Neural Network) is used to tackle the high dimensionality challenge.  
+In Reinforcement Learning there is an environment with states *s*, actions *a* that lead from one state to another and rewards *r* for reaching states. An agent is placed in the environment with no prior knowledge of it 
 and has to maximize its reward by following the best course of actions.  In our case we use **Q-learning**.  
 Basically, Q-learning aims at learning a function Q*: s x a -> Q*(s, a) which is defined as the maximum expected reward by taking action *a* while in state *s*. Q* is called the optimal action-state value function. 
 Hence, we are trying to learn a policy *p* that maps a state *s* to the action that maximizes the expected reward from *s*: p(s) = a* where a*=argmax_a Q*(s, a). 
