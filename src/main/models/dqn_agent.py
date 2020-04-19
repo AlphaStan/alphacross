@@ -1,5 +1,9 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.python.keras.layers import Flatten
 from tensorflow.python.keras.models import load_model
 import datetime
+import warnings
 import os
 import matplotlib.pyplot as plt
 import logging
@@ -7,6 +11,8 @@ import sys
 import copy
 
 from .agent import _Agent
+from .replay import Replay
+from .loss import dqn_mask_loss
 from ..environment.errors import ColumnIsFullError
 from .nets import *
 
@@ -59,12 +65,13 @@ class DQNAgent(_Agent):
         game_is_finished = False
         while not game_is_finished:
             prior_state = env.get_state()
+            current_player_id = env.get_current_player_id()
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
             except ColumnIsFullError:
                 continue
-            replay = Replay(prior_state, action, reward, new_state)
+            replay = Replay(prior_state, action, reward, new_state, current_player_id)
             replays.append(replay)
             game_is_finished = env.is_terminal_state(env.get_state())
             if env.is_blocked():
@@ -315,7 +322,9 @@ class DQNAgent(_Agent):
         self.replays.append(replay)
 
     def sample_batch(self):
-        return np.random.choice(self.replays, self.batch_size, replace=False)
+        batch = np.random.choice(self.replays, self.batch_size, replace=False)
+        processed_batch = [r.toggle_ids() for r in batch if r._current_player_id == 1]
+        return processed_batch
 
     # DEPRECATED
     def get_mini_batch_targets(self, mini_batch):
@@ -339,11 +348,3 @@ class DQNAgent(_Agent):
             date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
             return "trained_model_" + date
         return model_name
-
-
-class Replay:
-    def __init__(self, prior_state, action, reward, post_state):
-        self._prior_state = prior_state
-        self._action = action
-        self._reward = reward
-        self._post_state = post_state

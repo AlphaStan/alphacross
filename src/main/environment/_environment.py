@@ -45,3 +45,7 @@ class _Environment(ABC):
     @abstractmethod
     def play_game_against_agent(self, agent):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_current_player_id(self):
+        raise NotImplementedError
