@@ -3,9 +3,10 @@ jobs:
   build:
     working_directory: ~/alphacross
     docker:
-      - image: circleci/python:3.6.8
+      - image: circleci/python:3.7.7
     steps:
       - checkout
+      - run: ls -R
       - run: sudo pip install -r requirements.txt
-      - run: cd src/test/ && python -m pytest
+      - run: python -m pytest
 

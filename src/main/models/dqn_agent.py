@@ -5,12 +5,11 @@ from tensorflow.python.keras.models import load_model
 import datetime
 import warnings
 import os
-import sys
 import matplotlib.pyplot as plt
 import logging
-from agent import _Agent
-sys.path.append('../main')
-from errors import ColumnIsFullError
+
+from .agent import _Agent
+from ..environment.errors import ColumnIsFullError
 
 
 #TODO: test class for that
