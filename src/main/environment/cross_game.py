@@ -299,3 +299,6 @@ class CrossGame(_Environment):
 
     def is_blocked(self):
         return 0 not in self.get_state()
+
+    def get_current_player_id(self):
+        return self.current_token_id
