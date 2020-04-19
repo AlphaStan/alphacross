@@ -37,3 +37,7 @@ class _Environment(ABC):
     @abstractmethod
     def get_action_space_size(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def get_current_player_id(self):
+        raise NotImplementedError

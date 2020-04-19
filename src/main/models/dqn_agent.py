@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import logging
 
 from .agent import _Agent
+from .replay import Replay
+from .loss import dqn_mask_loss
 from ..environment.errors import ColumnIsFullError
 
 
@@ -57,12 +59,13 @@ class DQNAgent(_Agent):
         game_is_finished = False
         while not game_is_finished:
             prior_state = env.get_state()
+            current_player_id = env.get_current_player_id()
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
             except ColumnIsFullError:
                 continue
-            replay = Replay(prior_state, action, reward, new_state)
+            replay = Replay(prior_state, action, reward, new_state, current_player_id)
             replays.append(replay)
             game_is_finished = env.is_terminal_state(env.get_state())
             if env.is_blocked():
@@ -296,7 +299,9 @@ class DQNAgent(_Agent):
         self.replays.append(replay)
 
     def sample_batch(self):
-        return np.random.choice(self.replays, self.batch_size, replace=False)
+        batch = np.random.choice(self.replays, self.batch_size, replace=False)
+        processed_batch = [r.toggle_ids() for r in batch if r._current_player_id == 1]
+        return processed_batch
 
     # DEPRECATED
     def get_mini_batch_targets(self, mini_batch):
@@ -310,21 +315,3 @@ class DQNAgent(_Agent):
             return np.random.randint(0, len(actions))
         else:
             return np.argmax(actions)
-
-
-class Replay:
-    def __init__(self, prior_state, action, reward, post_state):
-        self._prior_state = prior_state
-        self._action = action
-        self._reward = reward
-        self._post_state = post_state
-
-
-def dqn_mask_loss(batch_data, y_pred):
-    # The target is defined only for the action that was taken during the replay, hence the loss is computed based
-    # only on this action's output
-    batch_actions = tf.dtypes.cast(batch_data[:, 1], tf.int32)
-    batch_true_q_values = batch_data[:, 0]
-    mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
-    batch_predicted_q_values = tf.boolean_mask(y_pred, mask)
-    return tf.keras.losses.Huber()(batch_true_q_values, batch_predicted_q_values)
