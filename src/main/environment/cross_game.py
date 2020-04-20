@@ -1,15 +1,12 @@
 import itertools
-import sys
 import numpy as np
-import constants
+import os
+from tensorflow.keras.models import load_model
 
-from os import listdir
-from os.path import isfile, join
-from tensorflow.python.keras.models import load_model
-from errors import ColumnIsFullError, OutOfGridError
-sys.path.append('../models')
-from environment import _Environment
-from dqn_agent import DQNAgent, dqn_mask_loss
+from ..environment.errors import ColumnIsFullError, OutOfGridError
+from ._environment import _Environment
+from ..models.dqn_agent import DQNAgent, dqn_mask_loss
+from ..constants import PATH_TO_MODELS
 
 
 class CrossGame(_Environment):
@@ -240,8 +237,8 @@ class CrossGame(_Environment):
 
     @staticmethod
     def choose_model(choose_model=False):
-        path_to_models = constants.path_to_models
-        sorted_models = sorted([f for f in listdir(path_to_models) if isfile(join(path_to_models, f))], reverse=True)
+        path_to_models = PATH_TO_MODELS
+        sorted_models = sorted([f for f in os.listdir(path_to_models) if os.isfile(os.join(path_to_models, f))], reverse=True)
         if not sorted_models:
             return None
 
@@ -261,11 +258,11 @@ class CrossGame(_Environment):
                 return
 
             model = sorted_models[input_index]
-            return load_model(join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
+            return load_model(os.join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
 
         else:
             model = sorted_models[0]
-            return load_model(join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
+            return load_model(os.join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
 
     @staticmethod
     def get_n_rows(state):

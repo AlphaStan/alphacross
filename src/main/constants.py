@@ -1,2 +1,1 @@
-
-path_to_models = "../../models/"
+PATH_TO_MODELS = "../../../../models/"

@@ -1,9 +1,7 @@
-from __future__ import absolute_import
-import sys
-sys.path.append('../main')
-from dqn_agent import DQNAgent
-from cross_game import CrossGame
 import click
+
+from main.environment.cross_game import CrossGame
+from main.models.dqn_agent import DQNAgent
 
 
 @click.command()
@@ -25,6 +23,7 @@ def train_agent(epsilon, discount, num_episodes, batch_size, num_replays, save_d
                      save_dir=save_dir)
     agent.init_replays(environment)
     agent.train(environment)
+
 
 if __name__ == "__main__":
     train_agent()
