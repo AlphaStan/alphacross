@@ -10,7 +10,7 @@ from main.models.dqn_agent import DQNAgent
 @click.option('--num-episodes', type=int, default=100, help='Number of episodes for training')
 @click.option('--batch-size', type=int, default=32, help='Number of samples in a training batch')
 @click.option('--num-replays', type=int, default=100, help='Number of generated transitions for training')
-@click.option('--save-dir', type=click.Path(exists=True), default='../../models',
+@click.option('--save-dir', type=click.Path(exists=True), default='./models',
               help="Directory to save the model outputs")
 def train_agent(epsilon, discount, num_episodes, batch_size, num_replays, save_dir):
     environment = CrossGame()
