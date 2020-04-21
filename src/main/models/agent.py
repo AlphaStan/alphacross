@@ -7,9 +7,9 @@ class _Agent(ABC):
         super().__init__()
 
     @abstractmethod
-    def play_action(self):
+    def play_action(self, *args, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
-    def train(self):
+    def train(self, *args, **kwargs):
         raise NotImplementedError
