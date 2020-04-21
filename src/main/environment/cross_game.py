@@ -6,7 +6,6 @@ from tensorflow.keras.models import load_model
 from ..environment.errors import ColumnIsFullError, OutOfGridError
 from ._environment import _Environment
 from ..models.dqn_agent import DQNAgent, dqn_mask_loss
-from ..constants import PATH_TO_MODELS
 
 
 class CrossGame(_Environment):
