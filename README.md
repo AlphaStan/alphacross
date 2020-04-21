@@ -13,25 +13,28 @@ The idea is to develop an agent and environment, possibly several, from scratch 
 
 ### How is the project structured ?
 
-The most important part of the project is in the *src/* directory whose structure is as follows (only the most important files are detailed):
+The most important part of the project is in the *src/* directory whose structure is as follows:
 
     ├──src
        ├──main
-          ├──__init__.py
-          ├──constants.py
-          ├──cross_game.py <- Implements the specifics of the cross game environment
-          ├──environment.py <- Implements the abstract interface for environments
-          ├──errors.py
-          ├──play_against_ai.py
-          ├──play_against_human.py
-       ├──models
-          ├──__init__.py
-          ├──agent.py <- Implements the abstract interface for agents
-          ├──dqn_agent.py <- Implements the specifics of the DQN Agent
-          ├──predict_model.py 
-          ├──train_model.py <- Defines the command line to train the model with its parameters
+          ├──environment
+              ├──__init__.py
+              ├──_environment.py <- Implements the abstract interface for environments
+              ├──cross_game.py <- Implements the specifics of the cross game environment
+              ├──errors.py
+           ├──models
+              ├──__init__.py
+              ├──agent.py <- Implements the abstract interface for agents
+              ├──dqn_agent.py <- Implements the specifics of the DQN Agent
+           ├──__init__.py
+           ├──constants.py
        ├──test
+          ├──__init__.py
           ├──test_cross_game.py <- I loooove unit tests, and TDD (#TDDForever)
+       ├──__init__.py
+       ├──play_against_ai.py <- Play against a pre-trained model
+       ├──play_against_human.py <- Play against another human (or with yourself)
+       ├──train_model.py <- Defines the command line to train the model with its parameters
 
 You'll find that the *environment* has a similar API to [gym](https://gym.openai.com). As said in the first part we chose not to use 
 high level libraries such as gym so the ressemblance is unvoluntary and kinda funny (but shows that it is pretty intuitive).
