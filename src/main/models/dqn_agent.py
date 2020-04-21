@@ -15,6 +15,7 @@ from .replay import Replay
 from .loss import dqn_mask_loss
 from ..environment.errors import ColumnIsFullError
 from .nets import *
+from ..utils import deprecated
 
 
 #TODO: test class for that
@@ -323,12 +324,12 @@ class DQNAgent(_Agent):
 
     def sample_batch(self):
         batch = np.random.choice(self.replays, self.batch_size, replace=False)
+        # Toggle ids if necessary so it always looks the current player id is 2
         processed_batch = [r.toggle_ids() for r in batch if r._current_player_id == 1]
         return processed_batch
 
-    # DEPRECATED
+    @deprecated
     def get_mini_batch_targets(self, mini_batch):
-        warnings.warn("'get_mini_batch_target' is deprecated and should not be used as is")
         return np.array([replay._reward if replay._reward == 1
                          else self.discount * np.max(self.net.model.predict(np.expand_dims(replay._post_state, axis=0)))
                          for replay in mini_batch])
