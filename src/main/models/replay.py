@@ -19,4 +19,4 @@ class Replay:
 
     @classmethod
     def toggle_state(cls, state):
-        return np.array([[cls.TOGGLE_TABLE[token_id] for token_id in column] for column in state])
+        return [[cls.TOGGLE_TABLE[token_id] for token_id in column] for column in state]
