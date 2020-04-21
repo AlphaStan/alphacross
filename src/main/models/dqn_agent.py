@@ -1,16 +1,16 @@
+import datetime
+import logging
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.keras.layers import Flatten
 from tensorflow.python.keras.models import load_model
-import datetime
-import warnings
-import os
-import matplotlib.pyplot as plt
-import logging
 
 from .agent import _Agent
-from .replay import Replay
 from .loss import dqn_mask_loss
+from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from ..utils import deprecated
 
