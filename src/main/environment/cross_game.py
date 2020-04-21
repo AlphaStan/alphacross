@@ -1,8 +1,12 @@
 import itertools
-import numpy as np
+import os
 
-from ..environment.errors import ColumnIsFullError, OutOfGridError
+import numpy as np
+from tensorflow.keras.models import load_model
+
 from ._environment import _Environment
+from ..environment.errors import ColumnIsFullError, OutOfGridError
+from ..models.dqn_agent import DQNAgent, dqn_mask_loss
 
 
 class CrossGame(_Environment):
@@ -105,6 +109,8 @@ class CrossGame(_Environment):
 
     def play_game_against_agent(self, agent):
         number_of_rounds = 0
+        agent = DQNAgent(self)
+        agent.model = self.choose_model(choose_model)
 
         if agent.model is None:
             return

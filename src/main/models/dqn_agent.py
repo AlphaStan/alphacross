@@ -11,8 +11,8 @@ import sys
 import copy
 
 from .agent import _Agent
-from .replay import Replay
 from .loss import dqn_mask_loss
+from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from .nets import *
 from ..utils import deprecated
