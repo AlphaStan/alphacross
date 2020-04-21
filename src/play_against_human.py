@@ -1,4 +1,4 @@
-from .cross_game import CrossGame
+from main.environment.cross_game import CrossGame
 
 
 if __name__ == "__main__":
