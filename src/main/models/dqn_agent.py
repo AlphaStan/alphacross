@@ -107,6 +107,8 @@ class DQNAgent(_Agent):
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
+                player_id = env.current_token_id
+                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
                 actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0),
                                                                         self.net.encoding,
                                                                         self.net.n_players)).ravel()
@@ -114,7 +116,7 @@ class DQNAgent(_Agent):
                 try:
                     reward, new_state = env.apply_action(action)
                     episode_reward += reward
-                    replay = Replay(prior_state, action, reward, new_state)
+                    replay = Replay(prior_state, action, reward, new_state, player_id)
                     self.save_replay(replay)
 
                     batch = self.sample_batch()
@@ -181,7 +183,7 @@ class DQNAgent(_Agent):
             model_made_one_move = False
             current_state = env.get_state()
             model_has_won = False
-            state_is_terminal = False
+            is_terminal = False
             while not model_made_one_move:
                 model_actions = model(np.expand_dims(current_state, axis=0)).ravel()
                 model_action = self.epsilon_greedy_predict_action(model_actions)
@@ -189,11 +191,11 @@ class DQNAgent(_Agent):
                     _, _ = env.apply_action(model_action)
                     model_has_won = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
-                        state_is_terminal = True
+                        is_terminal = True
                 except ColumnIsFullError:
                     continue
                 model_made_one_move = True
-            return env, model_has_won, state_is_terminal
+            return env, model_has_won, is_terminal
 
         # The model plays against itself
         game_is_finished = False
@@ -325,7 +327,7 @@ class DQNAgent(_Agent):
     def sample_batch(self):
         batch = np.random.choice(self.replays, self.batch_size, replace=False)
         # Toggle ids if necessary so it always looks the current player id is 2
-        processed_batch = [r.toggle_ids() for r in batch if r._current_player_id == 1]
+        processed_batch = np.array([r.toggle_ids() if r._current_player_id == 1 else r for r in batch])
         return processed_batch
 
     @deprecated
