@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description='A short description of the project.',
+    description='Play board games against an AI.',
     author='Thomas_Quentin',
-    license='BSD-3',
+    license='BSD-3'
 )
