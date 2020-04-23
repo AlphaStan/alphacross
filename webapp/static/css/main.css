@@ -1,0 +1,40 @@
+.board button {
+  display: block;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 0;
+  margin: 1px;
+  background: #bbb;
+}
+.board button:hover {
+  filter: brightness(75%);
+}
+
+.board button:focus {
+  outline: 0;
+}
+.board button::-moz-focus-inner {
+  border: 0;
+}
+.board button.red {
+  background: #ad0505;
+  background: linear-gradient(to bottom, #ff1616 0%,#ad0505 100%);
+}
+.board button.black {
+  background: #000;
+  background: linear-gradient(to bottom, #333 0%,#000000 100%);
+}
+
+.board {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.title {
+    text-align: center;
+}
+
+.intro {
+    text-align: center;
+}
