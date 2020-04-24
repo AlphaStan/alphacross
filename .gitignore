@@ -93,3 +93,4 @@ venv/
 
 # Flask app
 webapp/config.py
+webapp/debug/
