@@ -17,13 +17,7 @@
          {% for i in range(n_rows) %}
            <tr>
            {% for j in range(n_columns) %}
-             {% if grid[j][n_rows-1-i]==0.0 %}
-                <td><button type="button"></button></td>
-             {% elif grid[j][n_rows-1-i]==1.0 %}
-                <td><button type="button" class="red"></button></td>
-             {% else %}
-                <td><button type="button" class="black"></button></td>
-             {% endif %}
+               <td><button type="button"></button></td>
            {% endfor %}
            </tr>
          {% endfor %}

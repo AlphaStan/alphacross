@@ -24,14 +24,24 @@ def update_grid(column_id):
     column_id = int(column_id)
     agent_id = game.current_token_id
     game.apply_action(column_id)
-    with open('webapp/debug/file.txt', 'a') as f:
-        f.write(game.__str__())
-        if game._is_winning_move(game.get_state(), column_id, agent_id):
-            f.write("Congratulation player {}, you have won !\n".format(agent_id))
-        if game.is_blocked():
-            f.write("It's a draw !\n")
-    return json.dumps({"TODO": "data to return to js, probably the updated grid so it dynamically updates the display"})
-
+    if app.config['DEBUG']:
+        with open('webapp/debug/file.txt', 'a') as f:
+            f.write(game.__str__())
+            if game._is_winning_move(game.get_state(), column_id, agent_id):
+                f.write("Congratulation player {}, you have won !\n".format(agent_id))
+            if game.is_blocked():
+                f.write("It's a draw !\n")
+    row_id = 0
+    for i, token in enumerate(game._grid[column_id][::-1]):
+        if token == agent_id:
+            break
+        row_id += 1
+    update = {'agent_id': agent_id,
+              'has_won': game._is_winning_move(game.get_state(), column_id, agent_id),
+              'draw': game.is_blocked(),
+              'row_id': row_id,
+              'col_id': column_id}
+    return json.dumps(update)
 
 
 if __name__ == "__main__":

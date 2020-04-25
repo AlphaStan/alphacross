@@ -6,9 +6,15 @@ function sendActionToFlask(column_id){
     $.ajax({
         url: urlToPost,
         type: 'GET',
-        // Get a json here from flask update_grid() and modify the document in success function
         success: function(result, status, xhr){
             console.log("Sent");
+            var parsed_result = $.parseJSON(result);
+            var agent_id = parsed_result["agent_id"];
+            var buttonClass = (agent_id == 1) ? "red" : "black";
+            var row = document.querySelector('tr:nth-child(' + (1 + parsed_result["row_id"]) + ')');
+            var cell = row.querySelector('td:nth-child(' + (1 + parsed_result["col_id"]) + ')');
+            cell.firstElementChild .classList.add(buttonClass);
+            console.log("Received");
             },
         error: function(xhr, status, error) {
             console.log(xhr.status + ": " + xhr.responseText);
