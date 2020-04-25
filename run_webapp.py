@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import json
 
 from src.main.environment.cross_game import CrossGame
+from src.main.environment.errors import ColumnIsFullError
 
 app = Flask(__name__)
 app.config.from_pyfile("webapp/config.py")
@@ -23,25 +24,35 @@ def home():
 def update_grid(column_id):
     column_id = int(column_id)
     agent_id = game.current_token_id
-    game.apply_action(column_id)
-    if app.config['DEBUG']:
-        with open('webapp/debug/file.txt', 'a') as f:
-            f.write(game.__str__())
-            if game._is_winning_move(game.get_state(), column_id, agent_id):
-                f.write("Congratulation player {}, you have won !\n".format(agent_id))
-            if game.is_blocked():
-                f.write("It's a draw !\n")
+    column_is_full = False
+    has_won = False
+    is_blocked = False
+    try:
+        game.apply_action(column_id)
+        if game._is_winning_move(game.get_state(), column_id, agent_id):
+            has_won = True
+        elif game.is_blocked():
+            is_blocked = True
+    except ColumnIsFullError:
+        column_is_full = True
     row_id = 0
     for i, token in enumerate(game._grid[column_id][::-1]):
         if token == agent_id:
             break
         row_id += 1
     update = {'agent_id': agent_id,
-              'has_won': game._is_winning_move(game.get_state(), column_id, agent_id),
-              'draw': game.is_blocked(),
+              'has_won': has_won,
+              'draw': is_blocked,
               'row_id': row_id,
-              'col_id': column_id}
+              'col_id': column_id,
+              'column_is_full': column_is_full}
     return json.dumps(update)
+
+
+@app.route("/reset", methods=['GET', 'POST'])
+def reset():
+    game.reset()
+    return json.dumps({"result": "SUCCESS"})
 
 
 if __name__ == "__main__":
