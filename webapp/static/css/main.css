@@ -43,3 +43,9 @@
 .msg {
   text-align: center;
 }
+
+.reset {
+    margin: 0 auto;
+    width: 100px;
+    height: 50px;
+}
