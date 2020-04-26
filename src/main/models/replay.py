@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Replay:
 
     TOGGLE_TABLE = {0: 0, 1: 2, 2: 1}
