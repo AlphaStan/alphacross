@@ -263,10 +263,12 @@ class CrossGame(_Environment):
             model = sorted_models[0]
             return load_model(os.join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
 
+    #TODO: Why is it static and needs a state as argument ?
     @staticmethod
     def get_n_rows(state):
         return len(state[0])
 
+    #TODO: Why is it static and needs a state as argument ?
     @staticmethod
     def get_n_columns(state):
         return len(state)

@@ -90,3 +90,7 @@ venv/
 
 # Mypy cache
 .mypy_cache/
+
+# Flask app
+webapp/config.py
+webapp/debug/

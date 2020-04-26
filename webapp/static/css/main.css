@@ -1,0 +1,68 @@
+.board button {
+  display: block;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 0;
+  margin: 1px;
+  background: #bbb;
+}
+.board button:hover {
+  filter: brightness(75%);
+}
+
+.board button:focus {
+  outline: 0;
+}
+.board button::-moz-focus-inner {
+  border: 0;
+}
+
+.board button.red {
+  background: #ad0505;
+  background: linear-gradient(to bottom, #ff1616 0%,#ad0505 100%);
+}
+.board button.yellow {
+  background: #FFFF00;
+  background: linear-gradient(to bottom, #ffff00 0%,#cccc00 100%);
+}
+
+.board {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title {
+  text-align: center;
+}
+
+.intro {
+  text-align: center;
+}
+
+.msg {
+  text-align: center;
+}
+
+.reset {
+    margin: 0 auto;
+    width: 100px;
+    height: 100px;
+}
+
+.reset button {
+    display: block;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 0;
+    background: #ff0000;
+    color: white;
+    font-size: 20px;
+    font-family: Arial;
+}
+
+.reset button:hover {
+    background: #f11712;
+    border: 5;
+}
