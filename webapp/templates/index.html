@@ -12,8 +12,7 @@
 <body>
     <h1 id="title" class="title">AlphaCross</h1>
     <p id="intro" class="intro">Have fun against our AI !</p>
-    <p id="msg" class="msg"></p>
-    <div class="reset" id="reset"><button type="button">Reset</button></div>
+    <div class="reset" id="reset"><button type="button" class="reset_button" id="reset_button">Reset</button></div>
     <table id="board" class="board">
       <tbody>
          {% for i in range(n_rows) %}
@@ -25,6 +24,7 @@
          {% endfor %}
       </tbody>
     </table>
+    <p id="msg" class="msg"></p>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </body>

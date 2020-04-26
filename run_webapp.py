@@ -11,14 +11,15 @@ app.static_folder = app.config["STATIC_FOLDER"]
 
 game = CrossGame()
 
+
 @app.route("/")
 def home():
-    game = CrossGame()
     return render_template('index.html',
                            title=app.config["PANE_TITLE"],
                            n_rows=game.get_n_rows(game.get_state()),
                            n_columns=game.get_n_columns(game.get_state()),
                            grid=game.get_state())
+
 
 @app.route("/<column_id>", methods=['GET'])
 def update_grid(column_id):
