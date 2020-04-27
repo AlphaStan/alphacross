@@ -4,6 +4,8 @@ gameBoard.addEventListener('click', getColumnId);
 var resetButton = document.getElementById("reset_button");
 resetButton.addEventListener('click', sendResetSignal);
 var gameIsFinished = false;
+
+
 var activeAI = false;
 var activateAIButton = document.getElementById("activate_ai");
 activateAIButton.addEventListener('click', activateAI);
