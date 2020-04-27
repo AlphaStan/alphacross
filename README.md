@@ -57,10 +57,12 @@ and outputs an action. Please read the article for more details.
 You can run the connect four environment in your browser. Go to the project root and run: 
 `python run_webapp.py`. This will start a Flask server on your localhost and will give you the adress 
 where it is running.  
-![alphacross_screenshot](images/alphacross_v010.png)  
-*Alphacross screenshot*
+![alphacross_screenshot](images/alphacross_v011_ai_inactive.png)  
+*Alphacross screenshot (AI inactive)*
 
-For now you can only play against yourself. It will soon be possible to play against our trained model.
+You can activate/deactivate the AI by clicking on the button next to reset.
+![alphacross_screenshot](images/alphacross_v011_ai_active.png)  
+*Alphacross screenshot (AI active)*
 
 ### This looks great ! how can I contribute ?
 
