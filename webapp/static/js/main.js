@@ -1,8 +1,12 @@
 var gameBoard = document.querySelector('#board');
 gameBoard.addEventListener('click', getColumnId);
 var resetButton = document.getElementById("reset_button");
-resetButton.addEventListener('click', sendResetSignal)
+resetButton.addEventListener('click', sendResetSignal);
 var gameIsFinished = false;
+var activeAI = false;
+var activateAIButton = document.getElementById("activate_ai");
+activateAIButton.addEventListener('click', sendActivationSignal);
+
 
 function sendActionToFlask(column_id){
     if (gameIsFinished) return;
@@ -32,6 +36,7 @@ function sendActionToFlask(column_id){
         }
     });
 }
+
 
 function getColumnId(e){
     if (e.target.tagName !== 'BUTTON') return;
@@ -67,6 +72,31 @@ function sendResetSignal(s){
             }
             document.getElementById('msg').innerHTML = '';
             gameIsFinished = false;
+        },
+        error: function(xhr, status, error) {
+            console.log(xhr.status + ": " + xhr.responseText);
+        }
+    });
+}
+
+
+function sendActivationSignal(s){
+    var urlToActivate = '/activation';
+    $.ajax({
+        url: urlToActivate,
+        type: 'GET',
+        success: function(){
+            activeAI = !activeAI;
+            if (activeAI){
+                activateAIButton.classList.add("active");
+                activateAIButton.innerHTML = "AI ACTIVE";
+                console.log("activate AI");
+            }
+            else {
+                activateAIButton.classList.remove("active");
+                activateAIButton.innerHTML = "AI INACTIVE";
+                console.log("deactivate AI");
+            }
         },
         error: function(xhr, status, error) {
             console.log(xhr.status + ": " + xhr.responseText);

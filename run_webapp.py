@@ -10,6 +10,7 @@ app.template_folder = app.config["TEMPLATE_FOLDER"]
 app.static_folder = app.config["STATIC_FOLDER"]
 
 game = CrossGame()
+ai_active = False
 
 
 @app.route("/")
@@ -54,6 +55,13 @@ def update_grid(column_id):
 def reset():
     game.reset()
     return json.dumps({"result": "SUCCESS"})
+
+
+@app.route("/activation", methods=['GET'])
+def activate_ai():
+    global ai_active
+    ai_active = not ai_active
+    return json.dumps({'result': 'SUCCESS'})
 
 
 if __name__ == "__main__":
