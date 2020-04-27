@@ -16,7 +16,7 @@ function sendActionToFlask(column_id){
         type: 'GET',
         success: function(result, status, xhr){
             var parsed_result = $.parseJSON(result);
-            var buttonClass = (parsed_result["agent_id"] == 1) ? "red" : "yellow";
+            var buttonClass = (parsed_result["player_id"] == 1) ? "red" : "yellow";
             var row = document.querySelector('tr:nth-child(' + (1 + parsed_result["row_id"]) + ')');
             var cell = row.querySelector('td:nth-child(' + (1 + parsed_result["col_id"]) + ')');
             if (parsed_result["column_is_full"]) {
@@ -27,10 +27,26 @@ function sendActionToFlask(column_id){
                 document.getElementById('msg').innerHTML = '';
             }
             if (parsed_result["has_won"]) {
-                document.getElementById('msg').innerHTML = 'Player ' + parsed_result["agent_id"] + ' has won!';
+                if (activeAI){
+                    document.getElementById('msg').innerHTML = 'You have won!';
+                }
+                else{
+                    document.getElementById('msg').innerHTML = 'Player ' + parsed_result["player_id"] + ' has won!';
+                }
                 gameIsFinished = true;
-               }
-            },
+            }
+            if (activeAI & !parsed_result["column_is_full"] & !parsed_result["has_won"]) {
+                var agentButtonClass = (parsed_result["agent_id"] == 2) ? "yellow" : "red";
+                var row = document.querySelector('tr:nth-child(' + (1 + parsed_result["agent_row_id"]) + ')');
+                var cell = row.querySelector('td:nth-child(' + (1 + parsed_result["agent_col_id"]) + ')');
+                cell.firstElementChild.classList.add(agentButtonClass);
+                document.getElementById('msg').innerHTML = '';
+                if (parsed_result["agent_has_won"]) {
+                    document.getElementById('msg').innerHTML = 'You have lost!';
+                    gameIsFinished = true;
+                }
+            }
+        },
         error: function(xhr, status, error) {
             console.log(xhr.status + ": " + xhr.responseText);
         }
