@@ -68,11 +68,5 @@ function activateAI(s){
 
 function resetVariables(){
     activeAI = false;
-    var urlToReset = '/reset';
-    $.ajax({
-        url: urlToReset,
-        type: 'GET',
-        success: resetBoard,
-        error: defaultError
-    });
+    sendResetSignal();
 }
