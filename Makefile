@@ -3,3 +3,6 @@ run-tests:
 
 train-model:
 	cd src/models/ && python train_model.py
+
+run-jest:
+	npm run test
