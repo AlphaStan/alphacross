@@ -1,3 +1,26 @@
+function reset_board(result, status, xhr){
+    console.log("reset board");
+    // Reset buttons class
+    var buttons = board.getElementsByTagName('button');
+    var button;
+    for (var k in buttons){
+        button = buttons[k];
+        try{
+            button.classList.remove(...button.classList);
+        }
+        catch(error){
+            console.log('Cannot access element ' + k + ' of buttons: ' + error);
+        }
+    }
+    document.getElementById('msg').innerHTML = '';
+    gameIsFinished = false;
+}
+
+
+function default_error(xhr, status, error) {
+    console.log(xhr.status + ": " + xhr.responseText);
+}
+
 var gameBoard = document.querySelector('#board');
 gameBoard.addEventListener('click', getColumnId);
 var resetButton = document.getElementById("reset_button");
@@ -5,7 +28,7 @@ resetButton.addEventListener('click', sendResetSignal);
 var gameIsFinished = false;
 var activeAI = false;
 var activateAIButton = document.getElementById("activate_ai");
-activateAIButton.addEventListener('click', sendActivationSignal);
+activateAIButton.addEventListener('click', activateAI);
 
 
 if (performance.navigation.type == 1) {
@@ -53,9 +76,7 @@ function sendActionToFlask(column_id){
                 }
             }
         },
-        error: function(xhr, status, error) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+        error: default_error
     });
 }
 
@@ -78,33 +99,14 @@ function sendResetSignal(s){
     $.ajax({
         url: urlToReset,
         type: 'GET',
-        success: function(){
-            console.log("reset board");
-            // Reset buttons class
-            var buttons = board.getElementsByTagName('button');
-            var button;
-            for (var k in buttons){
-                button = buttons[k];
-                try{
-                    button.classList.remove(...button.classList);
-                }
-                catch(error){
-                    console.log('Cannot access element ' + k + ' of buttons: ' + error);
-                }
-            }
-            document.getElementById('msg').innerHTML = '';
-            gameIsFinished = false;
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+        success: reset_board,
+        error: default_error
     });
 }
 
 
-function sendActivationSignal(s){
+function activateAI(s){
     activeAI = !activeAI;
-    var urlToActivate = '/activation';
     if (activeAI){
         activateAIButton.classList.add("active");
         activateAIButton.innerHTML = "AI ACTIVE";
@@ -117,32 +119,14 @@ function sendActivationSignal(s){
     }
 }
 
-//TODO: refactor use of defined ajax requests
+
 function resetVariables(){
     activeAI = false;
     var urlToReset = '/reset';
     $.ajax({
         url: urlToReset,
         type: 'GET',
-        success: function(){
-            console.log("reset board");
-            // Reset buttons class
-            var buttons = board.getElementsByTagName('button');
-            var button;
-            for (var k in buttons){
-                button = buttons[k];
-                try{
-                    button.classList.remove(...button.classList);
-                }
-                catch(error){
-                    console.log('Cannot access element ' + k + ' of buttons: ' + error);
-                }
-            }
-            document.getElementById('msg').innerHTML = '';
-            gameIsFinished = false;
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+        success: reset_board,
+        error: default_error
     });
 }
