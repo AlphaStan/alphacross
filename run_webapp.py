@@ -17,9 +17,10 @@ def home():
                            grid=current_app.game.get_state())
 
 
-@app.route("/<column_id>", methods=['GET'])
-def update_grid(column_id):
+@app.route("/<column_id>/<is_ai_active>", methods=['GET'])
+def update_grid(column_id, is_ai_active):
     column_id = int(column_id)
+    is_ai_active = False if is_ai_active=='false' else True
     player_id = current_app.game.current_token_id
     column_is_full = False
     has_won = False
@@ -43,8 +44,8 @@ def update_grid(column_id):
               'row_id': row_id,
               'col_id': column_id,
               'column_is_full': column_is_full}
-    #TODO: on page refresh ai_active stays True but AI token are not displayed, reset to False upon refresh
-    if current_app.is_ai_active and not has_won and not column_is_full:
+    # TODO: on page refresh ai_active stays True but AI token are not displayed, reset to False upon refresh
+    if is_ai_active and not has_won and not column_is_full:
         agent_id = current_app.game.current_token_id
         agent_has_won = False
         agent_has_played = False
@@ -78,12 +79,6 @@ def update_grid(column_id):
 def reset():
     current_app.game.reset()
     return json.dumps({"result": "SUCCESS"})
-
-
-@app.route("/activation", methods=['GET'])
-def activate_ai():
-    current_app.is_ai_active = not current_app.is_ai_active
-    return json.dumps({'result': 'SUCCESS'})
 
 
 if __name__ == "__main__":

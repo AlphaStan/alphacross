@@ -8,9 +8,15 @@ var activateAIButton = document.getElementById("activate_ai");
 activateAIButton.addEventListener('click', sendActivationSignal);
 
 
+if (performance.navigation.type == 1) {
+    console.info( "Reset page on reload" );
+    resetVariables();
+}
+
+
 function sendActionToFlask(column_id){
     if (gameIsFinished) return;
-    var urlToPost = '/' + column_id;
+    var urlToPost = '/' + column_id + '/' + activeAI;
     $.ajax({
         url: urlToPost,
         type: 'GET',
@@ -97,22 +103,43 @@ function sendResetSignal(s){
 
 
 function sendActivationSignal(s){
+    activeAI = !activeAI;
     var urlToActivate = '/activation';
+    if (activeAI){
+        activateAIButton.classList.add("active");
+        activateAIButton.innerHTML = "AI ACTIVE";
+        console.log("activate AI");
+    }
+    else {
+        activateAIButton.classList.remove("active");
+        activateAIButton.innerHTML = "AI INACTIVE";
+        console.log("deactivate AI");
+    }
+}
+
+//TODO: refactor use of defined ajax requests
+function resetVariables(){
+    activeAI = false;
+    var urlToReset = '/reset';
     $.ajax({
-        url: urlToActivate,
+        url: urlToReset,
         type: 'GET',
         success: function(){
-            activeAI = !activeAI;
-            if (activeAI){
-                activateAIButton.classList.add("active");
-                activateAIButton.innerHTML = "AI ACTIVE";
-                console.log("activate AI");
+            console.log("reset board");
+            // Reset buttons class
+            var buttons = board.getElementsByTagName('button');
+            var button;
+            for (var k in buttons){
+                button = buttons[k];
+                try{
+                    button.classList.remove(...button.classList);
+                }
+                catch(error){
+                    console.log('Cannot access element ' + k + ' of buttons: ' + error);
+                }
             }
-            else {
-                activateAIButton.classList.remove("active");
-                activateAIButton.innerHTML = "AI INACTIVE";
-                console.log("deactivate AI");
-            }
+            document.getElementById('msg').innerHTML = '';
+            gameIsFinished = false;
         },
         error: function(xhr, status, error) {
             console.log(xhr.status + ": " + xhr.responseText);

@@ -7,8 +7,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body onload="">
     <h1 id="title" class="title">AlphaCross</h1>
     <p id="intro" class="intro">Have fun against our AI !</p>
     <div class="reset" id="reset">
@@ -28,7 +29,6 @@
     </table>
     <p id="msg" class="msg"></p>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </body>
 
 </html>
