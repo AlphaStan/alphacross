@@ -70,11 +70,15 @@ class DQNAgent(_Agent):
         return replays
 
     def play_action(self, env):
+        action_id = self.select_action(env)
+        reward, new_state = env.apply_action(action_id)
+        return reward, new_state
+
+    def select_action(self, env):
         state = np.expand_dims(env.get_state(), axis=0)
         action_probabilities = self.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
-        reward, new_state = env.apply_action(action_id)
-        return reward, new_state
+        return action_id
 
     def train(self, env):
         if not self.replays:

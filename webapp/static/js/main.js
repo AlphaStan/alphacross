@@ -1,37 +1,31 @@
+// Init variables and event handlers
 var gameBoard = document.querySelector('#board');
 gameBoard.addEventListener('click', getColumnId);
 var resetButton = document.getElementById("reset_button");
-resetButton.addEventListener('click', sendResetSignal)
+resetButton.addEventListener('click', sendResetSignal);
 var gameIsFinished = false;
+var activeAI = false;
+var activateAIButton = document.getElementById("activate_ai");
+activateAIButton.addEventListener('click', activateAI);
+
+
+if (performance.navigation.type == 1) {
+    console.info( "Reset page on reload" );
+    resetVariables();
+}
+
 
 function sendActionToFlask(column_id){
     if (gameIsFinished) return;
-    var urlToPost = '/' + column_id;
+    var urlToPost = '/' + column_id + '/' + activeAI;
     $.ajax({
         url: urlToPost,
         type: 'GET',
-        success: function(result, status, xhr){
-            var parsed_result = $.parseJSON(result);
-            var buttonClass = (parsed_result["agent_id"] == 1) ? "red" : "yellow";
-            var row = document.querySelector('tr:nth-child(' + (1 + parsed_result["row_id"]) + ')');
-            var cell = row.querySelector('td:nth-child(' + (1 + parsed_result["col_id"]) + ')');
-            if (parsed_result["column_is_full"]) {
-                document.getElementById('msg').innerHTML = 'Sorry, column ' + (1 + parsed_result["col_id"]) + ' is full';
-            }
-            else{
-                cell.firstElementChild.classList.add(buttonClass);
-                document.getElementById('msg').innerHTML = '';
-            }
-            if (parsed_result["has_won"]) {
-                document.getElementById('msg').innerHTML = 'Player ' + parsed_result["agent_id"] + ' has won!';
-                gameIsFinished = true;
-               }
-            },
-        error: function(xhr, status, error) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+        success: handleGridUpdate,
+        error: defaultError
     });
 }
+
 
 function getColumnId(e){
     if (e.target.tagName !== 'BUTTON') return;
@@ -51,25 +45,31 @@ function sendResetSignal(s){
     $.ajax({
         url: urlToReset,
         type: 'GET',
-        success: function(){
-            console.log("reset board");
-            // Reset buttons class
-            var buttons = board.getElementsByTagName('button');
-            var button;
-            for (var k in buttons){
-                button = buttons[k];
-                try{
-                    button.classList.remove(...button.classList);
-                }
-                catch(error){
-                    console.log('Cannot access element ' + k + ' of buttons: ' + error);
-                }
-            }
-            document.getElementById('msg').innerHTML = '';
-            gameIsFinished = false;
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
+        success: resetBoard,
+        error: defaultError
     });
+}
+
+
+function activateAI(s){
+    // Reset the board upon activation
+    // Otherwise AI could be player 1 although it is currently trained to be player 2
+    sendResetSignal(s);
+    activeAI = !activeAI;
+    if (activeAI){
+        activateAIButton.classList.add("active");
+        activateAIButton.innerHTML = "AI ACTIVE";
+        console.log("activate AI");
+    }
+    else {
+        activateAIButton.classList.remove("active");
+        activateAIButton.innerHTML = "AI INACTIVE";
+        console.log("deactivate AI");
+    }
+}
+
+
+function resetVariables(){
+    activeAI = false;
+    sendResetSignal();
 }
