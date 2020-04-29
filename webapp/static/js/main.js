@@ -52,6 +52,9 @@ function sendResetSignal(s){
 
 
 function activateAI(s){
+    // Reset the board upon activation
+    // Otherwise AI could be player 1 although it is currently trained to be player 2
+    sendResetSignal(s);
     activeAI = !activeAI;
     if (activeAI){
         activateAIButton.classList.add("active");
