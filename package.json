@@ -1,5 +1,29 @@
 {
+  "name": "alphacross",
+  "jest": {
+    "verbose": true
+  },
+  "description": "AlphaCross ==============================",
+  "version": "0.1.0",
+  "main": "jest.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
   "scripts": {
     "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlphaStan/alphacross.git"
+  },
+  "author": "AnOtterGithubUser",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/AlphaStan/alphacross/issues"
+  },
+  "homepage": "https://github.com/AlphaStan/alphacross#readme",
+  "dependencies": {
+    "jest": "^25.5.2"
   }
 }
