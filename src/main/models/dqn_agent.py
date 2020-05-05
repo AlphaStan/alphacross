@@ -4,15 +4,13 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras.layers import Flatten
 from tensorflow.python.keras.models import load_model
 
 from .agent import _Agent
-from .loss import dqn_mask_loss
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from ..utils import deprecated
+from .nets import CFDense
 
 
 #TODO: test class for that
@@ -29,7 +27,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.model = self.init_model(env.get_shape(), env.get_state_space_size(), env.get_action_space_size())
+        self.model = self.init_model(env.get_shape(), env.get_action_space_size())
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -39,12 +37,8 @@ class DQNAgent(_Agent):
         self.save_dir = save_dir
 
     @staticmethod
-    def init_model(env_shape, state_space_size, action_space_size):
-        model = tf.keras.Sequential()
-        model.add(Flatten(input_shape=env_shape))
-        model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
-        model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
-        model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
+    def init_model(env_shape, action_space_size):
+        model = CFDense(env_shape, action_space_size).get_model()
         return model
 
     def init_replays(self, env):
