@@ -23,22 +23,24 @@ class DQNAgent(_Agent):
                  num_episodes=1000,
                  batch_size=200,
                  num_replays=1000,
+                 target_model_update_freq=10,
                  save_dir="../../models"
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.model = self.init_model(env.get_action_space_size())
+        self.model = self.init_model(env.get_shape(), env.get_action_space_size())
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
         self.batch_size = batch_size
         self.num_replays = num_replays
+        self.target_model_update_freq = target_model_update_freq
         self.replays = []
         self.save_dir = save_dir
 
     @staticmethod
-    def init_model(action_space_size):
-        model = CFDense(action_space_size).get_model()
+    def init_model(env_shape, action_space_size):
+        model = CFDense(action_space_size, env_shape).get_model()
         return model
 
     def init_replays(self, env):
@@ -83,6 +85,9 @@ class DQNAgent(_Agent):
             raise AttributeError("Attempting to train DQNAgent with no replays, use generate_replays first")
         total_rewards_per_episode = np.zeros(self.num_episodes)
         episode_reward = 0
+        # Initialize target net
+        target_model = CFDense(self.action_space_size, env.get_shape(), False).get_model()
+        target_model.set_weights(self.model.get_weights())
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
                                                                self.num_episodes,
@@ -117,7 +122,7 @@ class DQNAgent(_Agent):
                     # This is the quantity we want to perform the gradient descent on
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
-                    batch_post_states_q_values = self.model.predict(batch_post_states)
+                    batch_post_states_q_values = target_model.predict(batch_post_states)
                     batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
@@ -130,6 +135,9 @@ class DQNAgent(_Agent):
                         game_is_finished = True
                 except ColumnIsFullError:
                     continue
+            if episode % self.target_model_update_freq == 0:
+                print("Target net update")
+                target_model.set_weights(self.model.get_weights())
             env.reset()
             total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
