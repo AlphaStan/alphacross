@@ -27,7 +27,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.model = self.init_model(env.get_shape(), env.get_action_space_size())
+        self.model = self.init_model(env.get_action_space_size())
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -37,8 +37,8 @@ class DQNAgent(_Agent):
         self.save_dir = save_dir
 
     @staticmethod
-    def init_model(env_shape, action_space_size):
-        model = CFDense(env_shape, action_space_size).get_model()
+    def init_model(action_space_size):
+        model = CFDense(action_space_size).get_model()
         return model
 
     def init_replays(self, env):
