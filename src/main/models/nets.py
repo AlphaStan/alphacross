@@ -20,6 +20,24 @@ class CFDense:
         return model
 
 
+class CFDense2:
+
+    def __init__(self, n_actions, input_shape, trainable=True):
+        self.n_actions = n_actions
+        self.trainable = trainable
+        self.input_shape = input_shape
+
+    def get_model(self):
+        model = tf.keras.Sequential()
+        model.add(Flatten(input_shape=self.input_shape))
+        model.add(Dense(84, activation='relu', trainable=self.trainable))
+        model.add(Dense(168, activation='relu', trainable=self.trainable))
+        model.add(Dense(64, activation='relu', trainable=self.trainable))
+        model.add(Dense(self.n_actions, activation='softmax', trainable=self.trainable))
+        model.compile(loss=dqn_mask_loss, optimizer='RMSprop', metrics=['accuracy'])
+        return model
+
+
 class CFConv1:
 
     def __init__(self, n_actions, input_shape, trainable=True):

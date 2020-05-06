@@ -11,7 +11,7 @@ from .agent import _Agent
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from ..utils import deprecated
-from .nets import CFDense, CFConv1
+from .nets import CFDense2
 
 
 #TODO: test class for that
@@ -43,8 +43,7 @@ class DQNAgent(_Agent):
 
     @staticmethod
     def init_model(env_shape, action_space_size):
-        # model = CFDense(action_space_size, env_shape).get_model()
-        model = CFConv1(action_space_size, env_shape).get_model()
+        model = CFDense2(action_space_size, env_shape).get_model()
         return model
 
     def init_replays(self, env):
@@ -90,7 +89,7 @@ class DQNAgent(_Agent):
         total_rewards_per_episode = np.zeros(self.num_episodes)
         episode_reward = 0
         # Initialize target net
-        target_model = CFConv1(self.action_space_size, env.get_shape(), False).get_model()
+        target_model = CFDense2(self.action_space_size, env.get_shape(), False).get_model()
         target_model.set_weights(self.model.get_weights())
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
@@ -107,7 +106,7 @@ class DQNAgent(_Agent):
                 if player_id != 2:
                     # the network is trained to be player 2 so we need to flip the state so it's always player 2 turn
                     Replay.toggle_state(prior_state)
-                actions = self.model.predict(np.expand_dims(np.expand_dims(prior_state, axis=0), axis=-1)).ravel()
+                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     # Interact with the environment and generate sample
@@ -135,13 +134,13 @@ class DQNAgent(_Agent):
                     # This is the quantity we want to perform the gradient descent on
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
-                    batch_post_states_q_values = target_model.predict(np.expand_dims(batch_post_states, axis=-1))
+                    batch_post_states_q_values = target_model.predict(batch_post_states)
                     batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
                                                     np.expand_dims(batch_actions, axis=1)],
                                                    axis=1)
-                    self.model.train_on_batch(np.expand_dims(batch_prior_states, axis=-1), batch_targets)
+                    self.model.train_on_batch(batch_prior_states, batch_targets)
 
                     game_is_finished = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
