@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import random
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,7 +11,7 @@ from .agent import _Agent
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from ..utils import deprecated
-from .nets import CFDense
+from .nets import CFDense, CFConv1
 
 
 #TODO: test class for that
@@ -40,7 +41,8 @@ class DQNAgent(_Agent):
 
     @staticmethod
     def init_model(env_shape, action_space_size):
-        model = CFDense(action_space_size, env_shape).get_model()
+        # model = CFDense(action_space_size, env_shape).get_model()
+        model = CFConv1(action_space_size, env_shape).get_model()
         return model
 
     def init_replays(self, env):
@@ -75,7 +77,7 @@ class DQNAgent(_Agent):
         return reward, new_state
 
     def select_action(self, env):
-        state = np.expand_dims(env.get_state(), axis=0)
+        state = np.expand_dims(np.expand_dims(env.get_state(), axis=0), axis=-1)
         action_probabilities = self.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         return action_id
@@ -86,24 +88,30 @@ class DQNAgent(_Agent):
         total_rewards_per_episode = np.zeros(self.num_episodes)
         episode_reward = 0
         # Initialize target net
-        target_model = CFDense(self.action_space_size, env.get_shape(), False).get_model()
+        target_model = CFConv1(self.action_space_size, env.get_shape(), False).get_model()
         target_model.set_weights(self.model.get_weights())
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
                                                                self.num_episodes,
                                                                datetime.datetime.now().strftime("%Hh%Mmn%Ss-%d/%m/%Y")))
+            env.reset()
+            # Start from a random valid configuration of the board
+            for move in np.random.randint(0, self.action_space_size, random.randint(0, 6)):
+                env.apply_action(move)
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
                 player_id = env.current_token_id
-                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
+                actions = self.model.predict(np.expand_dims(np.expand_dims(prior_state, axis=0), axis=-1)).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
+                    # Interact with the environment and generate sample
                     reward, new_state = env.apply_action(action)
                     episode_reward += reward
                     replay = Replay(prior_state, action, reward, new_state, player_id)
                     self.save_replay(replay)
 
+                    # Learn a Q-function
                     batch = self.sample_batch()
                     batch_prior_states = np.concatenate(
                         [np.expand_dims(replay._prior_state, axis=0) for replay in batch],
@@ -122,13 +130,13 @@ class DQNAgent(_Agent):
                     # This is the quantity we want to perform the gradient descent on
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
-                    batch_post_states_q_values = target_model.predict(batch_post_states)
+                    batch_post_states_q_values = target_model.predict(np.expand_dims(batch_post_states, axis=-1))
                     batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
                                                     np.expand_dims(batch_actions, axis=1)],
                                                    axis=1)
-                    self.model.train_on_batch(batch_prior_states, batch_targets)
+                    self.model.train_on_batch(np.expand_dims(batch_prior_states, axis=-1), batch_targets)
 
                     game_is_finished = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
@@ -138,7 +146,6 @@ class DQNAgent(_Agent):
             if episode % self.target_model_update_freq == 0:
                 print("Target net update")
                 target_model.set_weights(self.model.get_weights())
-            env.reset()
             total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
         print("Training done!")

@@ -25,7 +25,7 @@ class CFConv1:
     def __init__(self, n_actions, input_shape, trainable=True):
         self.n_actions = n_actions
         self.trainable = trainable
-        self.input_shape = input_shape
+        self.input_shape = input_shape[0], input_shape[1], 1
 
     def get_model(self):
         model = tf.keras.Sequential()

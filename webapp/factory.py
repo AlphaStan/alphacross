@@ -2,7 +2,8 @@ from flask import Flask
 from tensorflow.keras.models import load_model
 
 from src.main.environment.cross_game import CrossGame
-from src.main.models.dqn_agent import DQNAgent, dqn_mask_loss
+from src.main.models.dqn_agent import DQNAgent
+from src.main.models.loss import dqn_mask_loss
 
 
 def create_app():
