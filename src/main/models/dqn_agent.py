@@ -15,6 +15,8 @@ from .nets import CFDense, CFConv1
 
 
 #TODO: test class for that
+#TODO: play against yourself and other previous versions of yourself during training
+#TODO: board encoding
 class DQNAgent(_Agent):
 
     def __init__(self,
@@ -102,6 +104,9 @@ class DQNAgent(_Agent):
             while not game_is_finished:
                 prior_state = env.get_state()
                 player_id = env.current_token_id
+                if player_id != 2:
+                    # the network is trained to be player 2 so we need to flip the state so it's always player 2 turn
+                    Replay.toggle_state(prior_state)
                 actions = self.model.predict(np.expand_dims(np.expand_dims(prior_state, axis=0), axis=-1)).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
