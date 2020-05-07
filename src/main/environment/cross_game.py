@@ -7,12 +7,16 @@ from ._environment import _Environment
 
 class CrossGame(_Environment):
 
-    def __init__(self):
+    def __init__(self,
+                 nb_columns=7,
+                 nb_rows=6,
+                 final_state_reward=10,
+                 non_final_state_reward=-1):
         super().__init__()
-        self._NB_COLUMNS = 7
-        self._NB_ROWS = 6
-        self.final_state_reward = 10
-        self.non_final_state_reward = -1
+        self._NB_COLUMNS = nb_columns
+        self._NB_ROWS = nb_rows
+        self.final_state_reward = final_state_reward
+        self.non_final_state_reward = non_final_state_reward
         self.reset()
 
     def reset(self):
