@@ -5,6 +5,7 @@ class _Agent(ABC):
 
     def __init__(self):
         super().__init__()
+        self.model = None
 
     @abstractmethod
     def play_action(self):

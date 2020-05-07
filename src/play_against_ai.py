@@ -1,14 +1,17 @@
 import click
 
 from main.environment.cross_game import CrossGame
-from main.constants import PATH_TO_MODELS
+from main.models.dqn_agent import DQNAgent
+from main.utils import choose_model
 
 
 @click.command()
-@click.option('--model-path', type=click.Path(exists=True), default=PATH_TO_MODELS, help='choose model')
-def play_against_ai(model_path):
+def play_against_ai():
     game = CrossGame()
-    game.play_game_against_ai(choose_model=model_path)
+    agent = DQNAgent(game)
+    model = choose_model(True)
+    agent.model = model
+    game.play_game_against_ai(agent)
 
 
 if __name__ == "__main__":

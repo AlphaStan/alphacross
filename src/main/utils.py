@@ -2,7 +2,7 @@ import os
 from tensorflow.keras.models import load_model
 
 from .constants import PATH_TO_MODELS
-from .models.dqn_agent import DQNAgent, dqn_mask_loss
+from .models.dqn_agent import dqn_mask_loss
 
 
 def choose_model(choose_model=False):
