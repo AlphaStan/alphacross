@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Replay:
 
     TOGGLE_TABLE = {0: 0, 1: 2, 2: 1}
@@ -16,4 +19,4 @@ class Replay:
 
     @classmethod
     def toggle_state(cls, state):
-        return [[cls.TOGGLE_TABLE[token_id] for token_id in column] for column in state]
+        return np.array([[cls.TOGGLE_TABLE[token_id] for token_id in column] for column in state], np.float32)

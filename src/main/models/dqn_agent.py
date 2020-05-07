@@ -11,7 +11,7 @@ from .agent import _Agent
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from ..utils import deprecated
-from .nets import CFDense2
+from .nets import CFConv2
 
 
 #TODO: test class for that
@@ -43,7 +43,7 @@ class DQNAgent(_Agent):
 
     @staticmethod
     def init_model(env_shape, action_space_size):
-        model = CFDense2(action_space_size, env_shape).get_model()
+        model = CFConv2(action_space_size, env_shape).get_model()
         return model
 
     def init_replays(self, env):
@@ -89,7 +89,7 @@ class DQNAgent(_Agent):
         total_rewards_per_episode = np.zeros(self.num_episodes)
         episode_reward = 0
         # Initialize target net
-        target_model = CFDense2(self.action_space_size, env.get_shape(), False).get_model()
+        target_model = CFConv2(self.action_space_size, env.get_shape(), False).get_model()
         target_model.set_weights(self.model.get_weights())
         for episode in range(self.num_episodes):
             print("----------- Train on episode %i/%i (%s)" % (episode+1,
@@ -106,7 +106,8 @@ class DQNAgent(_Agent):
                 if player_id != 2:
                     # the network is trained to be player 2 so we need to flip the state so it's always player 2 turn
                     Replay.toggle_state(prior_state)
-                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
+                processed_prior_state = preprocess_state(prior_state)
+                actions = self.model.predict(np.expand_dims(processed_prior_state, axis=0)).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     # Interact with the environment and generate sample
@@ -118,10 +119,10 @@ class DQNAgent(_Agent):
                     # Learn a Q-function
                     batch = self.sample_batch()
                     batch_prior_states = np.concatenate(
-                        [np.expand_dims(replay._prior_state, axis=0) for replay in batch],
+                        [np.expand_dims(preprocess_state(replay._prior_state), axis=0) for replay in batch],
                         axis=0)
                     batch_post_states = np.concatenate(
-                        [np.expand_dims(replay._post_state, axis=0) for replay in batch],
+                        [np.expand_dims(preprocess_state(replay._post_state), axis=0) for replay in batch],
                         axis=0)
                     batch_rewards = np.array([replay._reward for replay in batch])
 
@@ -330,3 +331,12 @@ class DQNAgent(_Agent):
             return np.random.randint(0, len(actions))
         else:
             return np.argmax(actions)
+
+
+def preprocess_state(state):
+    processed_state = np.zeros((state.shape[0], state.shape[1], 2))
+    for i in range(state.shape[0]):
+        for j in range(state.shape[1]):
+            if state[i, j]:
+                processed_state[i, j, state.astype(np.int32)[i, j]-1] = 1
+    return processed_state
