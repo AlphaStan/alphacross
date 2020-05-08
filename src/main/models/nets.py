@@ -3,16 +3,24 @@ from tensorflow.python.keras.layers import Flatten, Dense, Conv2D, Dropout, Batc
 from abc import ABC, abstractmethod
 import numpy as np
 
-from .dqn_agent  import dqn_mask_loss
+
+def dqn_mask_loss(batch_data, y_pred):
+    # The target is defined only for the action that was taken during the replay, hence the loss is computed based
+    # only on this action's output
+    batch_actions = tf.dtypes.cast(batch_data[:, 1], tf.int32)
+    batch_true_q_values = batch_data[:, 0]
+    mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
+    batch_predicted_q_values = tf.boolean_mask(y_pred, mask)
+    return tf.keras.losses.Huber()(batch_true_q_values, batch_predicted_q_values)
 
 
 class _Net(ABC):
 
-    def __init__(self, n_actions, input_shape, trainable):
+    def __init__(self, n_actions, input_shape, trainable, n_players):
         super(_Net, self).__init__()
         self.n_actions = n_actions
         self.trainable = trainable
-        self.input_shape = input_shape
+        self.input_shape = input_shape[0], input_shape[1], n_players
         self.model = self.init_model()
 
     @abstractmethod
@@ -26,8 +34,8 @@ class _Net(ABC):
 
 class _DenseNet(_Net):
 
-    def __init__(self, n_actions, input_shape, trainable):
-        super(_DenseNet, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(_DenseNet, self).__init__(n_actions, input_shape, trainable, n_players)
 
     def init_model(self):
         raise NotImplementedError
@@ -38,25 +46,26 @@ class _DenseNet(_Net):
 
 class _ConvNet(_Net):
 
-    def __init__(self, n_actions, input_shape, trainable):
-        super(_ConvNet, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(_ConvNet, self).__init__(n_actions, (input_shape[0], input_shape[1], 2), trainable, n_players)
 
     def init_model(self):
         raise NotImplementedError
 
     def process_input(self, x):
-        processed_input = np.zeros((x.shape[0], x.shape[1], 2))
-        for i in range(x.shape[0]):
-            for j in range(x.shape[1]):
-                if x[i, j]:
-                    processed_input[i, j, x.astype(np.int32)[i, j] - 1] = 1
+        processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], 2))
+        for b in range(x.shape[0]):
+            for i in range(x.shape[1]):
+                for j in range(x.shape[2]):
+                    if x[b, i, j]:
+                        processed_input[b, i, j, x.astype(np.int32)[b, i, j] - 1] = 1
         return processed_input
 
 
 class CFDense(_DenseNet):
 
-    def __init__(self, n_actions, input_shape, trainable=True):
-        super(CFDense, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(CFDense, self).__init__(n_actions, input_shape, trainable, n_players)
 
     def init_model(self):
         model = tf.keras.Sequential()
@@ -69,8 +78,8 @@ class CFDense(_DenseNet):
 
 class CFDense2(_DenseNet):
 
-    def __init__(self, n_actions, input_shape, trainable=True):
-        super(CFDense2, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(CFDense2, self).__init__(n_actions, input_shape, trainable, n_players)
 
     def init_model(self):
         model = tf.keras.Sequential()
@@ -85,8 +94,8 @@ class CFDense2(_DenseNet):
 
 class CFConv1(_ConvNet):
 
-    def __init__(self, n_actions, input_shape, trainable=True):
-        super(CFConv1, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(CFConv1, self).__init__(n_actions, input_shape, trainable, n_players)
 
     def init_model(self):
         model = tf.keras.Sequential()
@@ -100,8 +109,8 @@ class CFConv1(_ConvNet):
 
 class CFConv2(_ConvNet):
 
-    def __init__(self, n_actions, input_shape, trainable=True):
-        super(CFConv2, self).__init__(n_actions, input_shape, trainable)
+    def __init__(self, n_actions, input_shape, trainable, n_players):
+        super(CFConv2, self).__init__(n_actions, input_shape, trainable, n_players)
 
     def init_model(self):
         model = tf.keras.Sequential()

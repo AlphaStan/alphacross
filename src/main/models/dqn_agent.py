@@ -1,6 +1,3 @@
-import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras.layers import Flatten
 from tensorflow.python.keras.models import load_model
 import datetime
 import warnings
@@ -10,6 +7,7 @@ import logging
 
 from .agent import _Agent
 from ..environment.errors import ColumnIsFullError
+from .nets import *
 
 
 #TODO: test class for that
@@ -17,6 +15,7 @@ class DQNAgent(_Agent):
 
     def __init__(self,
                  env,
+                 n_players=2,
                  epsilon=0.25,
                  discount=0.95,
                  num_episodes=1000,
@@ -26,7 +25,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.model = self.init_model(env.get_shape(), env.get_state_space_size(), env.get_action_space_size())
+        self.init_model(env.get_shape(), env.get_action_space_size(), True, n_players)
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -35,14 +34,8 @@ class DQNAgent(_Agent):
         self.replays = []
         self.save_dir = save_dir
 
-    @staticmethod
-    def init_model(env_shape, state_space_size, action_space_size):
-        model = tf.keras.Sequential()
-        model.add(Flatten(input_shape=env_shape))
-        model.add(tf.keras.layers.Dense(24, activation=tf.keras.activations.relu, input_dim=state_space_size))
-        model.add(tf.keras.layers.Dense(action_space_size, activation=tf.keras.activations.softmax))
-        model.compile(loss=dqn_mask_loss, optimizer='Adam', metrics=['accuracy'])
-        return model
+    def init_model(self, env_shape, action_space_size, trainable, n_players):
+        self.net = CFConv2(action_space_size, env_shape, trainable, n_players)
 
     def init_replays(self, env):
         replays = []
@@ -76,7 +69,7 @@ class DQNAgent(_Agent):
 
     def select_action(self, env):
         state = np.expand_dims(env.get_state(), axis=0)
-        action_probabilities = self.model.predict(state)
+        action_probabilities = self.net.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         return action_id
 
@@ -92,7 +85,7 @@ class DQNAgent(_Agent):
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
-                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
+                actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0))).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     reward, new_state = env.apply_action(action)
@@ -118,13 +111,13 @@ class DQNAgent(_Agent):
                     # This is the quantity we want to perform the gradient descent on
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
-                    batch_post_states_q_values = self.model.predict(batch_post_states)
+                    batch_post_states_q_values = self.net.model.predict(self.net.process_input(batch_post_states))
                     batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
                                                     np.expand_dims(batch_actions, axis=1)],
                                                    axis=1)
-                    self.model.train_on_batch(batch_prior_states, batch_targets)
+                    self.net.model.train_on_batch(self.net.process_input(batch_prior_states), batch_targets)
 
                     game_is_finished = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
@@ -137,7 +130,7 @@ class DQNAgent(_Agent):
         print("Training done!")
         date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
         os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
-        self.model.save(os.path.join(self.save_dir, "trained_model_%s" % date, 'trained_model.h5'))
+        self.net.model.save(os.path.join(self.save_dir, "trained_model_%s" % date, 'trained_model.h5'))
         self.save_training_figures(total_rewards_per_episode, date)
         print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
                                                                                  "trained_model_%s/" % date))))
@@ -217,7 +210,7 @@ class DQNAgent(_Agent):
             reward = 0
             state_is_terminal = False
             while not model_made_one_move:
-                model_actions = self.model(np.expand_dims(current_state, axis=0)).ravel()
+                model_actions = self.net.model(np.expand_dims(current_state, axis=0)).ravel()
                 model_action = self.epsilon_greedy_predict_action(model_actions)
                 try:
                     reward, _ = env.apply_action(model_action)
@@ -302,7 +295,7 @@ class DQNAgent(_Agent):
     def get_mini_batch_targets(self, mini_batch):
         warnings.warn("'get_mini_batch_target' is deprecated and should not be used as is")
         return np.array([replay._reward if replay._reward == 1
-                         else self.discount * np.max(self.model.predict(np.expand_dims(replay._post_state, axis=0)))
+                         else self.discount * np.max(self.net.model.predict(np.expand_dims(replay._post_state, axis=0)))
                          for replay in mini_batch])
 
     def epsilon_greedy_predict_action(self, actions):
@@ -318,13 +311,3 @@ class Replay:
         self._action = action
         self._reward = reward
         self._post_state = post_state
-
-
-def dqn_mask_loss(batch_data, y_pred):
-    # The target is defined only for the action that was taken during the replay, hence the loss is computed based
-    # only on this action's output
-    batch_actions = tf.dtypes.cast(batch_data[:, 1], tf.int32)
-    batch_true_q_values = batch_data[:, 0]
-    mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
-    batch_predicted_q_values = tf.boolean_mask(y_pred, mask)
-    return tf.keras.losses.Huber()(batch_true_q_values, batch_predicted_q_values)
