@@ -43,6 +43,10 @@ class CrossGame(_Environment):
     def nb_columns(self):
         return self._nb_columns
 
+    @property
+    def nb_aligned_tokens_win(self):
+        return self._nb_aligned_tokens_win
+
     @nb_rows.setter
     def nb_rows(self, nb_rows):
         if not isinstance(nb_rows, int) and not isinstance(nb_rows, float):
@@ -60,6 +64,17 @@ class CrossGame(_Environment):
             raise ValueError("Trying to set a negative number of rows")
         else:
             self._nb_columns = nb_columns
+
+    @nb_aligned_tokens_win.setter
+    def nb_aligned_tokens_win(self, nb_aligned_tokens_win):
+        if not isinstance(nb_aligned_tokens_win, int) and not isinstance(nb_aligned_tokens_win, float):
+            raise ValueError("The number of aligned tokens needed to win has to be a numeric value")
+        elif nb_aligned_tokens_win < 0:
+            raise ValueError("Trying to set a negative number of number of aligned tokens needed to win")
+        elif nb_aligned_tokens_win > max(self.nb_rows, self._nb_columns):
+            raise ValueError("The number of aligned tokens needed to win is too large for this board")
+        else:
+            self._nb_aligned_tokens_win = nb_aligned_tokens_win
 
     def play_game_against_human(self):
         number_of_rounds = 0

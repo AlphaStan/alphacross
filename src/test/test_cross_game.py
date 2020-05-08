@@ -486,3 +486,44 @@ def test_set_nb_rows_should_raise_ValueError_when_given_wrong_type_value():
     with pytest.raises(ValueError):
         # When
         game.nb_rows = wrong_type_value
+
+
+def test_set_nb_aligned_tokens_win_should_set_the_attribute_to_the_given_value():
+    # Given
+    game = CrossGame()
+    expected_nb_aligned_tokens_win = 3
+    # When
+    game.nb_aligned_tokens_win = expected_nb_aligned_tokens_win
+    actual_nb_aligned_tokens_win = game.nb_aligned_tokens_win
+    # Then
+    assert expected_nb_aligned_tokens_win == actual_nb_aligned_tokens_win
+
+
+def test_set_nb_aligned_tokens_win_should_raise_ValueError_when_given_negative_value():
+    # Given
+    game = CrossGame()
+    negative_value = -1
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_aligned_tokens_win = negative_value
+
+
+def test_set_nb_aligned_tokens_win_should_raise_ValueError_when_given_wrong_type_value():
+    # Given
+    game = CrossGame()
+    wrong_type_value = "foo"
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_aligned_tokens_win = wrong_type_value
+
+
+def test_set_nb_aligned_tokens_win_should_raise_ValueError_when_given_too_large_value():
+    # Given
+    game = CrossGame()
+    too_large_value = 10
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_aligned_tokens_win = too_large_value
