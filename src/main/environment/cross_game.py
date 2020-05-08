@@ -14,8 +14,8 @@ class CrossGame(_Environment):
                  non_final_state_reward=-1,
                  nb_aligned_tokens_win=4):
         super().__init__()
-        self._NB_COLUMNS = nb_columns
-        self._NB_ROWS = nb_rows
+        self.nb_columns = nb_columns
+        self.nb_rows = nb_rows
         self.final_state_reward = final_state_reward
         self.non_final_state_reward = non_final_state_reward
         self.nb_aligned_tokens_win = nb_aligned_tokens_win
@@ -36,30 +36,30 @@ class CrossGame(_Environment):
         self.current_token_id = self.token_ids()
 
     @property
-    def _nb_rows(self):
-        return self._NB_ROWS
+    def nb_rows(self):
+        return self._nb_rows
 
     @property
-    def _nb_columns(self):
-        return self._NB_COLUMNS
+    def nb_columns(self):
+        return self._nb_columns
 
-    @_nb_rows.setter
-    def _nb_rows(self, nb_rows):
-        if not isinstance(nb_rows, int) or not isinstance(nb_rows, float):
+    @nb_rows.setter
+    def nb_rows(self, nb_rows):
+        if not isinstance(nb_rows, int) and not isinstance(nb_rows, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_rows < 0:
             raise ValueError("Trying to set a negative number of rows")
         else:
-            self._NB_ROWS = nb_rows
+            self._nb_rows = nb_rows
 
-    @_nb_columns.setter
-    def _nb_columns(self, nb_columns):
-        if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
+    @nb_columns.setter
+    def nb_columns(self, nb_columns):
+        if not isinstance(nb_columns, int) and not isinstance(nb_columns, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_columns < 0:
             raise ValueError("Trying to set a negative number of rows")
         else:
-            self._NB_ROWS = nb_columns
+            self._nb_columns = nb_columns
 
     def play_game_against_human(self):
         number_of_rounds = 0

@@ -424,3 +424,65 @@ def test_is_blocked_should_return_True_when_the_grid_is_full():
     is_blocked = game.is_blocked()
     # Then
     assert is_blocked
+
+
+def test_set_nb_columns_should_set_the_attribute_to_the_given_value():
+    # Given
+    game = CrossGame()
+    expected_nb_columns = 6
+    # When
+    game.nb_columns = expected_nb_columns
+    actual_nb_columns = game.nb_columns
+    # Then
+    assert expected_nb_columns == actual_nb_columns
+
+
+def test_set_nb_columns_should_raise_ValueError_when_given_negative_value():
+    # Given
+    game = CrossGame()
+    negative_value = -1
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_columns = negative_value
+
+
+def test_set_nb_columns_should_raise_ValueError_when_given_wrong_type_value():
+    # Given
+    game = CrossGame()
+    wrong_type_value = "foo"
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_columns = wrong_type_value
+
+
+def test_set_nb_rows_should_set_the_attribute_to_the_given_value():
+    # Given
+    game = CrossGame()
+    expected_nb_rows = 6
+    # When
+    game.nb_rows = expected_nb_rows
+    actual_nb_rows = game.nb_rows
+    # Then
+    assert expected_nb_rows == actual_nb_rows
+
+
+def test_set_nb_rows_should_raise_ValueError_when_given_negative_value():
+    # Given
+    game = CrossGame()
+    negative_value = -1
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_rows = negative_value
+
+
+def test_set_nb_rows_should_raise_ValueError_when_given_wrong_type_value():
+    # Given
+    game = CrossGame()
+    wrong_type_value = "foo"
+    # Then
+    with pytest.raises(ValueError):
+        # When
+        game.nb_rows = wrong_type_value
