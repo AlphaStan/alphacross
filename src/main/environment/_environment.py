@@ -37,3 +37,11 @@ class _Environment(ABC):
     @abstractmethod
     def get_action_space_size(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def play_game_against_human(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def play_game_against_agent(self, agent):
+        raise NotImplementedError

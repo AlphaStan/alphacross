@@ -1,11 +1,8 @@
 import itertools
 import numpy as np
-import os
-from tensorflow.keras.models import load_model
 
 from ..environment.errors import ColumnIsFullError, OutOfGridError
 from ._environment import _Environment
-from ..models.dqn_agent import DQNAgent, dqn_mask_loss
 
 
 class CrossGame(_Environment):
@@ -85,10 +82,8 @@ class CrossGame(_Environment):
 
             number_of_rounds += 1
 
-    def play_game_against_ai(self, choose_model=False):
+    def play_game_against_agent(self, agent):
         number_of_rounds = 0
-        agent = DQNAgent(self)
-        agent.model = self.choose_model(choose_model)
 
         if agent.model is None:
             return
@@ -97,7 +92,7 @@ class CrossGame(_Environment):
             agent_has_played = False
             agent_id = self.current_token_id
             while not agent_has_played:
-                if number_of_rounds%2 == 0:
+                if number_of_rounds % 2 == 0:
                     try:
                         column_id = int(input("Player {}, please give the column number where you play\n".format(agent_id)))
                         self.apply_action(column_id)
@@ -235,40 +230,9 @@ class CrossGame(_Environment):
                 ]
 
     @staticmethod
-    def choose_model(choose_model=False):
-        path_to_models = PATH_TO_MODELS
-        sorted_models = sorted([f for f in os.listdir(path_to_models) if os.isfile(os.join(path_to_models, f))], reverse=True)
-        if not sorted_models:
-            return None
-
-        if choose_model:
-            n = len(sorted_models)
-            counter = 0
-            input_index = -1
-
-            for index, model in enumerate(sorted_models):
-                print("{} : {}".format(index, model))
-            while counter < 5 and (input_index < 0 or input_index > n-1):
-                input_index = input("Give the id of the model you want :")
-                counter += 1
-
-            if counter == 5:
-                print("No valid id was given. Game aborted.")
-                return
-
-            model = sorted_models[input_index]
-            return load_model(os.join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
-
-        else:
-            model = sorted_models[0]
-            return load_model(os.join(path_to_models, model), custom_objects = {'dqn_mask_loss': dqn_mask_loss})
-
-    #TODO: Why is it static and needs a state as argument ?
-    @staticmethod
     def get_n_rows(state):
         return len(state[0])
 
-    #TODO: Why is it static and needs a state as argument ?
     @staticmethod
     def get_n_columns(state):
         return len(state)
