@@ -7,12 +7,18 @@ from ._environment import _Environment
 
 class CrossGame(_Environment):
 
-    def __init__(self):
+    def __init__(self,
+                 nb_columns=7,
+                 nb_rows=6,
+                 final_state_reward=10,
+                 non_final_state_reward=-1,
+                 nb_aligned_tokens_win=4):
         super().__init__()
-        self._NB_COLUMNS = 7
-        self._NB_ROWS = 6
-        self.final_state_reward = 10
-        self.non_final_state_reward = -1
+        self.nb_columns = nb_columns
+        self.nb_rows = nb_rows
+        self.final_state_reward = final_state_reward
+        self.non_final_state_reward = non_final_state_reward
+        self.nb_aligned_tokens_win = nb_aligned_tokens_win
         self.reset()
 
     def reset(self):
@@ -30,30 +36,45 @@ class CrossGame(_Environment):
         self.current_token_id = self.token_ids()
 
     @property
-    def _nb_rows(self):
-        return self._NB_ROWS
+    def nb_rows(self):
+        return self._nb_rows
 
     @property
-    def _nb_columns(self):
-        return self._NB_COLUMNS
+    def nb_columns(self):
+        return self._nb_columns
 
-    @_nb_rows.setter
-    def _nb_rows(self, nb_rows):
-        if not isinstance(nb_rows, int) or not isinstance(nb_rows, float):
+    @property
+    def nb_aligned_tokens_win(self):
+        return self._nb_aligned_tokens_win
+
+    @nb_rows.setter
+    def nb_rows(self, nb_rows):
+        if not isinstance(nb_rows, int) and not isinstance(nb_rows, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_rows < 0:
             raise ValueError("Trying to set a negative number of rows")
         else:
-            self._NB_ROWS = nb_rows
+            self._nb_rows = nb_rows
 
-    @_nb_columns.setter
-    def _nb_columns(self, nb_columns):
-        if not isinstance(nb_columns, int) or not isinstance(nb_columns, float):
+    @nb_columns.setter
+    def nb_columns(self, nb_columns):
+        if not isinstance(nb_columns, int) and not isinstance(nb_columns, float):
             raise ValueError("The number of rows has to be a numeric value")
         elif nb_columns < 0:
             raise ValueError("Trying to set a negative number of rows")
         else:
-            self._NB_ROWS = nb_columns
+            self._nb_columns = nb_columns
+
+    @nb_aligned_tokens_win.setter
+    def nb_aligned_tokens_win(self, nb_aligned_tokens_win):
+        if not isinstance(nb_aligned_tokens_win, int) and not isinstance(nb_aligned_tokens_win, float):
+            raise ValueError("The number of aligned tokens needed to win has to be a numeric value")
+        elif nb_aligned_tokens_win < 0:
+            raise ValueError("Trying to set a negative number of number of aligned tokens needed to win")
+        elif nb_aligned_tokens_win > max(self.nb_rows, self._nb_columns):
+            raise ValueError("The number of aligned tokens needed to win is too large for this board")
+        else:
+            self._nb_aligned_tokens_win = nb_aligned_tokens_win
 
     def play_game_against_human(self):
         number_of_rounds = 0
@@ -151,18 +172,15 @@ class CrossGame(_Environment):
                     return True
         return False
 
-    @classmethod
-    def _is_winning_move(cls, state, col_index, agent_id):
-        return (cls._check_vertical_victory(state, col_index, agent_id) or
-                cls._check_horizontal_victory(state, col_index, agent_id) or
-                cls._check_diagonal_victory(state, col_index, agent_id))
+    def _is_winning_move(self, state, col_index, agent_id):
+        return (self._check_vertical_victory(state, col_index, agent_id) or
+                self._check_horizontal_victory(state, col_index, agent_id) or
+                self._check_diagonal_victory(state, col_index, agent_id))
 
-    @classmethod
-    def _check_vertical_victory(cls, state, col_index, agent_id):
-        return cls._check_if_four_aligned_tokens(state[col_index][::-1], agent_id)
+    def _check_vertical_victory(self, state, col_index, agent_id):
+        return self._check_if_enough_aligned_tokens(state[col_index][::-1], agent_id)
 
-    @staticmethod
-    def _check_if_four_aligned_tokens(token_list, agent_id):
+    def _check_if_enough_aligned_tokens(self, token_list, agent_id):
         previous_token = 0
         consecutive_tokens = 0
         for token in token_list:
@@ -174,22 +192,20 @@ class CrossGame(_Environment):
                 previous_token = token
             else:
                 consecutive_tokens = 0
-            if consecutive_tokens == 4:
+            if consecutive_tokens == self.nb_aligned_tokens_win:
                 return True
         return False
 
-    @classmethod
-    def _check_horizontal_victory(cls, state, col_index, agent_id):
+    def _check_horizontal_victory(self, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = max(0, col_index - 3)
-                right_border = min(cls.get_n_rows(state), col_index + 3)
-                row_id = cls.get_n_rows(state) - reversed_row_id - 1
+                right_border = min(self.get_n_rows(state), col_index + 3)
+                row_id = self.get_n_rows(state) - reversed_row_id - 1
                 row = [state[col_id][row_id] for col_id in range(left_border, right_border+1)]
-                return cls._check_if_four_aligned_tokens(row, agent_id)
+                return self._check_if_enough_aligned_tokens(row, agent_id)
 
-    @classmethod
-    def _check_diagonal_victory(cls, state, col_index, agent_id):
+    def _check_diagonal_victory(self, state, col_index, agent_id):
         for reversed_row_id, token in enumerate(state[col_index][::-1]):
             if token == agent_id:
                 left_border = col_index - 3
@@ -197,18 +213,18 @@ class CrossGame(_Environment):
                 row_index = len(state[0]) - reversed_row_id - 1
                 bottom_border = row_index - 3
                 top_border = row_index + 3
-                ascending_diagonal = cls._get_ascending_diagonal(state,
+                ascending_diagonal = self._get_ascending_diagonal(state,
                                                                  bottom_border,
                                                                  left_border,
                                                                  right_border,
                                                                  top_border)
-                descending_diagonal = cls._get_descending_diagonal(state,
+                descending_diagonal = self._get_descending_diagonal(state,
                                                                    bottom_border,
                                                                    left_border,
                                                                    right_border,
                                                                    top_border)
-                return (cls._check_if_four_aligned_tokens(ascending_diagonal, agent_id) or
-                        cls._check_if_four_aligned_tokens(descending_diagonal, agent_id))
+                return (self._check_if_enough_aligned_tokens(ascending_diagonal, agent_id) or
+                        self._check_if_enough_aligned_tokens(descending_diagonal, agent_id))
 
     @classmethod
     def _get_descending_diagonal(cls, state, bottom_border, left_border, right_border, top_border):
