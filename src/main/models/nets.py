@@ -32,17 +32,16 @@ class _Net(ABC):
         raise NotImplementedError
 
 
-class _DenseNet(_Net):
+class _DenseNet(_Net, ABC):
 
     def __init__(self, n_actions, input_shape, trainable):
         super(_DenseNet, self).__init__(n_actions, input_shape, trainable)
 
-    @staticmethod
-    def process_input(x):
+    def process_input(self, x):
         return x
 
 
-class _ConvNet(_Net):
+class _ConvNet(_Net, ABC):
 
     def __init__(self, n_actions, input_shape, trainable, n_players):
         self.n_players = n_players
