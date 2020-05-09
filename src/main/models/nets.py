@@ -14,46 +14,40 @@ def dqn_mask_loss(batch_data, y_pred):
     return tf.keras.losses.Huber()(batch_true_q_values, batch_predicted_q_values)
 
 
-class _Net(ABC):
+class _DenseNet(ABC):
 
-    def __init__(self, n_actions, input_shape, trainable, n_players):
-        super(_Net, self).__init__()
+    def __init__(self, n_actions, input_shape, trainable):
+        super(_DenseNet, self).__init__()
         self.n_actions = n_actions
+        self.input_shape = input_shape
         self.trainable = trainable
-        self.input_shape = input_shape[0], input_shape[1], n_players
         self.model = self.init_model()
 
     @abstractmethod
     def init_model(self):
         raise NotImplementedError
 
-    @abstractmethod
-    def process_input(self, x):
-        raise NotImplementedError
-
-
-class _DenseNet(_Net):
-
-    def __init__(self, n_actions, input_shape, trainable, n_players):
-        super(_DenseNet, self).__init__(n_actions, input_shape, trainable, n_players)
-
-    def init_model(self):
-        raise NotImplementedError
-
-    def process_input(self, x):
+    @staticmethod
+    def process_input(x):
         return x
 
 
-class _ConvNet(_Net):
+class _ConvNet(ABC):
 
     def __init__(self, n_actions, input_shape, trainable, n_players):
-        super(_ConvNet, self).__init__(n_actions, (input_shape[0], input_shape[1], 2), trainable, n_players)
+        super(_ConvNet, self).__init__()
+        self.n_actions = n_actions
+        self.input_shape = input_shape[0], input_shape[1], n_players
+        self.trainable = trainable
+        self.n_players = n_players
+        self.model = self.init_model()
 
+    @abstractmethod
     def init_model(self):
         raise NotImplementedError
 
     def process_input(self, x):
-        processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], 2))
+        processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], self.n_players))
         for b in range(x.shape[0]):
             for i in range(x.shape[1]):
                 for j in range(x.shape[2]):
@@ -64,8 +58,8 @@ class _ConvNet(_Net):
 
 class CFDense(_DenseNet):
 
-    def __init__(self, n_actions, input_shape, trainable, n_players):
-        super(CFDense, self).__init__(n_actions, input_shape, trainable, n_players)
+    def __init__(self, n_actions, input_shape, trainable, *args):
+        super(CFDense, self).__init__(n_actions, input_shape, trainable)
 
     def init_model(self):
         model = tf.keras.Sequential()
@@ -78,8 +72,8 @@ class CFDense(_DenseNet):
 
 class CFDense2(_DenseNet):
 
-    def __init__(self, n_actions, input_shape, trainable, n_players):
-        super(CFDense2, self).__init__(n_actions, input_shape, trainable, n_players)
+    def __init__(self, n_actions, input_shape, trainable, *args):
+        super(CFDense2, self).__init__(n_actions, input_shape, trainable)
 
     def init_model(self):
         model = tf.keras.Sequential()

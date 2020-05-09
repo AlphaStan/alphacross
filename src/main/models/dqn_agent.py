@@ -35,7 +35,7 @@ class DQNAgent(_Agent):
         self.save_dir = save_dir
 
     def init_model(self, env_shape, action_space_size, trainable, n_players):
-        self.net = CFConv2(action_space_size, env_shape, trainable, n_players)
+        self.net = CFDense2(action_space_size, env_shape, trainable, n_players)
 
     def init_replays(self, env):
         replays = []
