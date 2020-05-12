@@ -296,12 +296,6 @@ class DQNAgent(_Agent):
         processed_batch = np.array([r.toggle_ids() if r._current_player_id == 1 else r for r in batch])
         return processed_batch
 
-    @deprecated
-    def get_mini_batch_targets(self, mini_batch):
-        return np.array([replay._reward if replay._reward == 1
-                         else self.discount * np.max(self.model.predict(np.expand_dims(replay._post_state, axis=0)))
-                         for replay in mini_batch])
-
     def epsilon_greedy_predict_action(self, actions):
         if np.random.random_sample() < self.epsilon:
             return np.random.randint(0, len(actions))
