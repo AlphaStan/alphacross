@@ -286,16 +286,6 @@ class DQNAgent(_Agent):
             for episode_reward in rewards:
                 f.write(str(episode_reward))
 
-    def get_legal_action(self, state, get_action_prob, env):
-        action_probabilities = get_action_prob(state)
-        legal_actions = [env.is_legal_action(state, action) for action in range(action_probabilities)]
-        legal_action_prob = [prob if legal_action else 0
-                             for prob, legal_action in zip(action_probabilities, legal_actions)]
-
-        if sum(legal_action_prob) == 0:
-            return legal_action_prob
-        return legal_action_prob / sum(legal_action_prob)
-
     def save_replay(self, replay):
         self.replays.pop(0)
         self.replays.append(replay)
