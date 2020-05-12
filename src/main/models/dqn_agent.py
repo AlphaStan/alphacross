@@ -12,7 +12,6 @@ from .agent import _Agent
 from .loss import dqn_mask_loss
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
-from ..utils import deprecated
 
 
 #TODO: test class for that
