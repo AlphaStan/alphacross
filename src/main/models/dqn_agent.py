@@ -18,6 +18,7 @@ class DQNAgent(_Agent):
                  env,
                  net_name='CFConv2',
                  n_players=2,
+                 encoding='2d',
                  epsilon=0.25,
                  discount=0.95,
                  num_episodes=1000,
@@ -27,7 +28,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.init_model(net_name, env.get_shape(), env.get_action_space_size(), True, n_players)
+        self.net = self.init_model(net_name, env.get_shape(), env.get_action_space_size(), True, encoding, n_players)
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -36,9 +37,10 @@ class DQNAgent(_Agent):
         self.replays = []
         self.save_dir = save_dir
 
-    def init_model(self, net_name, env_shape, action_space_size, trainable, n_players):
+    @staticmethod
+    def init_model(self, net_name, env_shape, action_space_size, trainable, encoding, n_players):
         net_class = getattr(sys.modules[__name__], net_name)
-        self.net = net_class(action_space_size, env_shape, trainable, n_players)
+        return net_class(action_space_size, env_shape, trainable, encoding, n_players)
 
     def init_replays(self, env):
         replays = []
