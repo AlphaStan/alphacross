@@ -103,7 +103,7 @@ class CFConv1(_Net):
 
 class CFConv2(_Net):
 
-    def __init__(self, n_actions, input_shape, trainable, n_players, encoding='3d'):
+    def __init__(self, n_actions, input_shape, trainable,  encoding, n_players):
         if encoding == '2d':
             raise ValueError("Cannot instantiate CFConv2 net with encoding '2d'")
         super(CFConv2, self).__init__(n_actions, input_shape, trainable, encoding, n_players)

@@ -1,5 +1,7 @@
 import pytest
 import numpy as np
+import sys
+import inspect
 
 from ..main.models import nets
 
@@ -56,3 +58,19 @@ def test_process_input_should_do_one_hot_encoding_when_encoding_is_3d():
     actual_processed_input = nets._Net.process_input(x, '3d', 2)
     # Then
     np.testing.assert_array_equal(expected_processed_input, actual_processed_input)
+
+
+@pytest.mark.parametrize("net_name",
+                         [('CFDense'), ('CFDense2'), ('CFConv1'), ('CFConv2')])
+def test_instantiate_nets_should_return_instance(net_name):
+    # Given
+    n_actions = 6
+    input_shape = (7, 6)
+    trainable = True
+    encoding = '3d'
+    n_players = 2
+    # When
+    net_class = getattr(inspect.getmodule(nets), net_name)
+    net_instance = net_class(n_actions, input_shape, trainable, encoding, n_players)
+    # Then
+    assert isinstance(net_instance, net_class)
