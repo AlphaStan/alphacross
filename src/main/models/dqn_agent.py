@@ -23,7 +23,8 @@ class DQNAgent(_Agent):
                  num_episodes=1000,
                  batch_size=200,
                  num_replays=1000,
-                 save_dir="../../models"
+                 save_dir="../../models",
+                 model_name=""
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
@@ -35,6 +36,7 @@ class DQNAgent(_Agent):
         self.num_replays = num_replays
         self.replays = []
         self.save_dir = save_dir
+        self.model_name = self.get_model_name(model_name)
 
     @staticmethod
     def init_model(net_name, env_shape, action_space_size, trainable, encoding, n_players):
@@ -141,12 +143,14 @@ class DQNAgent(_Agent):
             total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
         print("Training done!")
-        date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
-        os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
-        self.net.model.save(os.path.join(self.save_dir, "trained_model_%s" % date, 'trained_model.h5'))
-        self.save_training_figures(total_rewards_per_episode, date)
-        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
-                                                                                 "trained_model_%s/" % date))))
+
+        self.save_model(total_rewards_per_episode)
+
+    def save_model(self, total_rewards_per_episode):
+        os.mkdir(os.path.join(self.save_dir, self.model_name))
+        self.net.model.save(os.path.join(self.save_dir, self.model_name, 'trained_model.h5'))
+        self.save_training_figures(total_rewards_per_episode)
+        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir, self.model_name))))
 
     def compare_two_models(self, first_model_path, second_model_path, env, n_episodes):
         first_model = load_model(first_model_path)
@@ -273,7 +277,7 @@ class DQNAgent(_Agent):
         average_reward_per_episode = np.mean(model_total_reward_per_episode)
         return average_reward_per_episode
 
-    def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
+    def save_training_figures(self, rewards, figsize=(15, 8), extension="pdf"):
         plt.figure(figsize=figsize)
         plt.plot(rewards, color='r')
         plt.grid()
@@ -282,8 +286,8 @@ class DQNAgent(_Agent):
         plt.xlabel("Episodes")
         plt.xticks(range(1, len(rewards)))
         plt.xlim(0, len(rewards)-1)
-        plt.savefig(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.%s" % extension))
-        with open(os.path.join(self.save_dir, "trained_model_%s" % date, "rewards_per_episode.txt"), "a") as f:
+        plt.savefig(os.path.join(self.save_dir, self.model_name, "rewards_per_episode.%s" % extension))
+        with open(os.path.join(self.save_dir, self.model_name, "rewards_per_episode.txt"), "a") as f:
             for episode_reward in rewards:
                 f.write(str(episode_reward))
 
@@ -316,6 +320,16 @@ class DQNAgent(_Agent):
             return np.random.randint(0, len(actions))
         else:
             return np.argmax(actions)
+
+    @staticmethod
+    def get_model_name(model_name):
+        if not isinstance(model_name, str):
+            raise TypeError("model_name must have string type")
+
+        if model_name == "":
+            date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+            return "trained_model_" + date
+        return model_name
 
 
 class Replay:

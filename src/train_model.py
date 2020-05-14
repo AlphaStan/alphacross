@@ -17,7 +17,9 @@ from main.models.dqn_agent import DQNAgent
 @click.option('--num-replays', type=int, default=100, help='Number of generated transitions for training')
 @click.option('--save-dir', type=click.Path(exists=True), default='./models',
               help="Directory to save the model outputs")
-def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, batch_size, num_replays, save_dir):
+@click.option('--model_name', type=str, default="")
+def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, batch_size, num_replays, save_dir, model_name):
+>>>>>>> add model name handling
     environment = CrossGame()
     agent = DQNAgent(environment,  # environment object
                      epsilon=epsilon,
@@ -28,7 +30,8 @@ def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, 
                      num_episodes=num_episodes,
                      batch_size=batch_size,
                      num_replays=num_replays,
-                     save_dir=save_dir)
+                     save_dir=save_dir,
+                     model_name=model_name)
     agent.init_replays(environment)
     agent.train(environment)
 
