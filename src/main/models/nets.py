@@ -23,33 +23,32 @@ class _Net(ABC):
         self.trainable = trainable
         self.encoding = encoding
         self.n_players = n_players
-        self.input_shape = self._get_input_shape_from_encoding(input_shape)
+        self.input_shape = self.get_input_shape_from_encoding(input_shape, self.encoding, self.n_players)
         self.model = self.init_model()
 
-    def _get_input_shape_from_encoding(self, input_shape):
-        if self.encoding == '2d':
+    @staticmethod
+    def get_input_shape_from_encoding(input_shape, encoding, n_players):
+        if encoding == '2d':
             if len(input_shape) == 2:
                 return input_shape
             else:
                 raise ValueError("Encoding is '2d' but len(input_shape) != 2")
-        if self.encoding == '3d':
+        elif encoding == '3d':
             if len(input_shape) == 2:
                 warnings.warn("Encoding is '3d', but len(input_shape) == 2")
-                warnings.warn("Adding third dimension from n_players, new input_shape={}".format(self.input_shape))
-                return input_shape[0], input_shape[1], self.n_players
+                warnings.warn("Adding third dimension from n_players, new input_shape={}".format(input_shape))
+                return input_shape[0], input_shape[1], n_players
 
     @abstractmethod
     def init_model(self):
         raise NotImplementedError
 
-    def process_input(self, x):
-        if self.encoding == '3d' and len(x.shape) != 4:
-            processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], self.n_players))
-            for b in range(x.shape[0]):
-                for i in range(x.shape[1]):
-                    for j in range(x.shape[2]):
-                        if x[b, i, j]:
-                            processed_input[b, i, j, x.astype(np.int32)[b, i, j] - 1] = 1
+    @staticmethod
+    def process_input(x, encoding, n_players):
+        if encoding == '3d' and len(x.shape) != 4:
+            processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], n_players))
+            for player_id in [1, 2]:
+                processed_input[:, :, :, player_id-1][np.nonzero(x==player_id)] = 1
             return processed_input
         else:
             return x
@@ -88,6 +87,8 @@ class CFDense2(_Net):
 class CFConv1(_Net):
 
     def __init__(self, n_actions, input_shape, trainable, encoding, n_players):
+        if encoding == '2d':
+            raise ValueError("Cannot instantiate CFConv1 net with encoding '2d'")
         super(CFConv1, self).__init__(n_actions, input_shape, trainable, encoding, n_players)
 
     def init_model(self):
@@ -102,7 +103,9 @@ class CFConv1(_Net):
 
 class CFConv2(_Net):
 
-    def __init__(self, n_actions, input_shape, trainable, encoding, n_players):
+    def __init__(self, n_actions, input_shape, trainable, n_players, encoding='3d'):
+        if encoding == '2d':
+            raise ValueError("Cannot instantiate CFConv2 net with encoding '2d'")
         super(CFConv2, self).__init__(n_actions, input_shape, trainable, encoding, n_players)
 
     def init_model(self):
