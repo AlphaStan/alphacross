@@ -1,6 +1,5 @@
 from tensorflow.python.keras.models import load_model
 import datetime
-import warnings
 import os
 import matplotlib.pyplot as plt
 import logging
