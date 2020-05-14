@@ -89,7 +89,9 @@ class DQNAgent(_Agent):
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
-                actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0))).ravel()
+                actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0),
+                                                                        self.net.encoding,
+                                                                        self.net.n_players)).ravel()
                 action = self.epsilon_greedy_predict_action(actions)
                 try:
                     reward, new_state = env.apply_action(action)
@@ -115,13 +117,18 @@ class DQNAgent(_Agent):
                     # This is the quantity we want to perform the gradient descent on
                     # In this block the target is defined as the right hand side of the Bellman
                     # equation, the network is used as an approximation of the Q function to define this target
-                    batch_post_states_q_values = self.net.model.predict(self.net.process_input(batch_post_states))
+                    batch_post_states_q_values = self.net.model.predict(self.net.process_input(batch_post_states,
+                                                                                               self.net.encoding,
+                                                                                               self.net.n_players))
                     batch_prior_states_q_values = batch_rewards + self.discount * batch_post_states_q_values.max(axis=1)
                     batch_actions = np.array([replay._action for replay in batch])
                     batch_targets = np.concatenate([np.expand_dims(batch_prior_states_q_values, axis=1),
                                                     np.expand_dims(batch_actions, axis=1)],
                                                    axis=1)
-                    self.net.model.train_on_batch(self.net.process_input(batch_prior_states), batch_targets)
+                    self.net.model.train_on_batch(self.net.process_input(batch_prior_states,
+                                                                         self.net.encoding,
+                                                                         self.net.n_players),
+                                                  batch_targets)
 
                     game_is_finished = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
