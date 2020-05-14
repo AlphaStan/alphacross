@@ -38,7 +38,7 @@ class DQNAgent(_Agent):
         self.save_dir = save_dir
 
     @staticmethod
-    def init_model(self, net_name, env_shape, action_space_size, trainable, encoding, n_players):
+    def init_model(net_name, env_shape, action_space_size, trainable, encoding, n_players):
         net_class = getattr(sys.modules[__name__], net_name)
         return net_class(action_space_size, env_shape, trainable, encoding, n_players)
 
