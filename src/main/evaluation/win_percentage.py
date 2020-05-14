@@ -35,7 +35,7 @@ def against_random_agent(agent, environment, num_episodes=100):
                         break
                 except ColumnIsFullError:
                     pass
-            while not model_has_played:
+            while not model_has_played and not episode_is_finished:
                 try:
                     agent_action = agent.select_action(environment)
                     _, new_state = environment.apply_action(agent_action)
