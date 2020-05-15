@@ -56,4 +56,4 @@ class RandomAgentEvaluator:
                     agent_action = self.agent.select_action(self.environment)
                     agent_has_played, episode_is_finished = self._make_one_move(agent_action,
                                                                                 self.agent_id)
-        return self._percentages
+        return self._percentages['agent_winning_percentage']
