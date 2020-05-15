@@ -14,7 +14,7 @@ def test_RandomAgentEvaluator_percentages_attribute_should_have_values_that_sum_
     agent.model = model
     num_episodes = 10
     expected_sum = 1
-    evaluator = RandomAgentEvaluator(agent, environment, num_episodes)
+    evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
     # When
     evaluator.evaluate()
     win_percentages = evaluator._percentages
@@ -34,7 +34,7 @@ def test_RandomAgentEvaluator_evaluate_method_should_return_the_percentage_of_vi
     agent.model = model
     num_episodes = 10
     expected_win_percentage = 0.7
-    evaluator = RandomAgentEvaluator(agent, environment, num_episodes)
+    evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
     # When
     actual_win_percentage = evaluator.evaluate()
     # Then

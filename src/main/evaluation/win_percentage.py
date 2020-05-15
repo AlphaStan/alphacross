@@ -1,16 +1,16 @@
 import numpy as np
 
 from ..environment.errors import ColumnIsFullError
+from ._evaluator import _Evaluator
 
 
-class RandomAgentEvaluator:
+class RandomAgentEvaluator(_Evaluator):
     """
     Return the percentage of victories over several games against a random agent
     """
 
-    def __init__(self, agent, environment, num_episodes=100):
-        self.agent = agent
-        self.environment = environment
+    def __init__(self, num_episodes=100, *args):
+        super(RandomAgentEvaluator, self).__init__(*args)
         self.num_episodes = num_episodes
         self.random_agent_id = 1
         self.agent_id = 2
