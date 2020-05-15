@@ -23,3 +23,5 @@ def test_against_randon_agent_should_return_a_dict_with_win_percentages_of_each_
         + win_percentages['draw_percentage']
     # Then
     assert expected_sum == actual_sum
+
+
