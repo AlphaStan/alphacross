@@ -1,4 +1,3 @@
-import pytest
 from tensorflow.python.keras.models import load_model
 import numpy as np
 
