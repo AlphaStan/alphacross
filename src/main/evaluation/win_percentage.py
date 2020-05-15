@@ -4,6 +4,9 @@ from ..environment.errors import ColumnIsFullError
 
 
 class RandomAgentEvaluator:
+    """
+    Return the percentage of victories over several games against a random agent
+    """
 
     def __init__(self, agent, environment, num_episodes=100):
         self.agent = agent
