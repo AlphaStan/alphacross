@@ -26,8 +26,8 @@ def test_can_run_train_model():
     save_dir = "./models"
     model_name = "test"
     # When
-    if os.path.exists("./models/test.h5"):
-        os.remove("./models/test.h5")
+    if os.path.exists("./models/test"):
+        os.remove("./models/test")
     result = runner.invoke(train_agent, [epsilon, discount, num_episodes, batch_size, num_replays, save_dir, model_name])
     """
     train_agent(epsilon, discount, num_episodes, batch_size, num_replays, save_dir, model_name)
