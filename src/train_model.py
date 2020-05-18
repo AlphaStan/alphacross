@@ -19,7 +19,6 @@ from src.main.models.dqn_agent import DQNAgent
               help="Directory to save the model outputs")
 @click.option('--model_name', type=str, default="")
 def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, batch_size, num_replays, save_dir, model_name):
->>>>>>> add model name handling
     environment = CrossGame()
     agent = DQNAgent(environment,  # environment object
                      epsilon=epsilon,
