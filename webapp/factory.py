@@ -12,6 +12,7 @@ def create_app():
     app.static_folder = app.config["STATIC_FOLDER"]
     app.game = CrossGame()
     app.is_ai_active = False
-    app.agent = DQNAgent(app.game)
+    app.agent = DQNAgent(app.game, encoding=app.config['BOARD_ENCODING'], net_name=app.config['NET_NAME'])
+    #TODO: load the whole net instead of just the model
     app.agent.model = load_model(app.config["MODEL_PATH"], custom_objects={'dqn_mask_loss': dqn_mask_loss})
     return app

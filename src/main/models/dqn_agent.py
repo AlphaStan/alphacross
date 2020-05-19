@@ -72,7 +72,9 @@ class DQNAgent(_Agent):
         return reward, new_state
 
     def select_action(self, env):
-        state = np.expand_dims(env.get_state(), axis=0)
+        state = self.net.process_input(np.expand_dims(env.get_state(), axis=0),
+                                       self.net.encoding,
+                                       self.net.n_players)
         action_probabilities = self.net.model.predict(state)
         action_id = self.epsilon_greedy_predict_action(action_probabilities)
         return action_id
