@@ -3,13 +3,18 @@ import traceback
 
 from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
+from src.play_against_agent import play_against_agent
 from click.testing import CliRunner
 
 def test_can_run_play_against_agent():
     # Given
     # When
     # Then
-    assert True is True
+    runner = CliRunner()
+    # When
+    result = runner.invoke(play_against_agent, input="1\n1\n1\n1\n")
+    # Then
+    assert result.exit_code == 0
 
 def test_can_run_play_against_human(monkeypatch, capsys):
     # Given
@@ -25,7 +30,7 @@ def test_can_run_play_against_human(monkeypatch, capsys):
 
 def test_can_run_train_model():
     # Given
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     epsilon = "0.05"
     discount = "0.95"
     num_episodes = "1"
