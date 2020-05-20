@@ -2,7 +2,7 @@ from tensorflow.python.keras.models import load_model
 import pytest
 import numpy as np
 
-from ..main.evaluation.win_percentage import RandomAgentEvaluator
+from ..main.evaluation.random_evaluation import RandomAgentEvaluator
 from ..main.environment.cross_game import CrossGame
 from ..main.models.dqn_agent import dqn_mask_loss, DQNAgent
 
