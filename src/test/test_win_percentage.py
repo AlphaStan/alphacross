@@ -12,7 +12,7 @@ def test_RandomAgentEvaluator_percentages_attribute_should_have_values_that_sum_
     model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
     agent = DQNAgent(environment)
     agent.model = model
-    num_episodes = 10
+    num_episodes = 5
     expected_sum = 1
     evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
     # When
@@ -32,7 +32,7 @@ def test_RandomAgentEvaluator_evaluate_method_should_return_the_percentage_of_vi
     model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
     agent = DQNAgent(environment)
     agent.model = model
-    num_episodes = 10
+    num_episodes = 5
     expected_win_percentage = 0.7
     evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
     # When
