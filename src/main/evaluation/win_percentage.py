@@ -39,7 +39,9 @@ class RandomAgentEvaluator(_Evaluator):
             pass
         return has_played, episode_is_finished
 
-    def evaluate(self):
+    def evaluate(self, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
         n_actions = self.environment.get_action_space_size()
         self._percentages = self._init_percentages()
         for episode_index in range(self.num_episodes):

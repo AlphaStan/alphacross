@@ -1,4 +1,5 @@
 from tensorflow.python.keras.models import load_model
+import pytest
 import numpy as np
 
 from ..main.evaluation.win_percentage import RandomAgentEvaluator
@@ -6,17 +7,23 @@ from ..main.environment.cross_game import CrossGame
 from ..main.models.dqn_agent import dqn_mask_loss, DQNAgent
 
 
-def test_RandomAgentEvaluator_percentages_attribute_should_have_values_that_sum_to_one_when_evaluate_method_is_called():
-    # Given
+@pytest.fixture(scope="module", autouse=True)
+def evaluation_result():
     environment = CrossGame()
     model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
     agent = DQNAgent(environment)
     agent.model = model
-    num_episodes = 5
-    expected_sum = 1
+    num_episodes = 3
     evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
-    # When
     evaluator.evaluate()
+    return evaluator
+
+
+def test_RandomAgentEvaluator_percentages_attribute_should_have_values_that_sum_to_one_when_evaluate_method_is_called(evaluation_result):
+    # Given
+    evaluator = evaluation_result
+    expected_sum = 1
+    # When
     win_percentages = evaluator._percentages
     actual_sum = win_percentages['agent_winning_percentage']\
         + win_percentages['random_agent_winning_percentage']\
@@ -25,17 +32,10 @@ def test_RandomAgentEvaluator_percentages_attribute_should_have_values_that_sum_
     assert abs(expected_sum - actual_sum) <= 1e-8
 
 
-def test_RandomAgentEvaluator_evaluate_method_should_return_the_percentage_of_victories_of_a_given_agent():
+def test_RandomAgentEvaluator_percentages_attribute_should_have_only_positive_values_when_evaluate_method_is_called(evaluation_result):
     # Given
-    np.random.seed(42)
-    environment = CrossGame()
-    model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
-    agent = DQNAgent(environment)
-    agent.model = model
-    num_episodes = 5
-    expected_win_percentage = 0.7
-    evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
+    evaluator = evaluation_result
     # When
-    actual_win_percentage = evaluator.evaluate()
+    win_percentages = evaluator._percentages
     # Then
-    assert expected_win_percentage == actual_win_percentage
+    assert np.all(np.array(list(win_percentages.values())) >= 0)
