@@ -92,7 +92,9 @@ class DQNAgent(_Agent):
         reward, new_state = env.apply_action(action_id)
         return reward, new_state
 
-    def select_action(self, env):
+    def select_action(self, env, seed=None):
+        if seed is not None:
+            np.random.seed(seed)
         state = self.net.process_input(np.expand_dims(env.get_state(), axis=0),
                                        self.net.encoding,
                                        self.net.n_players)

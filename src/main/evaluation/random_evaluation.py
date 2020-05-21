@@ -57,7 +57,7 @@ class RandomAgentEvaluator(_Evaluator):
                     random_agent_has_played, episode_is_finished = self._make_one_move(random_agent_action,
                                                                                        self.random_agent_id)
                 while not agent_has_played and not episode_is_finished:
-                    agent_action = self.agent.select_action(self.environment)
+                    agent_action = self.agent.select_action(self.environment, seed=seed)
                     agent_has_played, episode_is_finished = self._make_one_move(agent_action,
                                                                                 self.agent_id)
         return self._percentages['agent_winning_percentage']

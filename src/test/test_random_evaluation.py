@@ -16,7 +16,7 @@ def evaluation_result():
     num_episodes = 3
     epsilon = 0.05
     evaluator = RandomAgentEvaluator(num_episodes, epsilon, agent, environment)
-    evaluator.evaluate()
+    evaluator.evaluate(42)
     return evaluator
 
 
