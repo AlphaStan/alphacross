@@ -39,6 +39,8 @@ class _Net(ABC):
                 new_input_shape = input_shape[0], input_shape[1], n_players
                 warnings.warn("Adding third dimension from n_players, new input_shape={}".format(new_input_shape))
                 return new_input_shape
+            elif len(input_shape) == 3:
+                return input_shape
 
     @abstractmethod
     def init_model(self):

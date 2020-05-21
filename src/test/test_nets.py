@@ -7,7 +7,7 @@ import os
 from ..main.models import nets
 
 @pytest.mark.parametrize("input_shape,encoding,n_players,expected_input_shape",
-                         [((7, 6), '2d', 2, (7, 6)), ((7, 6), '3d', 2, (7, 6, 2))])
+                         [((7, 6), '2d', 2, (7, 6)), ((7, 6), '3d', 2, (7, 6, 2)), ((7, 6, 2), '3d', 2, (7, 6, 2))])
 def test_get_input_shape_from_encoding_should_be_identity_or_add_dimension_given_valid_parameters(input_shape,
                                                                                                   encoding,
                                                                                                   n_players,
