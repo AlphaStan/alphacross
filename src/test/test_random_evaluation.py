@@ -1,4 +1,4 @@
-from tensorflow.python.keras.models import load_model
+from tensorflow.keras.models import load_model
 import pytest
 import numpy as np
 
