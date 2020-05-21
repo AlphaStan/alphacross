@@ -41,6 +41,8 @@ class _Net(ABC):
                 return new_input_shape
             elif len(input_shape) == 3:
                 return input_shape
+            else:
+                raise ValueError("Encoding is '3d' but len(input_shape) != 2 | 3")
 
     @abstractmethod
     def init_model(self):

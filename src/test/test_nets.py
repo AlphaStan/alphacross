@@ -1,10 +1,10 @@
-import pytest
-import numpy as np
 import inspect
+import numpy as np
+import pytest
 import tensorflow as tf
-import os
 
 from ..main.models import nets
+
 
 @pytest.mark.parametrize("input_shape,encoding,n_players,expected_input_shape",
                          [((7, 6), '2d', 2, (7, 6)), ((7, 6), '3d', 2, (7, 6, 2)), ((7, 6, 2), '3d', 2, (7, 6, 2))])
@@ -21,6 +21,11 @@ def test_get_input_shape_from_encoding_should_be_identity_or_add_dimension_given
 def test_get_input_shape_from_encoding_should_raise_ValueError_when_encoding_is_2d_and_input_shape_is_not_2d():
     with pytest.raises(ValueError):
         nets._Net.get_input_shape_from_encoding((7, 6, 2), '2d', 2)
+
+
+def test_get_input_shape_from_encoding_should_raise_ValueError_when_encoding_is_3d_and_input_shape_is_neither_2d_nor_3d():
+    with pytest.raises(ValueError):
+        nets._Net.get_input_shape_from_encoding((6, 7, 6, 2), '3d', 2)
 
 
 def test_process_input_should_be_identity_when_encoding_is_2d():
