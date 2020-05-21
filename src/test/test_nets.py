@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-import sys
 import inspect
 
 from ..main.models import nets
@@ -74,3 +73,14 @@ def test_instantiate_nets_should_return_instance(net_name):
     net_instance = net_class(n_actions, input_shape, trainable, encoding, n_players)
     # Then
     assert isinstance(net_instance, net_class)
+
+
+def test_nets_model_predict_method_should_return_the_same_output_given_the_same_input():
+    # Given
+    net = nets.CFConv2(7, (7, 6), True, '3d', 2)
+    board = np.zeros((1, 7, 6, 2))
+    # When
+    first_pass_output = net.model.predict(board)
+    second_pass_output = net.model.predict(board)
+    # Then
+    np.testing.assert_array_equal(first_pass_output, second_pass_output)
