@@ -88,14 +88,15 @@ def test_nets_model_predict_method_should_return_the_same_output_given_the_same_
     np.testing.assert_array_equal(first_pass_output, second_pass_output)
 
 
-@pytest.mark.parametrize('net_name',
-                         [net_name for net_name in os.listdir('./models/') if os.path.splitext(net_name)[1] == '.h5'])
-def test_loaded_model_predict_method_should_return_the_same_output_given_the_same_input(net_name):
+def test_loaded_model_predict_method_should_return_the_same_output_given_the_same_input():
     # Given
-    model = tf.keras.models.load_model('./models/' + net_name, custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
-    board = np.random.rand(1, 7, 6)
-    # When
+    np.random.seed(42)
+    model = tf.keras.models.load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
+    board = np.ones((1, 7, 6))
+    expected_probabilities = np.array([[3.799e-9, 2.332e-9, 9.994e-1, 4.838e-5, 5.968e-4, 4.185e-8, 1.904e-8]])
+    # When)
     first_pass_output = model.predict(board)
     second_pass_output = model.predict(board)
     # Then
-    np.testing.assert_array_equal(first_pass_output, second_pass_output)
+    np.testing.assert_array_almost_equal(first_pass_output, expected_probabilities, decimal=3)
+    np.testing.assert_array_almost_equal(second_pass_output, expected_probabilities, decimal=3)
