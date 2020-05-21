@@ -9,11 +9,12 @@ class RandomAgentEvaluator(_Evaluator):
     Return the percentage of victories over several games against a random agent
     """
 
-    def __init__(self, num_episodes=100, *args):
+    def __init__(self, num_episodes=100, epsilon=0.05, *args):
         super(RandomAgentEvaluator, self).__init__(*args)
         self.num_episodes = num_episodes
         self.random_agent_id = 1
         self.agent_id = 2
+        self.epsilon  = epsilon
         self._percentages = self._init_percentages()
 
     @staticmethod
@@ -40,6 +41,7 @@ class RandomAgentEvaluator(_Evaluator):
         return has_played, episode_is_finished
 
     def evaluate(self, seed=None):
+        self.agent.epsilon = self.epsilon
         if seed is not None:
             np.random.seed(seed)
         n_actions = self.environment.get_action_space_size()

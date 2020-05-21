@@ -14,7 +14,8 @@ def evaluation_result():
     agent = DQNAgent(environment)
     agent.model = model
     num_episodes = 3
-    evaluator = RandomAgentEvaluator(num_episodes, agent, environment)
+    epsilon = 0.05
+    evaluator = RandomAgentEvaluator(num_episodes, epsilon, agent, environment)
     evaluator.evaluate()
     return evaluator
 
