@@ -20,11 +20,12 @@ def test_can_run_play_against_human(monkeypatch, capsys):
     input_generator = (i for i in inputs)
     monkeypatch.setattr('builtins.input', lambda prompt: next(input_generator))
     game = CrossGame()
+    # When
     game.play_game_against_human()
     captured = capsys.readouterr()
-
-    # When
     # Then
+    assert captured.err == ""
+
 
 def test_can_run_train_model():
     # Given
@@ -43,7 +44,7 @@ def test_can_run_train_model():
     if os.path.exists(path):
         for file in os.listdir(path):
             os.remove(path + "/" + file)
-        os.rmdir("./models/test")
+        os.rmdir(path)
     result = runner.invoke(train_agent, options)
     # Then
     assert result.exit_code == 0
