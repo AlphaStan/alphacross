@@ -17,7 +17,7 @@ class DQNAgent(_Agent):
                  env,
                  net_name='CFConv2',
                  n_players=2,
-                 encoding='2d',
+                 encoding='3d',
                  epsilon=0.25,
                  discount=0.95,
                  num_episodes=1000,

@@ -12,12 +12,12 @@ from src.main.models.dqn_agent import DQNAgent
               default='3d', help="Number of players to simulate")
 @click.option('--n-players', type=int, default=2)
 @click.option('--discount', type=float, default=0.95, help='Discount factor of future rewards')
-@click.option('--num_episodes', type=int, default=100, help='Number of episodes for training')
-@click.option('--batch_size', type=int, default=32, help='Number of samples in a training batch')
-@click.option('--num_replays', type=int, default=100, help='Number of generated transitions for training')
-@click.option('--save_dir', type=click.Path(exists=True), default='./models',
+@click.option('--num-episodes', type=int, default=100, help='Number of episodes for training')
+@click.option('--batch-size', type=int, default=32, help='Number of samples in a training batch')
+@click.option('--num-replays', type=int, default=100, help='Number of generated transitions for training')
+@click.option('--save-dir', type=click.Path(exists=True), default='./models',
               help="Directory to save the model outputs")
-@click.option('--model_name', type=str, default="")
+@click.option('--model-name', type=str, default="")
 def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, batch_size, num_replays, save_dir, model_name):
     environment = CrossGame()
     agent = DQNAgent(environment,  # environment object
