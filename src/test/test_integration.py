@@ -1,16 +1,19 @@
 import os
 import traceback
 
-from main.environment.cross_game import CrossGame
-from train_model import train_agent
-from play_against_agent import play_against_agent
+from src.main.environment.cross_game import CrossGame
+from src.train_model import train_agent
+from src.play_against_agent import play_against_agent
 from click.testing import CliRunner
 
 def test_can_run_play_against_agent():
     # Given
     runner = CliRunner()
+    input = "6\n6\n6\n6\n"
+    path_to_models = "ressources/test_can_run_play_against_agent/"
+    options = "--path-to-models {}".format(path_to_models)
     # When
-    result = runner.invoke(play_against_agent, input="1\n1\n1\n1\n")
+    result = runner.invoke(play_against_agent, options, input)
     # Then
     assert result.exit_code == 0
 
