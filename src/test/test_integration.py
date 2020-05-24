@@ -1,9 +1,9 @@
 import os
 import traceback
 
-from src.main.environment.cross_game import CrossGame
-from src.train_model import train_agent
-from src.play_against_agent import play_against_agent
+from main.environment.cross_game import CrossGame
+from train_model import train_agent
+from play_against_agent import play_against_agent
 from click.testing import CliRunner
 
 def test_can_run_play_against_agent():
