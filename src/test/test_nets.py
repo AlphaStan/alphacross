@@ -141,10 +141,15 @@ def test_load_model_should_return_an_instance_of_net():
         expected_attributes = json.load(data)
     expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}
     expected_net_class = getattr(inspect.getmodule(nets), expected_attributes['net_name'])
+    expected_model = tf.keras.models.load_model(os.path.join(load_dir, 'model.h5'),
+                                                custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
     # When
     loaded_net = nets.load_net(load_dir)
     actual_loaded_attributes = {key: loaded_net.__dict__[key] for key in loaded_net.__dict__
                          if key not in ['model', 'net_name']}
+    actual_model = loaded_net.model
     # Then
     assert isinstance(loaded_net, expected_net_class)
     assert actual_loaded_attributes == expected_loaded_attributes
+    for actual_weights, expected_weights in zip(actual_model.get_weights(), expected_model.get_weights()):
+        np.testing.assert_array_equal(actual_weights, expected_weights)
