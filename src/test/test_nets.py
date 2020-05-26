@@ -98,10 +98,10 @@ def test_nets_model_predict_method_should_return_the_same_output_given_the_same_
 def test_loaded_model_predict_method_should_return_the_same_output_given_the_same_input():
     # Given
     np.random.seed(42)
-    model = tf.keras.models.load_model('./src/test/resources/trained_model_15122019_234912.h5',
+    model = tf.keras.models.load_model('./src/test/resources/model.h5',
                                        custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
-    board = np.ones((1, 7, 6))
-    expected_probabilities = np.array([[3.799e-9, 2.332e-9, 9.994e-1, 4.838e-5, 5.968e-4, 4.185e-8, 1.904e-8]])
+    board = np.ones((1, 7, 6, 2))
+    expected_probabilities = np.array([[1.456e-1, 2.251e-1, 1.079e-1, 1.052e-1, 1.345e-1, 9.504e-2, 1.866e-1]])
     # When)
     first_pass_output = model.predict(board)
     second_pass_output = model.predict(board)
