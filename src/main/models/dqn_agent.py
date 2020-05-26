@@ -1,14 +1,13 @@
 import datetime
 import logging
-import os
-import sys
-import matplotlib.pyplot as plt
 from tensorflow.python.keras.models import load_model
+import matplotlib.pyplot as plt
+from tensorflow.keras.models import load_model
 
 from .agent import _Agent
 from .replay import Replay
-from ..environment.errors import ColumnIsFullError
 from .nets import *
+from ..environment.errors import ColumnIsFullError
 
 
 #TODO: test class for that
@@ -26,11 +25,12 @@ class DQNAgent(_Agent):
                  num_replays=1000,
                  save_dir="../../models",
                  model_name="",
-                 target_model_update_freq=10
+                 target_model_update_freq=10,
+                 load_dir=""
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.net = self.init_model(net_name, env.get_shape(), env.get_action_space_size(), True, encoding, n_players)
+        self.net = self.init_model(net_name, env.get_shape(), env.get_action_space_size(), True, encoding, n_players, load_dir)
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -42,9 +42,12 @@ class DQNAgent(_Agent):
         self.model_name = self.get_model_name(model_name)
 
     @staticmethod
-    def init_model(net_name, env_shape, action_space_size, trainable, encoding, n_players):
-        net_class = getattr(sys.modules[__name__], net_name)
-        return net_class(action_space_size, env_shape, trainable, encoding, n_players)
+    def init_model(net_name, env_shape, action_space_size, trainable, encoding, n_players, load_dir):
+        if not load_dir:
+            net_class = getattr(sys.modules[__name__], net_name)
+            return net_class(action_space_size, env_shape, trainable, encoding, n_players)
+        else:
+            return load_net(load_dir)
 
     def init_replays(self, env):
         replays = []
@@ -154,12 +157,16 @@ class DQNAgent(_Agent):
             total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
         print("Training done!")
-
+        date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
+        os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
+        self.net.save(os.path.join(self.save_dir, "trained_model_%s" % date))
+        self.save_training_figures(total_rewards_per_episode, date)
+        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
+                                                                                 "trained_model_%s/" % date))))
         self.save_model(total_rewards_per_episode)
 
     def save_model(self, total_rewards_per_episode):
         os.mkdir(os.path.join(self.save_dir, self.model_name))
-        self.net.model.save(os.path.join(self.save_dir, self.model_name, 'trained_model.h5'))
         self.save_training_figures(total_rewards_per_episode)
         print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir, self.model_name))))
 
