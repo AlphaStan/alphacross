@@ -2,6 +2,7 @@ import inspect
 import numpy as np
 import pytest
 import tensorflow as tf
+import os
 
 from ..main.models import nets
 
@@ -106,3 +107,18 @@ def test_loaded_model_predict_method_should_return_the_same_output_given_the_sam
     # Then
     np.testing.assert_array_almost_equal(first_pass_output, expected_probabilities, decimal=3)
     np.testing.assert_array_almost_equal(second_pass_output, expected_probabilities, decimal=3)
+
+
+def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
+    # Given
+    n_actions = 7
+    input_shape = (7, 6)
+    trainable = True
+    encoding = '3d'
+    n_players = 2
+    net = nets.CFConv2(n_actions, input_shape, trainable, encoding, n_players)
+    # When
+    net.save(tmpdir)
+    # Then
+    assert os.path.exists(os.path.join(tmpdir, 'attributes.json'))
+    assert os.path.exists(os.path.join(tmpdir, 'model.h5'))

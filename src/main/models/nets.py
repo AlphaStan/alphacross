@@ -3,6 +3,8 @@ from tensorflow.python.keras.layers import Flatten, Dense, Conv2D, Dropout, Batc
 from abc import ABC, abstractmethod
 import numpy as np
 import warnings
+import json
+import os
 
 
 def dqn_mask_loss(batch_data, y_pred):
@@ -53,10 +55,17 @@ class _Net(ABC):
         if encoding == '3d' and len(x.shape) != 4:
             processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], n_players))
             for player_id in [1, 2]:
-                processed_input[:, :, :, player_id-1][np.nonzero(x==player_id)] = 1
+                processed_input[:, :, :, player_id-1][np.nonzero(x == player_id)] = 1
             return processed_input
         else:
             return x
+
+    def save(self, save_dir):
+        self.model.save(os.path.join(save_dir, 'model.h5'))
+        with open(os.path.join(save_dir, "attributes.json"), 'w') as data:
+            attributes = self.__dict__
+            attributes.pop('model')
+            json.dump(attributes, data)
 
 
 class CFDense(_Net):
