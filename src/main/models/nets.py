@@ -137,7 +137,7 @@ class CFConv2(_Net):
         return model
 
 
-def load_model(load_dir):
+def load_net(load_dir):
     with open(os.path.join(load_dir, 'attributes.json')) as data:
         net_attributes = json.load(data)
     net_class = getattr(sys.modules[__name__], net_attributes['net_name'])

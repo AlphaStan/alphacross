@@ -138,6 +138,6 @@ def test_load_model_should_return_an_instance_of_net():
     # Given
     load_dir = 'src/test/resources'
     # When
-    loaded_model = nets.load_model(load_dir)
+    loaded_model = nets.load_net(load_dir)
     # Then
     assert isinstance(loaded_model, nets.CFConv2)
