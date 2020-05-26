@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 import tensorflow as tf
 import os
+import json
 
 from ..main.models import nets
 
@@ -112,13 +113,31 @@ def test_loaded_model_predict_method_should_return_the_same_output_given_the_sam
 def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
     # Given
     n_actions = 7
-    input_shape = (7, 6)
+    input_shape = [7, 6, 2]
     trainable = True
     encoding = '3d'
     n_players = 2
+    net_name = 'CFConv2'
     net = nets.CFConv2(n_actions, input_shape, trainable, encoding, n_players)
+    expected_attributes = {'n_actions': n_actions,
+                           'input_shape': input_shape,
+                           'trainable': trainable,
+                           'encoding': encoding,
+                           'n_players': n_players,
+                           'net_name': net_name}
     # When
     net.save(tmpdir)
+    with open(os.path.join(tmpdir, 'attributes.json')) as data:
+        actual_attributes = json.load(data)
     # Then
-    assert os.path.exists(os.path.join(tmpdir, 'attributes.json'))
     assert os.path.exists(os.path.join(tmpdir, 'model.h5'))
+    assert actual_attributes == expected_attributes
+
+
+def test_load_model_should_return_an_instance_of_net():
+    # Given
+    load_dir = 'src/test/resources'
+    # When
+    loaded_model = nets.load_model(load_dir)
+    # Then
+    assert isinstance(loaded_model, nets.CFConv2)

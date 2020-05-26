@@ -1,0 +1,1 @@
+{"n_actions": 7, "trainable": true, "encoding": "3d", "n_players": 2, "input_shape": [7, 6, 2], "net_name": "CFConv2"}

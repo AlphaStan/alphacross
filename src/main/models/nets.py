@@ -5,6 +5,7 @@ import numpy as np
 import warnings
 import json
 import os
+import sys
 
 
 def dqn_mask_loss(batch_data, y_pred):
@@ -63,8 +64,8 @@ class _Net(ABC):
     def save(self, save_dir):
         self.model.save(os.path.join(save_dir, 'model.h5'))
         with open(os.path.join(save_dir, "attributes.json"), 'w') as data:
-            attributes = self.__dict__
-            attributes.pop('model')
+            attributes = {key: self.__dict__[key] for key in self.__dict__ if key != 'model'}
+            attributes['net_name'] = self.__class__.__name__
             json.dump(attributes, data)
 
 
@@ -134,3 +135,17 @@ class CFConv2(_Net):
         model.add(Dense(self.n_actions, activation='softmax', trainable=self.trainable))
         model.compile(loss=dqn_mask_loss, optimizer='RMSprop', metrics=['accuracy'])
         return model
+
+
+def load_model(load_dir):
+    with open(os.path.join(load_dir, 'attributes.json')) as data:
+        net_attributes = json.load(data)
+    net_class = getattr(sys.modules[__name__], net_attributes['net_name'])
+    net_instance = net_class(net_attributes['n_actions'],
+                             net_attributes['input_shape'],
+                             net_attributes['trainable'],
+                             net_attributes['encoding'],
+                             net_attributes['n_players'])
+    net_instance.model = tf.keras.models.load_model(os.path.join(load_dir, 'model.h5'),
+                                                    custom_objects={'dqn_mask_loss': dqn_mask_loss})
+    return net_instance
