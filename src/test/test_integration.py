@@ -1,7 +1,6 @@
 import os
 import traceback
 import tempfile
-import pathlib
 
 from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
@@ -47,7 +46,6 @@ def test_can_run_train_model():
         options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
                   "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmp_dir, model_name)
         result = runner.invoke(train_agent, options)
-        traceback.print_exception(*result.exc_info)
 
     # Then
     assert result.exit_code == 0
