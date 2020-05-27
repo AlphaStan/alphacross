@@ -108,7 +108,6 @@ class DQNAgent(_Agent):
             while not game_is_finished:
                 prior_state = env.get_state()
                 player_id = env.current_token_id
-                actions = self.model.predict(np.expand_dims(prior_state, axis=0)).ravel()
                 actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0),
                                                                         self.net.encoding,
                                                                         self.net.n_players)).ravel()

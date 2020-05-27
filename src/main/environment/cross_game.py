@@ -109,8 +109,6 @@ class CrossGame(_Environment):
 
     def play_game_against_agent(self, agent):
         number_of_rounds = 0
-        agent = DQNAgent(self)
-        agent.model = self.choose_model(choose_model)
 
         if agent.model is None:
             return
