@@ -1,12 +1,12 @@
 import click
 
-from main.environment.cross_game import CrossGame
-from main.models.dqn_agent import DQNAgent
-from main.utils import choose_model
+from src.main.environment.cross_game import CrossGame
+from src.main.models.dqn_agent import DQNAgent
+from src.main.utils import choose_model
 
 
 @click.command()
-@click.option('--path-to-models', type=click.Path(exists=True), default='../models', help='Path to trained models')
+@click.option('--path-to-models', type=click.Path(exists=True), default='./models', help='Path to trained models')
 @click.option('--choose', type=bool, default=False, help='If True, choose the model in terminal')
 def play_against_agent(path_to_models, choose):
     game = CrossGame()
