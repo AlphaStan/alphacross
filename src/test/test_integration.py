@@ -41,7 +41,6 @@ def test_can_run_train_model(tmpdir):
     batch_size = "1"
     num_replays = "1"
     model_name = "model"
-
     # When
     options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
               "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmpdir, model_name)

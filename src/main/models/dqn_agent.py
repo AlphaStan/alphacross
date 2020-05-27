@@ -157,16 +157,11 @@ class DQNAgent(_Agent):
             total_rewards_per_episode[episode] = episode_reward
             episode_reward = 0
         print("Training done!")
-        date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
-        os.mkdir(os.path.join(self.save_dir, "trained_model_%s" % date))
-        self.net.save(os.path.join(self.save_dir, "trained_model_%s" % date))
-        self.save_training_figures(total_rewards_per_episode, date)
-        print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir,
-                                                                                 "trained_model_%s/" % date))))
-        self.save_model(total_rewards_per_episode)
+        self.save_training(total_rewards_per_episode)
 
-    def save_model(self, total_rewards_per_episode):
-        os.mkdir(os.path.join(self.save_dir, self.model_name))
+    def save_training(self, total_rewards_per_episode):
+        os.makedirs(os.path.join(self.save_dir, self.model_name, 'net'), exist_ok=True)
+        self.net.save(os.path.join(self.save_dir, self.model_name, 'net'))
         self.save_training_figures(total_rewards_per_episode)
         print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir, self.model_name))))
 
@@ -304,8 +299,9 @@ class DQNAgent(_Agent):
         plt.xlabel("Episodes")
         plt.xticks(range(1, len(rewards)))
         plt.xlim(0, len(rewards)-1)
-        plt.savefig(os.path.join(self.save_dir, self.model_name, "rewards_per_episode.%s" % extension))
-        with open(os.path.join(self.save_dir, self.model_name, "rewards_per_episode.txt"), "a") as f:
+        os.makedirs(os.path.join(self.save_dir, self.model_name, 'figures'))
+        plt.savefig(os.path.join(self.save_dir, self.model_name, 'figures', "rewards_per_episode.%s" % extension))
+        with open(os.path.join(self.save_dir, self.model_name, 'figures', "rewards_per_episode.txt"), "a") as f:
             for episode_reward in rewards:
                 f.write(str(episode_reward))
 
