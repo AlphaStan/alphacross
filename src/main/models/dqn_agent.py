@@ -1,21 +1,14 @@
-import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras.layers import Flatten
-from tensorflow.python.keras.models import load_model
 import datetime
-import warnings
-import os
-import matplotlib.pyplot as plt
 import logging
+import os
 import sys
-import copy
+import matplotlib.pyplot as plt
+from tensorflow.python.keras.models import load_model
 
 from .agent import _Agent
-from .loss import dqn_mask_loss
 from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from .nets import *
-from ..utils import deprecated
 
 
 #TODO: test class for that
@@ -318,12 +311,6 @@ class DQNAgent(_Agent):
         # Toggle ids if necessary so it always looks the current player id is 2
         processed_batch = np.array([r.toggle_ids() if r._current_player_id == 1 else r for r in batch])
         return processed_batch
-
-    @deprecated
-    def get_mini_batch_targets(self, mini_batch):
-        return np.array([replay._reward if replay._reward == 1
-                         else self.discount * np.max(self.net.model.predict(np.expand_dims(replay._post_state, axis=0)))
-                         for replay in mini_batch])
 
     def epsilon_greedy_predict_action(self, actions):
         if np.random.random_sample() < self.epsilon:

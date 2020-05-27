@@ -1,12 +1,15 @@
 import os
+import numpy as np
 
 from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
 from src.play_against_agent import play_against_agent
 from click.testing import CliRunner
 
+
 def test_can_run_play_against_agent():
     # Given
+    np.random.seed(42)
     runner = CliRunner()
     input = "6\n6\n6\n6\n"
     path_to_models = os.path.join("ressources", "test_can_run_play_against_agent")
