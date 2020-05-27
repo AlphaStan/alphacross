@@ -11,8 +11,8 @@ def test_can_run_play_against_agent():
     # Given
     runner = CliRunner()
     input = "6\n6\n6\n6\n"
-    path_to_models = os.path.join("ressources/", "test_can_run_play_against_agent")
-    options = "--path-to-models {}".format(path_to_models)
+    path_to_models = os.path.join("ressources", "test_can_run_play_against_agent")
+    options = "--path-to-models \"{}\"".format(path_to_models)
     # When
     result = runner.invoke(play_against_agent, options, input)
     # Then
