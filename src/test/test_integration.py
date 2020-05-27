@@ -1,5 +1,7 @@
 import os
 import traceback
+import tempfile
+import pathlib
 
 from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
@@ -10,7 +12,7 @@ def test_can_run_play_against_agent():
     # Given
     runner = CliRunner()
     input = "6\n6\n6\n6\n"
-    path_to_models = "ressources/test_can_run_play_against_agent/"
+    path_to_models = os.path.join("ressources/", "test_can_run_play_against_agent")
     options = "--path-to-models {}".format(path_to_models)
     # When
     result = runner.invoke(play_against_agent, options, input)
@@ -38,16 +40,14 @@ def test_can_run_train_model():
     num_episodes = "1"
     batch_size = "1"
     num_replays = "1"
-    save_dir = "ressources"
-    model_name = "test_can_run_train_model"
-    options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir {} " \
-              "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, save_dir, model_name)
+    model_name = "model"
+
     # When
-    path = save_dir + "/" + model_name
-    if os.path.exists(path):
-        for file in os.listdir(path):
-            os.remove(path + "/" + file)
-        os.rmdir(path)
-    result = runner.invoke(train_agent, options)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
+                  "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmp_dir, model_name)
+        result = runner.invoke(train_agent, options)
+        traceback.print_exception(*result.exc_info)
+
     # Then
     assert result.exit_code == 0
