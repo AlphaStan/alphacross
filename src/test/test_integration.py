@@ -31,7 +31,7 @@ def test_can_run_play_against_human(monkeypatch, capsys):
     assert captured.err == ""
 
 
-def test_can_run_train_model():
+def test_can_run_train_model(tmpdir):
     # Given
     runner = CliRunner()
     epsilon = "0.05"
@@ -42,10 +42,9 @@ def test_can_run_train_model():
     model_name = "model"
 
     # When
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
-                  "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmp_dir, model_name)
-        result = runner.invoke(train_agent, options)
+    options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
+              "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmpdir, model_name)
+    result = runner.invoke(train_agent, options)
 
     # Then
     assert result.exit_code == 0
