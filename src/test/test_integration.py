@@ -1,6 +1,4 @@
 import os
-import traceback
-import tempfile
 
 from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
