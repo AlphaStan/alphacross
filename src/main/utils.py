@@ -1,5 +1,6 @@
 import os
 from tensorflow.keras.models import load_model
+import warnings
 
 from .models.dqn_agent import dqn_mask_loss
 
@@ -32,3 +33,10 @@ def choose_model(path_to_models, choose=False):
     else:
         model = sorted_models[0]
         return load_model(os.path.join(path_to_models, model), custom_objects={'dqn_mask_loss': dqn_mask_loss})
+
+
+def deprecated(func):
+    def func_wrapper(*args):
+        warnings.warn("'{}' is deprecated and should not be used as is".format(func.__name__))
+        func(*args)
+    return func_wrapper

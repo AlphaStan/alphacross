@@ -1,8 +1,12 @@
 import itertools
-import numpy as np
+import os
 
-from ..environment.errors import ColumnIsFullError, OutOfGridError
+import numpy as np
+from tensorflow.keras.models import load_model
+
 from ._environment import _Environment
+from ..environment.errors import ColumnIsFullError, OutOfGridError
+from ..models.dqn_agent import DQNAgent, dqn_mask_loss
 
 
 class CrossGame(_Environment):
@@ -279,3 +283,6 @@ class CrossGame(_Environment):
 
     def is_blocked(self):
         return 0 not in self.get_state()
+
+    def get_current_player_id(self):
+        return self.current_token_id

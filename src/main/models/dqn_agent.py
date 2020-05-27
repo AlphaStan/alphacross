@@ -1,12 +1,12 @@
-from tensorflow.python.keras.models import load_model
 import datetime
-import os
-import matplotlib.pyplot as plt
 import logging
+import os
 import sys
-import copy
+import matplotlib.pyplot as plt
+from tensorflow.python.keras.models import load_model
 
 from .agent import _Agent
+from .replay import Replay
 from ..environment.errors import ColumnIsFullError
 from .nets import *
 
@@ -59,12 +59,13 @@ class DQNAgent(_Agent):
         game_is_finished = False
         while not game_is_finished:
             prior_state = env.get_state()
+            current_player_id = env.get_current_player_id()
             action = np.random.choice(self.action_space_size)
             try:
                 reward, new_state = env.apply_action(action)
             except ColumnIsFullError:
                 continue
-            replay = Replay(prior_state, action, reward, new_state)
+            replay = Replay(prior_state, action, reward, new_state, current_player_id)
             replays.append(replay)
             game_is_finished = env.is_terminal_state(env.get_state())
             if env.is_blocked():
@@ -99,6 +100,7 @@ class DQNAgent(_Agent):
             game_is_finished = False
             while not game_is_finished:
                 prior_state = env.get_state()
+                player_id = env.current_token_id
                 actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0),
                                                                         self.net.encoding,
                                                                         self.net.n_players)).ravel()
@@ -106,7 +108,7 @@ class DQNAgent(_Agent):
                 try:
                     reward, new_state = env.apply_action(action)
                     episode_reward += reward
-                    replay = Replay(prior_state, action, reward, new_state)
+                    replay = Replay(prior_state, action, reward, new_state, player_id)
                     self.save_replay(replay)
 
                     batch = self.sample_batch()
@@ -173,7 +175,7 @@ class DQNAgent(_Agent):
             model_made_one_move = False
             current_state = env.get_state()
             model_has_won = False
-            state_is_terminal = False
+            is_terminal = False
             while not model_made_one_move:
                 model_actions = model(np.expand_dims(current_state, axis=0)).ravel()
                 model_action = self.epsilon_greedy_predict_action(model_actions)
@@ -181,11 +183,11 @@ class DQNAgent(_Agent):
                     _, _ = env.apply_action(model_action)
                     model_has_won = env.is_terminal_state(env.get_state())
                     if env.is_blocked():
-                        state_is_terminal = True
+                        is_terminal = True
                 except ColumnIsFullError:
                     continue
                 model_made_one_move = True
-            return env, model_has_won, state_is_terminal
+            return env, model_has_won, is_terminal
 
         # The model plays against itself
         game_is_finished = False
@@ -300,29 +302,15 @@ class DQNAgent(_Agent):
             for episode_reward in rewards:
                 f.write(str(episode_reward))
 
-    def get_legal_action(self, state, get_action_prob, env):
-        action_probabilities = get_action_prob(state)
-        legal_actions = [env.is_legal_action(state, action) for action in range(action_probabilities)]
-        legal_action_prob = [prob if legal_action else 0
-                             for prob, legal_action in zip(action_probabilities, legal_actions)]
-
-        if sum(legal_action_prob) == 0:
-            return legal_action_prob
-        return legal_action_prob / sum(legal_action_prob)
-
     def save_replay(self, replay):
         self.replays.pop(0)
         self.replays.append(replay)
 
     def sample_batch(self):
-        return np.random.choice(self.replays, self.batch_size, replace=False)
-
-    # DEPRECATED
-    def get_mini_batch_targets(self, mini_batch):
-        warnings.warn("'get_mini_batch_target' is deprecated and should not be used as is")
-        return np.array([replay._reward if replay._reward == 1
-                         else self.discount * np.max(self.net.model.predict(np.expand_dims(replay._post_state, axis=0)))
-                         for replay in mini_batch])
+        batch = np.random.choice(self.replays, self.batch_size, replace=False)
+        # Toggle ids if necessary so it always looks the current player id is 2
+        processed_batch = np.array([r.toggle_ids() if r._current_player_id == 1 else r for r in batch])
+        return processed_batch
 
     def epsilon_greedy_predict_action(self, actions):
         if np.random.random_sample() < self.epsilon:
@@ -339,11 +327,3 @@ class DQNAgent(_Agent):
             date = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
             return "trained_model_" + date
         return model_name
-
-
-class Replay:
-    def __init__(self, prior_state, action, reward, post_state):
-        self._prior_state = prior_state
-        self._action = action
-        self._reward = reward
-        self._post_state = post_state

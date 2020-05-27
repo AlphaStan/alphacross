@@ -67,8 +67,7 @@ You can activate/deactivate the AI by clicking on the button next to reset.
 ### This looks great ! how can I contribute ?
 
 We appreciate your enthusiasm ! This is a work in progress and the project is far from being ready for that. It is still under active 
-development and things might change very much and very fast. However if you have questions we would be happy to hear from you. We do not yet have an 
-adress for you to contact us but it will come soon so check this repo for updates !  
+development and things might change very much and very fast. However if you have questions we would be happy to hear from you at [this adress](mailto:alphastan.alphacross@gmail.com?subject=[AlphaCross])
 
 Thanks for reading this far, here's a :cookie:  
 
