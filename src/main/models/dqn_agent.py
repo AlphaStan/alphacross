@@ -30,7 +30,13 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.net = self.init_model(net_name, env.get_shape(), env.get_action_space_size(), True, encoding, n_players, load_dir)
+        self.net = self.init_net(net_name,
+                                 env.get_shape(),
+                                 env.get_action_space_size(),
+                                 True,
+                                 encoding,
+                                 n_players,
+                                 load_dir)
         self.epsilon = epsilon
         self.discount = discount
         self.num_episodes = num_episodes
@@ -42,7 +48,7 @@ class DQNAgent(_Agent):
         self.model_name = self.get_model_name(model_name)
 
     @staticmethod
-    def init_model(net_name, env_shape, action_space_size, trainable, encoding, n_players, load_dir):
+    def init_net(net_name, env_shape, action_space_size, trainable, encoding, n_players, load_dir):
         if not load_dir:
             net_class = getattr(sys.modules[__name__], net_name)
             return net_class(action_space_size, env_shape, trainable, encoding, n_players)
