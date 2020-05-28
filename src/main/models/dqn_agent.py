@@ -178,7 +178,7 @@ class DQNAgent(_Agent):
         self.save_training_figures(total_rewards_per_episode)
         print("Training outputs saved in {}".format(os.path.abspath(os.path.join(self.save_dir, self.model_name))))
 
-    def save_training_figures(self, rewards, date, figsize=(15, 8), extension="pdf"):
+    def save_training_figures(self, rewards, figsize=(15, 8), extension="pdf"):
         plt.figure(figsize=figsize)
         plt.plot(rewards, color='r')
         plt.grid()
