@@ -1,23 +1,22 @@
-from tensorflow.keras.models import load_model
 import pytest
 import numpy as np
+import os
 
 from ..main.evaluation.random_evaluation import RandomAgentEvaluator
 from ..main.environment.cross_game import CrossGame
-from ..main.models.dqn_agent import dqn_mask_loss, DQNAgent
+from ..main.models.dqn_agent import DQNAgent
+from src.main.models.nets import load_net
 
 
 @pytest.fixture(scope="module", autouse=True)
 def evaluation_result():
     environment = CrossGame()
-    model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
     agent = DQNAgent(environment)
-    agent.net.model = model
-    agent.net.encoding = '2d'
+    agent.net = load_net(os.path.join('resources', 'shared'))
     num_episodes = 3
     epsilon = 0.05
     evaluator = RandomAgentEvaluator(num_episodes, epsilon, agent, environment)
-    evaluator.evaluate(42)
+    evaluator.evaluate(0)
     return evaluator
 
 
