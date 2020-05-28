@@ -121,7 +121,7 @@ def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
 
 def test_load_net_should_return_an_instance_of_net():
     # Given
-    load_dir = os.path.join('resources', 'test_nets')
+    load_dir = os.path.join('resources', 'shared')
     with open(os.path.join(load_dir, 'attributes.json')) as data:
         expected_attributes = json.load(data)
     expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}
