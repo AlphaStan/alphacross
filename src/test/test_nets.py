@@ -95,21 +95,6 @@ def test_nets_model_predict_method_should_return_the_same_output_given_the_same_
     np.testing.assert_array_equal(first_pass_output, second_pass_output)
 
 
-def test_loaded_model_predict_method_should_return_the_same_output_given_the_same_input():
-    # Given
-    np.random.seed(42)
-    model = tf.keras.models.load_model('./src/test/resources/model.h5',
-                                       custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
-    board = np.ones((1, 7, 6, 2))
-    expected_probabilities = np.array([[1.456e-1, 2.251e-1, 1.079e-1, 1.052e-1, 1.345e-1, 9.504e-2, 1.866e-1]])
-    # When)
-    first_pass_output = model.predict(board)
-    second_pass_output = model.predict(board)
-    # Then
-    np.testing.assert_array_almost_equal(first_pass_output, expected_probabilities, decimal=3)
-    np.testing.assert_array_almost_equal(second_pass_output, expected_probabilities, decimal=3)
-
-
 def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
     # Given
     n_actions = 7
@@ -134,9 +119,9 @@ def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
     assert actual_attributes == expected_attributes
 
 
-def test_load_model_should_return_an_instance_of_net():
+def test_load_net_should_return_an_instance_of_net():
     # Given
-    load_dir = 'src/test/resources'
+    load_dir = './ressources/test_nets'
     with open(os.path.join(load_dir, 'attributes.json')) as data:
         expected_attributes = json.load(data)
     expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}
@@ -146,7 +131,7 @@ def test_load_model_should_return_an_instance_of_net():
     # When
     loaded_net = nets.load_net(load_dir)
     actual_loaded_attributes = {key: loaded_net.__dict__[key] for key in loaded_net.__dict__
-                         if key not in ['model', 'net_name']}
+                                if key not in ['model', 'net_name']}
     actual_model = loaded_net.model
     # Then
     assert isinstance(loaded_net, expected_net_class)

@@ -1,0 +1,76 @@
+[1mdiff --git a/src/main/models/dqn_agent.py b/src/main/models/dqn_agent.py[m
+[1mindex 8a7243a..b2fe619 100644[m
+[1m--- a/src/main/models/dqn_agent.py[m
+[1m+++ b/src/main/models/dqn_agent.py[m
+[36m@@ -30,7 +30,7 @@[m [mclass DQNAgent(_Agent):[m
+                  ):[m
+         super().__init__()[m
+         self.action_space_size = env.get_action_space_size()[m
+[31m-        self.net = self.init_net(net_name,[m
+[32m+[m[32m        self._net = self.init_net(net_name,[m
+                                  env.get_shape(),[m
+                                  env.get_action_space_size(),[m
+                                  True,[m
+[36m@@ -47,6 +47,15 @@[m [mclass DQNAgent(_Agent):[m
+         self.save_dir = save_dir[m
+         self.model_name = self.get_model_name(model_name)[m
+ [m
+[32m+[m[32m    @property[m
+[32m+[m[32m    def net(self):[m
+[32m+[m[32m        return self._net[m
+[32m+[m
+[32m+[m[32m    @net.setter[m
+[32m+[m[32m    def net(self, load_dir):[m
+[32m+[m[32m        self._net = load_net(load_dir)[m
+[32m+[m
+[32m+[m
+     @staticmethod[m
+     def init_net(net_name, env_shape, action_space_size, trainable, encoding, n_players, load_dir):[m
+         if not load_dir:[m
+[1mdiff --git a/src/test/test_nets.py b/src/test/test_nets.py[m
+[1mindex edb122e..1e654d1 100644[m
+[1m--- a/src/test/test_nets.py[m
+[1m+++ b/src/test/test_nets.py[m
+[36m@@ -95,21 +95,6 @@[m [mdef test_nets_model_predict_method_should_return_the_same_output_given_the_same_[m
+     np.testing.assert_array_equal(first_pass_output, second_pass_output)[m
+ [m
+ [m
+[31m-def test_loaded_model_predict_method_should_return_the_same_output_given_the_same_input():[m
+[31m-    # Given[m
+[31m-    np.random.seed(42)[m
+[31m-    model = tf.keras.models.load_model('./src/test/resources/model.h5',[m
+[31m-                                       custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})[m
+[31m-    board = np.ones((1, 7, 6, 2))[m
+[31m-    expected_probabilities = np.array([[1.456e-1, 2.251e-1, 1.079e-1, 1.052e-1, 1.345e-1, 9.504e-2, 1.866e-1]])[m
+[31m-    # When)[m
+[31m-    first_pass_output = model.predict(board)[m
+[31m-    second_pass_output = model.predict(board)[m
+[31m-    # Then[m
+[31m-    np.testing.assert_array_almost_equal(first_pass_output, expected_probabilities, decimal=3)[m
+[31m-    np.testing.assert_array_almost_equal(second_pass_output, expected_probabilities, decimal=3)[m
+[31m-[m
+[31m-[m
+ def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):[m
+     # Given[m
+     n_actions = 7[m
+[36m@@ -134,9 +119,9 @@[m [mdef test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):[m
+     assert actual_attributes == expected_attributes[m
+ [m
+ [m
+[31m-def test_load_model_should_return_an_instance_of_net():[m
+[32m+[m[32mdef test_load_net_should_return_an_instance_of_net():[m
+     # Given[m
+[31m-    load_dir = 'src/test/resources'[m
+[32m+[m[32m    load_dir = './ressources/test_nets'[m
+     with open(os.path.join(load_dir, 'attributes.json')) as data:[m
+         expected_attributes = json.load(data)[m
+     expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}[m
+[36m@@ -146,7 +131,7 @@[m [mdef test_load_model_should_return_an_instance_of_net():[m
+     # When[m
+     loaded_net = nets.load_net(load_dir)[m
+     actual_loaded_attributes = {key: loaded_net.__dict__[key] for key in loaded_net.__dict__[m
+[31m-                         if key not in ['model', 'net_name']}[m
+[32m+[m[32m                                if key not in ['model', 'net_name']}[m
+     actual_model = loaded_net.model[m
+     # Then[m
+     assert isinstance(loaded_net, expected_net_class)[m

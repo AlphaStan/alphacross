@@ -30,7 +30,7 @@ class DQNAgent(_Agent):
                  ):
         super().__init__()
         self.action_space_size = env.get_action_space_size()
-        self.net = self.init_net(net_name,
+        self._net = self.init_net(net_name,
                                  env.get_shape(),
                                  env.get_action_space_size(),
                                  True,
@@ -46,6 +46,15 @@ class DQNAgent(_Agent):
         self.target_model_update_freq = target_model_update_freq
         self.save_dir = save_dir
         self.model_name = self.get_model_name(model_name)
+
+    @property
+    def net(self):
+        return self._net
+
+    @net.setter
+    def net(self, load_dir):
+        self._net = load_net(load_dir)
+
 
     @staticmethod
     def init_net(net_name, env_shape, action_space_size, trainable, encoding, n_players, load_dir):
