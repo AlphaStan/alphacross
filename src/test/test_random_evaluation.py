@@ -12,7 +12,8 @@ def evaluation_result():
     environment = CrossGame()
     model = load_model('./models/trained_model_15122019_234912.h5', custom_objects={'dqn_mask_loss': dqn_mask_loss})
     agent = DQNAgent(environment)
-    agent.model = model
+    agent.net.model = model
+    agent.net.encoding = '2d'
     num_episodes = 3
     epsilon = 0.05
     evaluator = RandomAgentEvaluator(num_episodes, epsilon, agent, environment)

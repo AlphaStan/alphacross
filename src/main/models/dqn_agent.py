@@ -7,7 +7,6 @@ from .nets import *
 from ..environment.errors import ColumnIsFullError
 
 
-#TODO: test class for that
 class DQNAgent(_Agent):
 
     def __init__(self,
