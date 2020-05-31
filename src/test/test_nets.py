@@ -6,6 +6,14 @@ import os
 import json
 
 from ..main.models import nets
+from src.main.models.loss import dqn_mask_loss
+
+
+@pytest.fixture(scope="module", autouse=True)
+def loaded_net():
+    load_dir = os.path.join('resources', 'test_nets')
+    loaded_net = nets.load_net(load_dir)
+    return loaded_net
 
 
 @pytest.mark.parametrize("input_shape,encoding,n_players,expected_input_shape",
@@ -118,7 +126,7 @@ def test_save_method_should_save_the_net_attributes_and_the_keras_model(tmpdir):
     assert os.path.exists(os.path.join(tmpdir, 'model.h5'))
     assert actual_attributes == expected_attributes
 
-
+@pytest.mark.skip
 def test_load_net_should_return_an_instance_of_net():
     # Given
     load_dir = os.path.join('resources', 'test_nets')
@@ -127,7 +135,7 @@ def test_load_net_should_return_an_instance_of_net():
     expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}
     expected_net_class = getattr(inspect.getmodule(nets), expected_attributes['net_name'])
     expected_model = tf.keras.models.load_model(os.path.join(load_dir, 'model.h5'),
-                                                custom_objects={'dqn_mask_loss': nets.dqn_mask_loss})
+                                                custom_objects={'dqn_mask_loss': dqn_mask_loss})
     # When
     loaded_net = nets.load_net(load_dir)
     actual_loaded_attributes = {key: loaded_net.__dict__[key] for key in loaded_net.__dict__
@@ -136,5 +144,41 @@ def test_load_net_should_return_an_instance_of_net():
     # Then
     assert isinstance(loaded_net, expected_net_class)
     assert actual_loaded_attributes == expected_loaded_attributes
+    for actual_weights, expected_weights in zip(actual_model.get_weights(), expected_model.get_weights()):
+        np.testing.assert_array_equal(actual_weights, expected_weights)
+
+
+def test_load_net_should_return_an_instance_of_net(loaded_net):
+    # Given
+    load_dir = os.path.join('resources', 'test_nets')
+    with open(os.path.join(load_dir, 'attributes.json')) as data:
+        expected_attributes = json.load(data)
+    expected_net_class = getattr(inspect.getmodule(nets), expected_attributes['net_name'])
+    # Then
+    assert isinstance(loaded_net, expected_net_class)
+
+
+def test_load_net_should_load_the_expected_json_attributes(loaded_net):
+    # Given
+    load_dir = os.path.join('resources', 'test_nets')
+    with open(os.path.join(load_dir, 'attributes.json')) as data:
+        expected_attributes = json.load(data)
+    expected_loaded_attributes = {key: expected_attributes[key] for key in expected_attributes if key != 'net_name'}
+    # When
+    actual_loaded_attributes = {key: loaded_net.__dict__[key] for key in loaded_net.__dict__
+                                if key not in ['model', 'net_name']}
+    # Then
+    assert actual_loaded_attributes == expected_loaded_attributes
+
+
+def test_load_net_should_load_the_model_with_expected_weights(loaded_net):
+    # Given
+    load_dir = os.path.join('resources', 'test_nets')
+    expected_model = tf.keras.models.load_model(os.path.join(load_dir, 'model.h5'),
+                                                custom_objects={'dqn_mask_loss': dqn_mask_loss})
+
+    # When
+    actual_model = loaded_net.model
+    # Then
     for actual_weights, expected_weights in zip(actual_model.get_weights(), expected_model.get_weights()):
         np.testing.assert_array_equal(actual_weights, expected_weights)
