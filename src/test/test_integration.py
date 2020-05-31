@@ -45,6 +45,5 @@ def test_can_run_train_model(tmpdir):
     options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
               "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmpdir, model_name)
     result = runner.invoke(train_agent, options)
-
     # Then
     assert result.exit_code == 0
