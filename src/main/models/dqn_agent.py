@@ -101,6 +101,9 @@ class DQNAgent(_Agent):
             while not game_is_finished:
                 prior_state = env.get_state()
                 player_id = env.current_token_id
+                if player_id != 2:
+                    # the network is trained to be player 2 so we need to flip the board so it's always player 2 turn
+                    prior_state = Replay.toggle_state(prior_state)
                 actions = self.net.model.predict(self.net.process_input(np.expand_dims(prior_state, axis=0),
                                                                         self.net.encoding,
                                                                         self.net.n_players)).ravel()
