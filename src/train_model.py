@@ -2,10 +2,11 @@ import click
 
 from src.main.environment.cross_game import CrossGame
 from src.main.models.dqn_agent import DQNAgent
+from src.main.utils import CommandWithConfig
 
 
-@click.command()
-@click.option('--epsilon', type=float, default=0.25, help='Parameter of epsilon greedy exploration')
+@click.command(cls=CommandWithConfig)
+@click.option('--epsilon', type=float, help='Parameter of epsilon greedy exploration')
 @click.option('--net-name', default='CFConv2',
               type=click.Choice(['CFDense', 'CFDense2', 'CFConv1', 'CFConv2'], case_sensitive=False))
 @click.option('--encoding', type=click.Choice(['2d', '3d'], case_sensitive=False),
@@ -17,7 +18,7 @@ from src.main.models.dqn_agent import DQNAgent
 @click.option('--num-replays', type=int, default=100, help='Number of generated transitions for training')
 @click.option('--save-dir', type=click.Path(exists=True), default='./models',
               help="Directory to save the model outputs")
-@click.option('--model-name', type=str, default="")
+@click.option('--model-name', type=str, default="foo")
 def train_agent(epsilon, net_name, encoding, n_players, discount, num_episodes, batch_size, num_replays, save_dir, model_name):
     environment = CrossGame()
     agent = DQNAgent(environment,  # environment object

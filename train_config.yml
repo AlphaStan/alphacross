@@ -1,0 +1,10 @@
+epsilon: 0.5
+net-name: CfConv2
+encoding: 3d
+n-players: 2
+discount: 0.5
+num-episodes: 10
+batch-size: 10
+num-replays: 10
+save-dir: temp
+model-name: whatevs

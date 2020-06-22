@@ -4,6 +4,7 @@ numpy==1.16.4
 matplotlib==3.1.2
 click==7.0
 flask==1.1.2
+pyaml==20.4.0
 # local package
 #-e .
 
