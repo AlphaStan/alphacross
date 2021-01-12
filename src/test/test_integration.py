@@ -5,10 +5,12 @@ from src.main.environment.cross_game import CrossGame
 from src.train_model import train_agent
 from src.play_against_agent import play_against_agent
 from click.testing import CliRunner
+import tensorflow as tf
 
 
 def test_can_run_play_against_agent():
     # Given
+    tf.random.set_seed(6)
     np.random.seed(42)
     runner = CliRunner()
     input = "6\n6\n6\n6\n"
