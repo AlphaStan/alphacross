@@ -3,16 +3,11 @@ from tensorflow.python.keras.layers import Flatten, Dense, Conv2D, Dropout, Batc
 from abc import ABC, abstractmethod
 import numpy as np
 import warnings
+import json
+import os
+import sys
 
-
-def dqn_mask_loss(batch_data, y_pred):
-    # The target is defined only for the action that was taken during the replay, hence the loss is computed based
-    # only on this action's output
-    batch_actions = tf.dtypes.cast(batch_data[:, 1], tf.int32)
-    batch_true_q_values = batch_data[:, 0]
-    mask = tf.one_hot(batch_actions, depth=y_pred.shape[1], dtype=tf.bool, on_value=True, off_value=False)
-    batch_predicted_q_values = tf.boolean_mask(y_pred, mask)
-    return tf.keras.losses.Huber()(batch_true_q_values, batch_predicted_q_values)
+from src.main.models.loss import dqn_mask_loss
 
 
 class _Net(ABC):
@@ -39,6 +34,10 @@ class _Net(ABC):
                 new_input_shape = input_shape[0], input_shape[1], n_players
                 warnings.warn("Adding third dimension from n_players, new input_shape={}".format(new_input_shape))
                 return new_input_shape
+            elif len(input_shape) == 3:
+                return input_shape
+            else:
+                raise ValueError("Encoding is '3d' but len(input_shape) != 2 | 3")
 
     @abstractmethod
     def init_model(self):
@@ -49,10 +48,17 @@ class _Net(ABC):
         if encoding == '3d' and len(x.shape) != 4:
             processed_input = np.zeros((x.shape[0], x.shape[1], x.shape[2], n_players))
             for player_id in [1, 2]:
-                processed_input[:, :, :, player_id-1][np.nonzero(x==player_id)] = 1
+                processed_input[:, :, :, player_id-1][np.nonzero(x == player_id)] = 1
             return processed_input
         else:
             return x
+
+    def save(self, save_dir):
+        self.model.save(os.path.join(save_dir, 'model.h5'))
+        with open(os.path.join(save_dir, "attributes.json"), 'w') as data:
+            attributes = {key: self.__dict__[key] for key in self.__dict__ if key != 'model'}
+            attributes['net_name'] = self.__class__.__name__
+            json.dump(attributes, data)
 
 
 class CFDense(_Net):
@@ -121,3 +127,17 @@ class CFConv2(_Net):
         model.add(Dense(self.n_actions, activation='softmax', trainable=self.trainable))
         model.compile(loss=dqn_mask_loss, optimizer='RMSprop', metrics=['accuracy'])
         return model
+
+
+def load_net(load_dir):
+    with open(os.path.join(load_dir, 'attributes.json')) as data:
+        net_attributes = json.load(data)
+    net_class = getattr(sys.modules[__name__], net_attributes['net_name'])
+    net_instance = net_class(net_attributes['n_actions'],
+                             net_attributes['input_shape'],
+                             net_attributes['trainable'],
+                             net_attributes['encoding'],
+                             net_attributes['n_players'])
+    net_instance.model = tf.keras.models.load_model(os.path.join(load_dir, 'model.h5'),
+                                                    custom_objects={'dqn_mask_loss': dqn_mask_loss})
+    return net_instance

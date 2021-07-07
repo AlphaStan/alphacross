@@ -14,7 +14,7 @@ def test_can_run_play_against_agent():
     np.random.seed(42)
     runner = CliRunner()
     input = "6\n6\n6\n6\n"
-    path_to_models = os.path.join("ressources", "test_can_run_play_against_agent")
+    path_to_models = os.path.join("resources", "test_can_run_play_against_agent")
     options = "--path-to-models \"{}\"".format(path_to_models)
     # When
     result = runner.invoke(play_against_agent, options, input)
@@ -43,7 +43,6 @@ def test_can_run_train_model(tmpdir):
     batch_size = "1"
     num_replays = "1"
     model_name = "model"
-
     # When
     options = "--epsilon {} --discount {} --num-episodes {} --batch-size {} --num-replays {} --save-dir \"{}\" " \
               "--model-name {}".format(epsilon, discount, num_episodes, batch_size, num_replays, tmpdir, model_name)
